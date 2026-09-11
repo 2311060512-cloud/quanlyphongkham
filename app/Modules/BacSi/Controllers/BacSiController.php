@@ -27,19 +27,19 @@ class BacSiController extends Controller
      */
     public function danhSach(Request $request): JsonResponse
     {
-        // Nếu truyền all=true hoặc không yêu cầu phân trang, trả về danh sách đầy đủ
-        if ($request->boolean('all')) {
-            $chuyenKhoaId = $request->query('chuyen_khoa_id') ? (int) $request->query('chuyen_khoa_id') : null;
-            $danhSach = $this->bacSiService->danhSachBacSi($chuyenKhoaId);
-            return $this->thanhCongResponse($danhSach, 'Danh sách bác sĩ');
-        }
-
-        $soMoiTrang = (int) $request->query('per_page', 10);
         $chuyenKhoaId = $request->query('chuyen_khoa_id') ? (int) $request->query('chuyen_khoa_id') : null;
         $tuKhoa = $request->query('tu_khoa');
         $trangThai = $request->query('trang_thai');
 
-        $danhSach = $this->bacSiService->danhSachBacSiPhanTrang($soMoiTrang, $chuyenKhoaId, $tuKhoa, $trangThai);
+        // Nếu có tham số phân trang
+        if ($request->has('page') || $request->has('per_page')) {
+            $soMoiTrang = (int) $request->query('per_page', 10);
+            $danhSach = $this->bacSiService->danhSachBacSiPhanTrang($soMoiTrang, $chuyenKhoaId, $tuKhoa, $trangThai);
+            return $this->thanhCongResponse($danhSach, 'Danh sách bác sĩ');
+        }
+
+        // Mặc định trả về danh sách đầy đủ (hỗ trợ lọc khoa, từ khóa)
+        $danhSach = $this->bacSiService->danhSachBacSi($chuyenKhoaId, $tuKhoa);
         return $this->thanhCongResponse($danhSach, 'Danh sách bác sĩ');
     }
 

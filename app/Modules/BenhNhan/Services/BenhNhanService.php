@@ -28,4 +28,18 @@ class BenhNhanService
     {
         return $this->benhNhanRepo->capNhat($id, $duLieu);
     }
+
+    public function layHoSoTheoTaiKhoanId(int $taiKhoanId)
+    {
+        return $this->benhNhanRepo->timTheoTaiKhoanId($taiKhoanId)?->load(['lichHen.bacSi.chuyenKhoa', 'lichHen.hoaDon']);
+    }
+
+    public function capNhatHoSoTheoTaiKhoanId(int $taiKhoanId, array $duLieu): bool
+    {
+        $benhNhan = $this->benhNhanRepo->timTheoTaiKhoanId($taiKhoanId);
+        if (!$benhNhan) {
+            return false;
+        }
+        return $this->benhNhanRepo->capNhat($benhNhan->id, $duLieu);
+    }
 }

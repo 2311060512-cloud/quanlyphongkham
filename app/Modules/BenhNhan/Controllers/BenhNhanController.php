@@ -43,4 +43,31 @@ class BenhNhanController extends Controller
         }
         return $this->thatBaiResponse('Không thể cập nhật thông tin', 400);
     }
+
+    public function hoSoCuaToi(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $hoSo = $this->benhNhanService->layHoSoTheoTaiKhoanId($user->id);
+        if (!$hoSo) {
+            return $this->thatBaiResponse('Chưa có hồ sơ bệnh nhân cho tài khoản này', 404);
+        }
+        return $this->thanhCongResponse($hoSo, 'Hồ sơ bệnh án điện tử của bạn');
+    }
+
+    public function capNhatHoSoCuaToi(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $duLieu = $request->only([
+            'ho_ten', 'so_dien_thoai', 'so_cccd', 'email', 'gioi_tinh',
+            'ngay_sinh', 'dia_chi', 'nhom_mau', 'tien_su_benh',
+            'tien_su_di_ung', 'nguoi_lien_he_khan_cap', 'sdt_khan_cap'
+        ]);
+
+        $capNhat = $this->benhNhanService->capNhatHoSoTheoTaiKhoanId($user->id, $duLieu);
+        if ($capNhat) {
+            $hoSo = $this->benhNhanService->layHoSoTheoTaiKhoanId($user->id);
+            return $this->thanhCongResponse($hoSo, 'Cập nhật hồ sơ bệnh án thành công');
+        }
+        return $this->thatBaiResponse('Không thể cập nhật hồ sơ bệnh nhân', 400);
+    }
 }

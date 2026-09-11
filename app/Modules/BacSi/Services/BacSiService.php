@@ -43,9 +43,9 @@ class BacSiService
     /**
      * Lấy danh sách toàn bộ bác sĩ đang làm việc (dành cho chọn khám nhanh)
      */
-    public function danhSachBacSi(?int $chuyenKhoaId = null): Collection
+    public function danhSachBacSi(?int $chuyenKhoaId = null, ?string $tuKhoa = null): Collection
     {
-        return $this->bacSiRepo->layDanhSachTheoKhoa($chuyenKhoaId);
+        return $this->bacSiRepo->layDanhSachTheoKhoa($chuyenKhoaId, $tuKhoa);
     }
 
     /**
