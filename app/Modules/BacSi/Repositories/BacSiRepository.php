@@ -14,7 +14,6 @@ class BacSiRepository extends BaseRepository implements BacSiRepositoryInterface
         parent::__construct($model);
     }
 
-<<<<<<< HEAD
     public function layDanhSachPhanTrang(int $soMoiTrang = 10, ?int $chuyenKhoaId = null, ?string $tuKhoa = null, ?string $trangThai = null): LengthAwarePaginator
     {
         $truyVan = $this->model->with(['chuyenKhoa', 'taiKhoan']);
