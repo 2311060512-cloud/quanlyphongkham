@@ -1303,8 +1303,11 @@
                 if (navBacSi) navBacSi.innerHTML = `<i class="fa-solid fa-user-doctor mr-1.5"></i> Quản Trị Bác Sĩ`;
                 if (navLichHen) navLichHen.innerHTML = `<i class="fa-solid fa-calendar-check mr-1.5"></i> Điều Phối Lịch Hẹn`;
                 if (navHoaDon) navHoaDon.innerHTML = `<i class="fa-solid fa-receipt mr-1.5"></i> Viện Phí & Doanh Thu`;
-                navTaiKhoan?.classList.remove('hidden');
-                mobNavTaiKhoan?.classList.remove('hidden');
+                
+                // Hiển thị Tab Quản Lý Tài Khoản cho Admin
+                if (navTaiKhoan) { navTaiKhoan.classList.remove('hidden'); navTaiKhoan.style.display = ''; }
+                if (mobNavTaiKhoan) { mobNavTaiKhoan.classList.remove('hidden'); mobNavTaiKhoan.style.display = ''; }
+                
                 btnAdminAddDoctor?.classList.remove('hidden');
                 if (btnTopBooking) btnTopBooking.classList.remove('hidden');
                 if (btnTopBookingText) btnTopBookingText.textContent = 'Thêm Lịch Khám';
@@ -1320,8 +1323,11 @@
                 if (navBacSi) navBacSi.innerHTML = `<i class="fa-solid fa-user-doctor mr-1.5"></i> Danh Sách Bác Sĩ`;
                 if (navLichHen) navLichHen.innerHTML = `<i class="fa-solid fa-calendar-check mr-1.5"></i> Lịch Trực Khám`;
                 if (navHoaDon) navHoaDon.innerHTML = `<i class="fa-solid fa-receipt mr-1.5"></i> Viện Phí Bệnh Nhân`;
-                navTaiKhoan?.classList.add('hidden');
-                mobNavTaiKhoan?.classList.add('hidden');
+                
+                // XÓA / ẨN TRIỆT ĐỂ Tab Quản Lý Tài Khoản đối với Bác Sĩ
+                if (navTaiKhoan) { navTaiKhoan.classList.add('hidden'); navTaiKhoan.style.display = 'none'; }
+                if (mobNavTaiKhoan) { mobNavTaiKhoan.classList.add('hidden'); mobNavTaiKhoan.style.display = 'none'; }
+                
                 btnAdminAddDoctor?.classList.add('hidden');
                 if (btnTopBooking) btnTopBooking.classList.add('hidden');
                 if (btnSectionBooking) btnSectionBooking.classList.add('hidden');
@@ -1331,13 +1337,20 @@
                 if (doctorSectionTitle) doctorSectionTitle.textContent = 'Đội Ngũ Bác Sĩ & Đồng Nghiệp';
                 if (statAppointmentLabel) statAppointmentLabel.textContent = 'Lịch Khám Của Bác Sĩ';
                 if (statAppointmentSub) statAppointmentSub.textContent = 'Bệnh nhân phụ trách';
+
+                // Tự động chuyển về tab bác sĩ nếu đang đứng ở tab taikhoan
+                const secTK = document.getElementById('tab-content-taikhoan');
+                if (secTK && !secTK.classList.contains('hidden')) switchTab('bacsi');
             } else {
                 // BENH_NHAN
                 if (navBacSi) navBacSi.innerHTML = `<i class="fa-solid fa-user-doctor mr-1.5"></i> Đội Ngũ Bác Sĩ`;
                 if (navLichHen) navLichHen.innerHTML = `<i class="fa-solid fa-calendar-check mr-1.5"></i> Lịch Hẹn Của Tôi`;
                 if (navHoaDon) navHoaDon.innerHTML = `<i class="fa-solid fa-receipt mr-1.5"></i> Viện Phí Của Tôi`;
-                navTaiKhoan?.classList.add('hidden');
-                mobNavTaiKhoan?.classList.add('hidden');
+                
+                // XÓA / ẨN TRIỆT ĐỂ Tab Quản Lý Tài Khoản đối với Bệnh Nhân
+                if (navTaiKhoan) { navTaiKhoan.classList.add('hidden'); navTaiKhoan.style.display = 'none'; }
+                if (mobNavTaiKhoan) { mobNavTaiKhoan.classList.add('hidden'); mobNavTaiKhoan.style.display = 'none'; }
+                
                 btnAdminAddDoctor?.classList.add('hidden');
                 if (btnTopBooking) btnTopBooking.classList.remove('hidden');
                 if (btnTopBookingText) btnTopBookingText.textContent = 'Đặt Lịch Khám';
@@ -1349,6 +1362,10 @@
                 if (doctorSectionTitle) doctorSectionTitle.textContent = 'Đội Ngũ Bác Sĩ Chuyên Khoa Phòng Khám';
                 if (statAppointmentLabel) statAppointmentLabel.textContent = 'Lịch Hẹn Của Bạn';
                 if (statAppointmentSub) statAppointmentSub.textContent = 'Số lịch hẹn cá nhân';
+
+                // Tự động chuyển về tab bác sĩ nếu đang đứng ở tab taikhoan
+                const secTK = document.getElementById('tab-content-taikhoan');
+                if (secTK && !secTK.classList.contains('hidden')) switchTab('bacsi');
             }
         }
 
@@ -1454,9 +1471,25 @@
 
         // ================= TAB NAVIGATION =================
         function switchTab(tabId) {
-            // Guard: Non-admin users cannot access account management tab
-            if (tabId === 'taikhoan' && state.currentUser?.vai_tro !== 'ADMIN') {
+            const isAdmin = (state.currentUser?.vai_tro === 'ADMIN');
+
+            // Khóa triệt để: Người dùng không phải ADMIN tuyệt đối không được vào tab quản lý tài khoản
+            if (tabId === 'taikhoan' && !isAdmin) {
                 tabId = 'bacsi';
+            }
+
+            const navTaiKhoan = document.getElementById('nav-taikhoan');
+            const mobNavTaiKhoan = document.getElementById('mob-nav-taikhoan');
+            const sectionTaiKhoan = document.getElementById('tab-content-taikhoan');
+
+            if (!isAdmin) {
+                if (navTaiKhoan) { navTaiKhoan.classList.add('hidden'); navTaiKhoan.style.display = 'none'; }
+                if (mobNavTaiKhoan) { mobNavTaiKhoan.classList.add('hidden'); mobNavTaiKhoan.style.display = 'none'; }
+                if (sectionTaiKhoan) { sectionTaiKhoan.classList.add('hidden'); sectionTaiKhoan.style.display = 'none'; }
+            } else {
+                if (navTaiKhoan) { navTaiKhoan.classList.remove('hidden'); navTaiKhoan.style.display = ''; }
+                if (mobNavTaiKhoan) { mobNavTaiKhoan.classList.remove('hidden'); mobNavTaiKhoan.style.display = ''; }
+                if (sectionTaiKhoan) { sectionTaiKhoan.style.display = ''; }
             }
 
             ['bacsi', 'dichvu', 'lichhen', 'hoadon', 'taikhoan'].forEach(t => {
@@ -1464,16 +1497,30 @@
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (!section) return;
 
+                if (t === 'taikhoan' && !isAdmin) {
+                    section.classList.add('hidden');
+                    section.style.display = 'none';
+                    if (navBtn) {
+                        navBtn.classList.add('hidden');
+                        navBtn.style.display = 'none';
+                    }
+                    return;
+                }
+
                 if (t === tabId) {
                     section.classList.remove('hidden');
+                    section.style.display = '';
                     if (navBtn) {
                         navBtn.className = 'tab-btn px-3.5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 bg-white text-teal-900 shadow-sm';
+                        navBtn.style.display = '';
                     }
-                    if (t === 'taikhoan') loadAccounts();
+                    if (t === 'taikhoan' && isAdmin) loadAccounts();
                 } else {
                     section.classList.add('hidden');
                     if (navBtn) {
-                        navBtn.className = 'tab-btn px-3.5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 text-teal-100 hover:text-white hover:bg-white/10';
+                        const isTkHidden = (t === 'taikhoan' && !isAdmin);
+                        navBtn.className = 'tab-btn px-3.5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 text-teal-100 hover:text-white hover:bg-white/10' + (isTkHidden ? ' hidden' : '');
+                        if (isTkHidden) navBtn.style.display = 'none';
                     }
                 }
             });
@@ -2226,6 +2273,12 @@
         }
 
         function renderAccounts() {
+            if (state.currentUser?.vai_tro !== 'ADMIN') {
+                const tbody = document.getElementById('accountTableBody');
+                if (tbody) tbody.innerHTML = '';
+                return;
+            }
+
             const tbody = document.getElementById('accountTableBody');
             if (!tbody) return;
 
