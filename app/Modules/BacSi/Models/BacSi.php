@@ -17,6 +17,7 @@ class BacSi extends Model
         'chuyen_khoa_id',
         'ma_bac_si',
         'ho_ten',
+        'hinh_anh',
         'hoc_vi',
         'so_dien_thoai',
         'email',

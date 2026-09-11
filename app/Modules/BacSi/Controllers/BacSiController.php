@@ -23,7 +23,8 @@ class BacSiController extends Controller
     public function danhSach(Request $request): JsonResponse
     {
         $chuyenKhoaId = $request->query('chuyen_khoa_id');
-        $danhSach = $this->bacSiService->danhSachBacSi($chuyenKhoaId ? (int)$chuyenKhoaId : null);
+        $tuKhoa = $request->query('tu_khoa');
+        $danhSach = $this->bacSiService->danhSachBacSi($chuyenKhoaId ? (int)$chuyenKhoaId : null, $tuKhoa);
         return $this->thanhCongResponse($danhSach, 'Danh sách bác sĩ');
     }
 

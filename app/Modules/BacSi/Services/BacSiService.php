@@ -25,9 +25,9 @@ class BacSiService
         $this->taiKhoanRepo = $taiKhoanRepo;
     }
 
-    public function danhSachBacSi(?int $chuyenKhoaId = null): Collection
+    public function danhSachBacSi(?int $chuyenKhoaId = null, ?string $tuKhoa = null): Collection
     {
-        return $this->bacSiRepo->layDanhSachTheoKhoa($chuyenKhoaId);
+        return $this->bacSiRepo->layDanhSachTheoKhoa($chuyenKhoaId, $tuKhoa);
     }
 
     public function chiTietBacSi(int $id)

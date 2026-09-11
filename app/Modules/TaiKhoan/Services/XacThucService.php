@@ -38,6 +38,7 @@ class XacThucService
         }
 
         $token = $taiKhoan->createToken('clinic_auth_token')->plainTextToken;
+        $benhNhan = $this->benhNhanRepo->timTheoTaiKhoanId($taiKhoan->id);
 
         return [
             'token' => $token,
@@ -46,6 +47,13 @@ class XacThucService
                 'ten_dang_nhap' => $taiKhoan->ten_dang_nhap,
                 'ho_ten' => $taiKhoan->ho_ten,
                 'email' => $taiKhoan->email,
+                'so_dien_thoai' => $taiKhoan->so_dien_thoai ?? $benhNhan?->so_dien_thoai,
+                'so_cccd' => $benhNhan?->so_cccd,
+                'tien_su_benh' => $benhNhan?->tien_su_benh,
+                'tien_su_di_ung' => $benhNhan?->tien_su_di_ung,
+                'nguoi_lien_he_khan_cap' => $benhNhan?->nguoi_lien_he_khan_cap,
+                'sdt_khan_cap' => $benhNhan?->sdt_khan_cap,
+                'nhom_mau' => $benhNhan?->nhom_mau,
                 'vai_tro' => $taiKhoan->vaiTro?->ma_vai_tro ?? 'BENH_NHAN',
                 'ten_vai_tro' => $taiKhoan->vaiTro?->ten_vai_tro ?? 'Bệnh nhân',
             ],

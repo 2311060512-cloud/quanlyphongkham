@@ -56,6 +56,7 @@ class DatabaseSeeder extends Seeder
             'chuyen_khoa_id' => $ckNoi->id,
             'ma_bac_si' => 'BS001',
             'ho_ten' => 'BS. CKII Nguyễn Anh Tuấn',
+            'hinh_anh' => 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&auto=format&fit=crop&q=80',
             'hoc_vi' => 'Bác sĩ CKII Nội Khoa',
             'so_dien_thoai' => '0912345678',
             'email' => 'bstuan@phongkham.vn',
@@ -80,12 +81,65 @@ class DatabaseSeeder extends Seeder
             'chuyen_khoa_id' => $ckNhi->id,
             'ma_bac_si' => 'BS002',
             'ho_ten' => 'ThS. BS Trần Phương Lan',
+            'hinh_anh' => 'https://images.unsplash.com/photo-1594824813511-2e6b21901048?w=400&auto=format&fit=crop&q=80',
             'hoc_vi' => 'Thạc sĩ Nhi Khoa',
             'so_dien_thoai' => '0987654321',
             'email' => 'bslan@phongkham.vn',
             'gia_kham' => 200000,
             'phong_kham' => 'Phòng 105 - Tầng 1',
             'kinh_nghiem' => '10 năm chuyên khoa Nhi Bệnh viện Nhi Trung Ương',
+            'trang_thai' => 'DANG_LAM_VIEC',
+        ]);
+
+        // Thêm Bác sĩ Răng Hàm Mặt
+        $tkBS3 = TaiKhoan::create([
+            'ten_dang_nhap' => 'bshung',
+            'email' => 'bshung@phongkham.vn',
+            'mat_khau' => Hash::make('123456'),
+            'ho_ten' => 'BS. CKI Vũ Việt Hùng',
+            'so_dien_thoai' => '0933445566',
+            'vai_tro_id' => $vtBacSi->id,
+            'trang_thai' => 'HOAT_DONG',
+        ]);
+
+        $bs3 = BacSi::create([
+            'tai_khoan_id' => $tkBS3->id,
+            'chuyen_khoa_id' => $ckRang->id,
+            'ma_bac_si' => 'BS003',
+            'ho_ten' => 'BS. CKI Vũ Việt Hùng',
+            'hinh_anh' => 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&auto=format&fit=crop&q=80',
+            'hoc_vi' => 'Bác sĩ CKI Răng Hàm Mặt',
+            'so_dien_thoai' => '0933445566',
+            'email' => 'bshung@phongkham.vn',
+            'gia_kham' => 180000,
+            'phong_kham' => 'Phòng 302 - Tầng 3',
+            'kinh_nghiem' => '8 năm chuyên khoa Thẩm mỹ Nha & Cấy ghép Implant',
+            'trang_thai' => 'DANG_LAM_VIEC',
+        ]);
+
+        // Thêm Bác sĩ Mắt
+        $tkBS4 = TaiKhoan::create([
+            'ten_dang_nhap' => 'bshuong',
+            'email' => 'bshuong@phongkham.vn',
+            'mat_khau' => Hash::make('123456'),
+            'ho_ten' => 'TS. BS Lê Thu Hương',
+            'so_dien_thoai' => '0944556677',
+            'vai_tro_id' => $vtBacSi->id,
+            'trang_thai' => 'HOAT_DONG',
+        ]);
+
+        $bs4 = BacSi::create([
+            'tai_khoan_id' => $tkBS4->id,
+            'chuyen_khoa_id' => $ckMat->id,
+            'ma_bac_si' => 'BS004',
+            'ho_ten' => 'TS. BS Lê Thu Hương',
+            'hinh_anh' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&auto=format&fit=crop&q=80',
+            'hoc_vi' => 'Tiến sĩ Nhãn Khoa',
+            'so_dien_thoai' => '0944556677',
+            'email' => 'bshuong@phongkham.vn',
+            'gia_kham' => 300000,
+            'phong_kham' => 'Phòng 204 - Tầng 2',
+            'kinh_nghiem' => '12 năm khám và điều trị tật khúc xạ, phẫu thuật Lasik',
             'trang_thai' => 'DANG_LAM_VIEC',
         ]);
 
@@ -105,12 +159,16 @@ class DatabaseSeeder extends Seeder
             'ma_benh_nhan' => 'BN20260001',
             'ho_ten' => 'Lê Hoàng Nam',
             'so_dien_thoai' => '0977888999',
+            'so_cccd' => '001201012345',
             'email' => 'benhnhan@gmail.com',
             'gioi_tinh' => 'NAM',
             'ngay_sinh' => '1995-08-15',
             'dia_chi' => 'Số 12 Chùa Bộc, Đống Đa, Hà Nội',
             'nhom_mau' => 'O',
-            'tien_su_benh' => 'Dị ứng phấn hoa nhẹ',
+            'tien_su_benh' => 'Viêm xoang mãn tính, Huyết áp bình thường',
+            'tien_su_di_ung' => 'Dị ứng kháng sinh Penicillin, Dị ứng phấn hoa',
+            'nguoi_lien_he_khan_cap' => 'Trần Thị Mai (Vợ)',
+            'sdt_khan_cap' => '0912345678',
         ]);
 
         // 6. Danh mục Dịch vụ Y tế / Cận lâm sàng

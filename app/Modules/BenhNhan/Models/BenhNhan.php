@@ -17,12 +17,16 @@ class BenhNhan extends Model
         'ma_benh_nhan',
         'ho_ten',
         'so_dien_thoai',
+        'so_cccd',
         'email',
         'gioi_tinh',
         'ngay_sinh',
         'dia_chi',
         'nhom_mau',
         'tien_su_benh',
+        'tien_su_di_ung',
+        'nguoi_lien_he_khan_cap',
+        'sdt_khan_cap',
     ];
 
     public function taiKhoan(): BelongsTo

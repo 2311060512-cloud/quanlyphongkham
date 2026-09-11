@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phòng Khám Đa Khoa Đại Việt - Hệ Thống Quản Lý Y Tế</title>
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Be Vietnam Pro (Chuẩn tiếng Việt chuyên sâu) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -18,7 +18,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: ['"Be Vietnam Pro"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
                     },
                     colors: {
                         clinic: {
@@ -37,7 +37,14 @@
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body { 
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            letter-spacing: -0.01em;
+        }
         .gradient-medical { background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); }
         .gradient-card { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
         .pulse-dot {
@@ -49,7 +56,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased font-sans">
 
     <!-- Top Navigation Bar -->
     <header class="gradient-medical text-white shadow-lg sticky top-0 z-40">
@@ -94,15 +101,15 @@
                     </button>
 
                     <!-- User info container -->
-                    <div id="userProfile" class="hidden items-center gap-2 bg-white/10 border border-white/20 px-3 py-1.5 rounded-xl backdrop-blur-sm">
-                        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-emerald-200 font-bold text-sm">
-                            <i class="fa-solid fa-user-md"></i>
+                    <div id="userProfile" class="hidden items-center gap-2.5 bg-white/10 hover:bg-white/15 border border-white/20 px-3.5 py-1.5 rounded-2xl backdrop-blur-md transition">
+                        <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-emerald-200 font-bold text-sm shadow-xs flex-shrink-0">
+                            <i class="fa-solid fa-user-doctor"></i>
                         </div>
-                        <div class="text-left hidden lg:block">
-                            <div class="text-xs font-bold leading-tight" id="profileName">Admin</div>
-                            <span class="text-[10px] font-semibold text-emerald-200 uppercase" id="profileRole">Quản trị viên</span>
+                        <div class="text-left hidden lg:block whitespace-nowrap">
+                            <div class="text-xs font-bold leading-tight text-white" id="profileName">Admin</div>
+                            <span class="text-[10px] font-bold text-emerald-200 uppercase tracking-wider block" id="profileRole">Quản trị viên</span>
                         </div>
-                        <button onclick="handleLogout()" title="Đăng xuất" class="text-teal-200 hover:text-rose-300 ml-2 p-1 transition">
+                        <button onclick="handleLogout()" title="Đăng xuất" class="text-teal-200 hover:text-rose-300 ml-1.5 p-1 rounded-lg hover:bg-white/10 transition flex-shrink-0">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         </button>
                     </div>
@@ -249,47 +256,108 @@
         <!-- ================= TAB 3: QUẢN LÝ LỊCH HẸN ================= -->
         <section id="tab-content-lichhen" class="hidden space-y-6">
             
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg border border-teal-100">
-                        <i class="fa-solid fa-list-check"></i>
+            <!-- Filter & Search Controls (Bộ Lọc Đa Năng) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg border border-teal-100 shadow-inner">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800" id="appointmentTabTitle">Tra Cứu & Quản Lý Lịch Hẹn</h2>
+                            <p class="text-xs text-slate-500" id="appointmentTabSubtitle">Bộ lọc đa năng theo trạng thái, ngày khám, mốc thời gian và hồ sơ bệnh án</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-800">Tra Cứu & Điều Phối Lịch Hẹn</h2>
-                        <p class="text-xs text-slate-500">Xem trạng thái, xác nhận khám và cập nhật kết quả điều trị</p>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="resetAppointmentFilters()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5" title="Đặt lại bộ lọc">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span class="hidden sm:inline">Đặt lại</span>
+                        </button>
+                        <button onclick="openBookingModal()" class="bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Đặt Lịch Mới</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <select id="appointmentStatusFilter" onchange="filterAppointments()" class="border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-teal-600 focus:outline-none">
-                        <option value="">-- Tất cả trạng thái --</option>
-                        <option value="CHO_XAC_NHAN">Chờ xác nhận</option>
-                        <option value="DA_XAC_NHAN">Đã xác nhận</option>
-                        <option value="DANG_KHAM">Đang khám</option>
-                        <option value="HOAN_THANH">Hoàn thành</option>
-                        <option value="DA_HUY">Đã hủy</option>
-                    </select>
+                <!-- Grid Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-slate-100 text-xs">
+                    <!-- Từ khóa -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Tìm kiếm từ khóa</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="appointmentSearchInput" oninput="filterAppointments()" placeholder="Mã LK, BS, SĐT, CCCD..." 
+                                   class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 transition">
+                        </div>
+                    </div>
 
-                    <button onclick="openBookingModal()" class="bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Thêm Lịch Khám</span>
+                    <!-- Trạng thái -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Trạng thái ca khám</label>
+                        <select id="appointmentStatusFilter" onchange="filterAppointments()" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-slate-50/40 focus:bg-white focus:ring-2 focus:ring-teal-600 focus:outline-none transition">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option value="CHO_XAC_NHAN">⏳ Chờ xác nhận</option>
+                            <option value="DA_XAC_NHAN">✓ Đã xác nhận</option>
+                            <option value="DANG_KHAM">🩺 Đang khám</option>
+                            <option value="HOAN_THANH">🏆 Đã hoàn thành</option>
+                            <option value="DA_HUY">✕ Đã hủy</option>
+                        </select>
+                    </div>
+
+                    <!-- Mốc thời gian -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Mốc thời gian</label>
+                        <select id="appointmentTimeFilter" onchange="handleTimeFilterChange()" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-slate-50/40 focus:bg-white focus:ring-2 focus:ring-teal-600 focus:outline-none transition">
+                            <option value="all">Toàn bộ thời gian</option>
+                            <option value="hom_nay">Hôm nay</option>
+                            <option value="tuan_nay">Tuần này</option>
+                            <option value="thang_nay">Tháng này</option>
+                            <option value="custom">Tùy chọn ngày cụ thể</option>
+                        </select>
+                    </div>
+
+                    <!-- Ngày cụ thể (Ẩn/Hiện) -->
+                    <div id="customDateContainer">
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Chọn ngày khám</label>
+                        <input type="date" id="appointmentDateFilter" onchange="filterAppointments()" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-slate-50/40 focus:bg-white focus:ring-2 focus:ring-teal-600 focus:outline-none transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Requirement Prompt for Guests -->
+            <div id="appointmentAuthRequired" class="hidden bg-white rounded-3xl border border-slate-200/80 p-8 text-center shadow-sm max-w-lg mx-auto my-8">
+                <div class="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4 text-2xl border border-amber-100">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Yêu Cầu Đăng Nhập</h3>
+                <p class="text-xs text-slate-500 mt-1 mb-6 leading-relaxed">
+                    Vui lòng đăng nhập tài khoản Bệnh nhân để tra cứu hồ sơ và quản lý danh sách lịch khám của bạn.
+                </p>
+                <div class="flex items-center justify-center gap-3">
+                    <button onclick="openLoginModal()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Đăng Nhập Ngay
+                    </button>
+                    <button onclick="openRegisterModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-2.5 rounded-xl transition">
+                        Đăng Ký Tài Khoản
                     </button>
                 </div>
             </div>
 
             <!-- Appointment Table / Cards -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div id="appointmentTableContainer" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200/80 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                                <th class="py-3.5 px-4">Mã Lịch</th>
-                                <th class="py-3.5 px-4">Bệnh Nhân</th>
-                                <th class="py-3.5 px-4">Bác Sĩ Phụ Trách</th>
-                                <th class="py-3.5 px-4">Thời Gian Khám</th>
-                                <th class="py-3.5 px-4">Triệu Chứng</th>
-                                <th class="py-3.5 px-4 text-center">Trạng Thái</th>
-                                <th class="py-3.5 px-4 text-right">Thao Tác</th>
+                            <tr class="bg-slate-50/90 border-b border-slate-200/80 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+                                <th class="py-4 px-4 w-32 whitespace-nowrap">Mã Lịch Hẹn</th>
+                                <th class="py-4 px-4 min-w-[190px] whitespace-nowrap">Bệnh Nhân</th>
+                                <th class="py-4 px-4 min-w-[230px]">Bác Sĩ Phụ Trách</th>
+                                <th class="py-4 px-4 min-w-[150px] whitespace-nowrap">Thời Gian Khám</th>
+                                <th class="py-4 px-4 min-w-[180px]">Triệu Chứng</th>
+                                <th class="py-4 px-4 w-36 whitespace-nowrap text-center">Trạng Thái</th>
+                                <th class="py-4 px-4 min-w-[190px] whitespace-nowrap text-right">Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody id="appointmentTableBody" class="divide-y divide-slate-100">
@@ -299,7 +367,7 @@
                 </div>
                 <div id="appointmentEmptyMessage" class="hidden p-8 text-center text-slate-400">
                     <i class="fa-regular fa-folder-open text-4xl mb-2 text-slate-300"></i>
-                    <p class="text-sm">Không tìm thấy lịch hẹn phù hợp</p>
+                    <p class="text-sm" id="appointmentEmptyText">Không tìm thấy lịch hẹn phù hợp</p>
                 </div>
             </div>
 
@@ -422,12 +490,63 @@
                             <input type="tel" id="patientPhone" required placeholder="0987xxxxxx" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none">
                         </div>
                     </div>
+                    <div class="mt-3">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Số CCCD / Mã Định Danh <span class="text-slate-400 font-normal">(Cần thiết để quản lý hồ sơ khám)</span></label>
+                        <input type="text" id="patientCccd" placeholder="001201012345" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none">
+                    </div>
                 </div>
 
                 <!-- Triệu chứng -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Mô tả triệu chứng / Lý do khám</label>
                     <textarea id="patientSymptoms" rows="2" placeholder="Ví dụ: Đau đầu, sốt nhẹ 2 ngày, khó tiêu..." class="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Accordion: Hồ sơ Bệnh án điện tử & Tiền sử bệnh (Mở rộng) -->
+                <div class="border border-teal-100 rounded-2xl bg-teal-50/40 p-3.5 space-y-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleBookingMedicalHistory()">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-file-medical text-teal-700 text-sm"></i>
+                            <span class="text-xs font-bold text-teal-900">Hồ Sơ Bệnh Án & Tiền Sử Sức Khỏe <span class="text-[10px] text-teal-600 font-normal">(Tùy chọn)</span></span>
+                        </div>
+                        <i id="bookingMedicalIcon" class="fa-solid fa-chevron-down text-xs text-teal-600 transition-transform duration-200"></i>
+                    </div>
+
+                    <div id="bookingMedicalDetails" class="hidden space-y-2.5 pt-2 border-t border-teal-100/80 text-xs">
+                        <!-- Tiền sử dị ứng -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-0.5">Tiền sử dị ứng thuốc / thực phẩm:</label>
+                            <input type="text" id="patientAllergy" placeholder="Ví dụ: Dị ứng Penicillin, Aspirin, hải sản..." class="w-full border border-slate-200 bg-white rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-teal-600 focus:outline-none">
+                        </div>
+
+                        <!-- Tiền sử bệnh nền -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-0.5">Bệnh lý nền / Mãn tính:</label>
+                            <input type="text" id="patientMedicalHistory" placeholder="Ví dụ: Huyết áp cao, Viêm xoang, Tiểu đường type 2..." class="w-full border border-slate-200 bg-white rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-teal-600 focus:outline-none">
+                        </div>
+
+                        <!-- Nhóm máu & Liên hệ khẩn cấp -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-0.5">Nhóm máu:</label>
+                                <select id="patientBloodGroup" class="w-full border border-slate-200 bg-white rounded-xl px-2.5 py-1.5 focus:ring-2 focus:ring-teal-600 focus:outline-none">
+                                    <option value="">Chưa rõ</option>
+                                    <option value="A">Nhóm A</option>
+                                    <option value="B">Nhóm B</option>
+                                    <option value="AB">Nhóm AB</option>
+                                    <option value="O">Nhóm O</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-0.5">Người liên hệ khẩn:</label>
+                                <input type="text" id="patientEmergencyContact" placeholder="Họ tên người thân" class="w-full border border-slate-200 bg-white rounded-xl px-2.5 py-1.5 focus:ring-2 focus:ring-teal-600 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-0.5">SĐT khẩn cấp:</label>
+                                <input type="tel" id="patientEmergencyPhone" placeholder="09xxxxxxx" class="w-full border border-slate-200 bg-white rounded-xl px-2.5 py-1.5 focus:ring-2 focus:ring-teal-600 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="pt-2">
@@ -437,6 +556,285 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal 1.1: Đặt Lịch Thành Công (Hiển thị Mã Lịch Hẹn & Hướng dẫn) -->
+    <div id="modalBookingSuccess" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 text-center animate-fade-in">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800">Đặt Lịch Khám Thành Công!</h3>
+            <p class="text-xs text-slate-500 mt-1">Hệ thống đã lưu thông tin và cấp mã lịch hẹn chính thức</p>
+
+            <div class="bg-teal-50/70 border border-teal-100 rounded-2xl p-4 my-5 text-left text-xs space-y-2">
+                <div class="flex justify-between items-center pb-2 border-b border-teal-100">
+                    <span class="text-slate-500 font-semibold">Mã lịch hẹn:</span>
+                    <span class="font-mono text-base font-extrabold text-teal-800 bg-teal-100 px-2.5 py-0.5 rounded-lg" id="successAppCode">LK0001</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-semibold">Bác sĩ khám:</span>
+                    <strong class="text-slate-800" id="successDoctorName">BS. Nguyễn Anh Tuấn</strong>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-semibold">Thời gian khám:</span>
+                    <strong class="text-teal-700" id="successAppTime">09:00 - 12/09/2026</strong>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-semibold">Bệnh nhân:</span>
+                    <strong class="text-slate-800" id="successPatientName">Nguyễn Văn A</strong>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-semibold">Thời gian tạo phiếu:</span>
+                    <span class="text-slate-600 font-mono" id="successCreatedAt">11/09/2026 23:30</span>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-xl border border-amber-200 mb-5 text-left flex items-start gap-2">
+                <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+                <span>Quý khách vui lòng đến trước giờ hẹn 10 phút và mang theo CCCD tại quầy tiếp đón.</span>
+            </p>
+
+            <div class="flex gap-2">
+                <button onclick="closeModal('modalBookingSuccess')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    Đóng
+                </button>
+                <button onclick="showBookingSuccessNotification()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                    <span>Xem Email / SMS</span>
+                </button>
+                <button onclick="closeModal('modalBookingSuccess'); switchTab('lichhen');" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
+                    Lịch Hẹn Của Tôi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1.2: Xác Nhận Hủy Lịch Khám -->
+    <div id="modalCancelAppointment" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 text-center">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Xác Nhận Hủy Lịch Khám?</h3>
+            <p class="text-xs text-slate-500 mt-1" id="cancelModalInfo">Mã lịch hẹn: LK0001</p>
+
+            <div class="my-4 text-left">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Lý do hủy lịch <span class="text-slate-400 font-normal">(tùy chọn)</span>:</label>
+                <textarea id="cancelReasonInput" rows="2" placeholder="Ví dụ: Bận việc đột xuất, đổi giờ khám..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none"></textarea>
+                <input type="hidden" id="cancelAppointmentId">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeModal('modalCancelAppointment')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    Không Hủy
+                </button>
+                <button id="btnConfirmCancelApp" onclick="submitCancelAppointment()" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Xác Nhận Hủy</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1.3: Xem Hồ Sơ Bệnh Án Điện Tử & Chi Tiết Ca Khám -->
+    <div id="modalMedicalRecord" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-lg border border-teal-100 shadow-inner">
+                        <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Hồ Sơ Bệnh Án Điện Tử</h3>
+                        <p class="text-[11px] text-slate-500" id="medRecHeaderSub">Mã lịch hẹn: LK0001 • Bệnh nhân: Lê Hoàng Nam</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modalMedicalRecord')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 mt-4 text-xs">
+                <!-- Thông tin hành chính -->
+                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                        <span class="font-bold text-slate-800 text-sm" id="medRecPatientName">Lê Hoàng Nam</span>
+                        <span class="bg-teal-100 text-teal-800 px-2.5 py-0.5 rounded-lg font-mono font-bold" id="medRecCode">LK0001</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2.5 text-slate-600">
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Số CCCD:</span>
+                            <strong class="text-slate-800 font-mono" id="medRecCccd">001201012345</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Số Điện Thoại:</span>
+                            <strong class="text-slate-800" id="medRecPhone">0977888999</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Nhóm Máu:</span>
+                            <strong class="text-rose-600 font-bold" id="medRecBlood">Nhóm O</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cảnh báo tiền sử y tế -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-rose-50/80 border border-rose-200/80 rounded-2xl p-3.5 space-y-1">
+                        <div class="flex items-center gap-1.5 text-rose-700 font-bold">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Tiền sử dị ứng:</span>
+                        </div>
+                        <p class="text-rose-900 font-medium" id="medRecAllergy">Không ghi nhận dị ứng</p>
+                    </div>
+                    <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 space-y-1">
+                        <div class="flex items-center gap-1.5 text-amber-700 font-bold">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                            <span>Bệnh lý mãn tính:</span>
+                        </div>
+                        <p class="text-amber-900 font-medium" id="medRecHistory">Không có bệnh lý nền</p>
+                    </div>
+                </div>
+
+                <!-- Người liên hệ khẩn cấp -->
+                <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-3 flex items-center justify-between text-sky-900">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-phone-volume text-sky-600 text-base"></i>
+                        <div>
+                            <span class="text-[10px] text-sky-600 font-semibold block">Người liên hệ khẩn cấp:</span>
+                            <strong id="medRecEmergency">Trần Thị Mai (0912345678)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin ca khám -->
+                <div class="border border-slate-200 rounded-2xl p-4 space-y-2.5">
+                    <span class="text-xs font-bold text-slate-800 uppercase tracking-wide block">Diễn Biến & Kết Quả Thăm Khám</span>
+                    <div class="flex justify-between pb-2 border-b border-slate-100">
+                        <span class="text-slate-500">Bác sĩ phụ trách:</span>
+                        <strong class="text-teal-800" id="medRecDoctor">BS. Nguyễn Anh Tuấn (Khoa Nội)</strong>
+                    </div>
+                    <div class="flex justify-between pb-2 border-b border-slate-100">
+                        <span class="text-slate-500">Thời gian khám:</span>
+                        <strong class="text-slate-800" id="medRecTime">09:00 - 12/09/2026</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block mb-0.5">Triệu chứng ban đầu:</span>
+                        <div class="bg-slate-50 p-2.5 rounded-xl text-slate-700 font-medium" id="medRecSymptoms">Đau đầu, mệt mỏi</div>
+                    </div>
+                    <div id="medRecDiagnosisContainer" class="hidden">
+                        <span class="text-emerald-700 font-bold block mb-0.5">Chẩn đoán bác sĩ:</span>
+                        <div class="bg-emerald-50 p-2.5 rounded-xl text-emerald-900 font-medium border border-emerald-100" id="medRecDiagnosis">--</div>
+                    </div>
+                    <div id="medRecAdviceContainer" class="hidden">
+                        <span class="text-slate-700 font-bold block mb-0.5">Lời khuyên & Đơn thuốc:</span>
+                        <div class="bg-slate-50 p-2.5 rounded-xl text-slate-700 font-medium" id="medRecAdvice">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 mt-4 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('modalMedicalRecord')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-xs transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1.4: Xem Trước Thông Báo Xác Nhận (Email & SMS Mô Phỏng) -->
+    <div id="modalNotificationPreview" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-lg border border-sky-100 shadow-inner">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Thông Báo Xác Nhận Ca Khám</h3>
+                        <p class="text-[11px] text-slate-500">Mô phỏng Email & SMS gửi tự động đến Bệnh nhân</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modalNotificationPreview')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Tab Switcher: Email vs SMS -->
+            <div class="flex items-center gap-2 my-4 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <button id="btnTabNotifEmail" onclick="switchNotifTab('email')" class="flex-1 py-1.5 rounded-lg bg-white text-teal-800 shadow-xs transition">
+                    <i class="fa-solid fa-envelope mr-1.5"></i> Thư Điện Tử (Email)
+                </button>
+                <button id="btnTabNotifSms" onclick="switchNotifTab('sms')" class="flex-1 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+                    <i class="fa-solid fa-comment-sms mr-1.5"></i> Tin Nhắn (SMS Brandname)
+                </button>
+            </div>
+
+            <!-- Email View -->
+            <div id="notifEmailView" class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs text-xs">
+                <div class="bg-slate-800 text-white p-3.5 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-hospital-user text-emerald-400"></i>
+                        <span class="font-bold tracking-wide">PHÒNG KHÁM ĐA KHOA ĐẠI VIỆT</span>
+                    </div>
+                    <span class="text-[10px] text-slate-300 font-mono" id="notifEmailDate">11/09/2026 23:45</span>
+                </div>
+                <div class="p-4 bg-white space-y-3">
+                    <div class="pb-2 border-b border-slate-100">
+                        <div class="text-[11px] text-slate-400">Người nhận: <strong class="text-slate-700" id="notifEmailRecipient">Lê Hoàng Nam (benhnhan@gmail.com)</strong></div>
+                        <div class="text-sm font-bold text-slate-800 mt-0.5" id="notifEmailSubject">【Đại Việt Clinic】Xác nhận đặt lịch khám #LK0001</div>
+                    </div>
+
+                    <p class="text-slate-600 leading-relaxed" id="notifEmailGreeting">
+                        Kính gửi <strong class="text-slate-800" id="notifEmailPatient">Lê Hoàng Nam</strong>, cảm ơn bạn đã tin tưởng dịch vụ tại Phòng Khám Đa Khoa Đại Việt.
+                    </p>
+
+                    <div class="bg-teal-50 border border-teal-100 rounded-xl p-3.5 space-y-1.5 text-slate-700">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Mã lịch hẹn:</span>
+                            <strong class="font-mono text-teal-800" id="notifEmailCode">LK0001</strong>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Bác sĩ phụ trách:</span>
+                            <strong id="notifEmailDoctor">ThS. BS Nguyễn Anh Tuấn (Khoa Nội)</strong>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Thời gian khám:</span>
+                            <strong class="text-teal-700" id="notifEmailTime">09:00 ngày 12/09/2026</strong>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Trạng thái:</span>
+                            <span class="font-bold text-sky-700" id="notifEmailStatus">ĐÃ XÁC NHẬN</span>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] text-slate-500 italic">
+                        * Quý khách vui lòng có mặt trước giờ hẹn 10-15 phút tại quầy tiếp đón để hoàn tất thủ tục khám bệnh.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SMS View -->
+            <div id="notifSmsView" class="hidden">
+                <div class="max-w-xs mx-auto bg-slate-900 rounded-3xl p-3 shadow-xl border-4 border-slate-700">
+                    <div class="w-16 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
+                    <div class="bg-slate-100 rounded-2xl p-4 min-h-[160px] text-xs space-y-2">
+                        <div class="flex items-center justify-between pb-1 border-b border-slate-200 text-[10px] text-slate-500 font-bold">
+                            <span>SMS Brandname</span>
+                            <span>DaiViet Clinic</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl shadow-xs text-slate-800 leading-relaxed font-sans text-xs border border-slate-200" id="notifSmsContent">
+                            [DaiViet Clinic] Dat lich LK0001 thanh cong. Gio: 09:00 ngay 12/09/2026 voi BS Nguyen Anh Tuan. Vui long den truoc 15 phut.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 mt-4 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('modalNotificationPreview')" class="bg-teal-700 hover:bg-teal-800 text-white font-bold px-5 py-2 rounded-xl text-xs transition shadow-sm">
+                    Đã Hiểu & Đóng
+                </button>
+            </div>
         </div>
     </div>
 
@@ -629,12 +1027,35 @@
             // Auto-fill patient details if logged in
             if (state.currentUser) {
                 document.getElementById('patientName').value = state.currentUser.ho_ten || '';
+                document.getElementById('patientPhone').value = state.currentUser.so_dien_thoai || '';
+                if (state.currentUser.so_cccd) {
+                    document.getElementById('patientCccd').value = state.currentUser.so_cccd;
+                }
+                if (state.currentUser.tien_su_di_ung) {
+                    document.getElementById('patientAllergy').value = state.currentUser.tien_su_di_ung;
+                }
+                if (state.currentUser.tien_su_benh) {
+                    document.getElementById('patientMedicalHistory').value = state.currentUser.tien_su_benh;
+                }
+                if (state.currentUser.nhom_mau) {
+                    document.getElementById('patientBloodGroup').value = state.currentUser.nhom_mau;
+                }
+                if (state.currentUser.nguoi_lien_he_khan_cap) {
+                    document.getElementById('patientEmergencyContact').value = state.currentUser.nguoi_lien_he_khan_cap;
+                }
+                if (state.currentUser.sdt_khan_cap) {
+                    document.getElementById('patientEmergencyPhone').value = state.currentUser.sdt_khan_cap;
+                }
             }
 
             openModal('modalBooking');
         }
 
         function openLoginModal() {
+            openModal('modalAuth');
+        }
+
+        function openRegisterModal() {
             openModal('modalAuth');
         }
 
@@ -648,8 +1069,15 @@
         // 1. Fetch Doctors & Specialties
         async function loadDoctors() {
             try {
+                const keyword = (document.getElementById('doctorSearchInput')?.value || '').trim();
+                let docUrl = '/api/v1/bac-si';
+                const params = new URLSearchParams();
+                if (state.selectedSpecialtyId) params.append('chuyen_khoa_id', state.selectedSpecialtyId);
+                if (keyword) params.append('tu_khoa', keyword);
+                if (params.toString()) docUrl += '?' + params.toString();
+
                 const [docRes, specRes] = await Promise.all([
-                    fetch('/api/v1/bac-si', { headers: { 'Accept': 'application/json' } }),
+                    fetch(docUrl, { headers: { 'Accept': 'application/json' } }),
                     fetch('/api/v1/bac-si/chuyen-khoa', { headers: { 'Accept': 'application/json' } })
                 ]);
 
@@ -696,11 +1124,15 @@
         function filterDoctorsBySpecialty(specId) {
             state.selectedSpecialtyId = specId;
             renderSpecialtyFilters();
-            renderDoctors();
+            loadDoctors();
         }
 
+        let doctorSearchTimeout = null;
         function filterDoctors() {
-            renderDoctors();
+            clearTimeout(doctorSearchTimeout);
+            doctorSearchTimeout = setTimeout(() => {
+                loadDoctors();
+            }, 300);
         }
 
         // Render Doctor Cards
@@ -728,30 +1160,30 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(d => `
-                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between">
+            container.innerHTML = filtered.map(d => {
+                const avatarSrc = d.hinh_anh || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&auto=format&fit=crop&q=80';
+                return `
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between group">
                     <div>
                         <!-- Card Header -->
                         <div class="flex items-start justify-between gap-3 mb-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-400 text-white flex items-center justify-center text-xl font-extrabold shadow-sm">
-                                    ${d.ho_ten.split(' ').pop().charAt(0)}
-                                </div>
+                                <img src="${avatarSrc}" alt="${d.ho_ten}" class="w-14 h-14 rounded-2xl object-cover border-2 border-teal-100 shadow-sm group-hover:scale-105 transition">
                                 <div>
                                     <h4 class="font-bold text-base text-slate-800 leading-tight">${d.ho_ten}</h4>
-                                    <span class="text-xs text-slate-500 font-medium">${d.hoc_vi || 'Bác sĩ chuyên khoa'}</span>
+                                    <span class="text-xs text-teal-700 font-semibold">${d.hoc_vi || 'Bác sĩ chuyên khoa'}</span>
                                 </div>
                             </div>
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
-                                Trực khám
+                                Đang trực
                             </span>
                         </div>
 
                         <!-- Badge Chuyên khoa -->
                         <div class="mb-3">
                             <span class="inline-block px-3 py-1 rounded-lg text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-100">
-                                <i class="fa-solid fa-stethoscope mr-1 text-teal-600"></i> ${d.chuyen_khoa ? d.chuyen_khoa.ten_khoa : 'Đa khoa'}
+                                <i class="fa-solid fa-stethoscope mr-1 text-teal-600"></i> ${d.chuyen_khoa ? d.chuyen_khoa.ten_khoa : 'Khoa Đa Khoa'}
                             </span>
                         </div>
 
@@ -775,16 +1207,16 @@
                     <!-- Card Footer -->
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Giá khám ban đầu</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Giá khám niêm yết</span>
                             <span class="text-base font-extrabold text-teal-700">${formatVND(d.gia_kham)}</span>
                         </div>
-                        <button onclick="openBookingModal(${d.id})" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-calendar-check"></i>
-                            <span>Đặt Khám</span>
+                        <button onclick="openBookingModal(${d.id})" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5 hover:shadow">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>Đặt Lịch Ngay</span>
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         // 2. Fetch Services
@@ -852,18 +1284,65 @@
             }).join('');
         }
 
-        // 3. Fetch Appointments
+        // 3. Fetch Appointments (Hỗ trợ tra cứu theo vai trò & bộ lọc nâng cao)
         async function loadAppointments() {
+            const authRequiredBox = document.getElementById('appointmentAuthRequired');
+            const tableContainer = document.getElementById('appointmentTableContainer');
+            const tabTitle = document.getElementById('appointmentTabTitle');
+            const tabSubtitle = document.getElementById('appointmentTabSubtitle');
+
+            // Kiểm tra trạng thái đăng nhập
+            if (!state.token || !state.currentUser) {
+                if (authRequiredBox) authRequiredBox.classList.remove('hidden');
+                if (tableContainer) tableContainer.classList.add('hidden');
+                return;
+            }
+
+            if (authRequiredBox) authRequiredBox.classList.add('hidden');
+            if (tableContainer) tableContainer.classList.remove('hidden');
+
+            const isPatient = (state.currentUser.vai_tro === 'BENH_NHAN' || state.currentUser.ma_vai_tro === 'BENH_NHAN' || state.currentUser.vai_tro_id === 3);
+
+            if (isPatient) {
+                if (tabTitle) tabTitle.textContent = 'Lịch Khám & Bệnh Án Của Tôi';
+                if (tabSubtitle) tabSubtitle.textContent = 'Tra cứu lịch hẹn, xem hồ sơ bệnh án điện tử và thông báo xác nhận';
+            } else {
+                if (tabTitle) tabTitle.textContent = 'Tra Cứu & Quản Lý Lịch Khám Toàn Viện';
+                if (tabSubtitle) tabSubtitle.textContent = 'Bộ lọc đa năng, kiểm tra trùng lịch an toàn, điều phối ca khám và bệnh án';
+            }
+
             try {
-                const res = await fetch('/api/v1/lich-hen', { 
+                const keyword = (document.getElementById('appointmentSearchInput')?.value || '').trim();
+                const status = document.getElementById('appointmentStatusFilter')?.value || '';
+                const timeFilter = document.getElementById('appointmentTimeFilter')?.value || 'all';
+                const dateFilter = document.getElementById('appointmentDateFilter')?.value || '';
+
+                let url = isPatient ? '/api/v1/lich-hen/lich-su-cua-toi' : '/api/v1/lich-hen';
+                const params = new URLSearchParams();
+
+                if (keyword) params.append('tu_khoa', keyword);
+                if (status) params.append('trang_thai', status);
+                if (timeFilter && timeFilter !== 'all' && timeFilter !== 'custom') {
+                    params.append('moc_thoi_gian', timeFilter);
+                }
+                if (timeFilter === 'custom' && dateFilter) {
+                    params.append('ngay_kham', dateFilter);
+                }
+
+                const queryString = params.toString();
+                if (queryString) {
+                    url += `?${queryString}`;
+                }
+
+                const res = await fetch(url, { 
                     headers: { 
                         'Accept': 'application/json',
-                        'Authorization': state.token ? `Bearer ${state.token}` : ''
+                        'Authorization': `Bearer ${state.token}`
                     } 
                 });
                 const data = await res.json();
                 if (data.thanh_cong) {
-                    state.appointments = data.du_lieu;
+                    state.appointments = data.du_lieu || [];
                     document.getElementById('statAppointmentCount').textContent = state.appointments.length;
                     renderAppointments();
                     renderInvoices();
@@ -873,35 +1352,88 @@
             }
         }
 
+        let appSearchTimeout = null;
         function filterAppointments() {
-            renderAppointments();
+            clearTimeout(appSearchTimeout);
+            appSearchTimeout = setTimeout(() => {
+                loadAppointments();
+            }, 300);
+        }
+
+        function handleTimeFilterChange() {
+            const timeFilter = document.getElementById('appointmentTimeFilter')?.value;
+            const customDateInput = document.getElementById('appointmentDateFilter');
+            if (timeFilter === 'custom') {
+                if (!customDateInput.value) {
+                    customDateInput.value = new Date().toISOString().split('T')[0];
+                }
+            } else {
+                if (customDateInput) customDateInput.value = '';
+            }
+            loadAppointments();
+        }
+
+        function resetAppointmentFilters() {
+            const sInput = document.getElementById('appointmentSearchInput');
+            const stFilter = document.getElementById('appointmentStatusFilter');
+            const tmFilter = document.getElementById('appointmentTimeFilter');
+            const dtFilter = document.getElementById('appointmentDateFilter');
+
+            if (sInput) sInput.value = '';
+            if (stFilter) stFilter.value = '';
+            if (tmFilter) tmFilter.value = 'all';
+            if (dtFilter) dtFilter.value = '';
+
+            loadAppointments();
+        }
+
+        function toggleBookingMedicalHistory() {
+            const details = document.getElementById('bookingMedicalDetails');
+            const icon = document.getElementById('bookingMedicalIcon');
+            if (details.classList.contains('hidden')) {
+                details.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                details.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // Date formatting helper (YYYY-MM-DD -> DD/MM/YYYY)
+        function formatDateVN(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
         }
 
         // Status Badge UI helper
         function getStatusBadge(status) {
             switch (status) {
                 case 'CHO_XAC_NHAN':
-                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap shadow-2xs">
                                 <i class="fa-solid fa-clock text-[10px]"></i> Chờ xác nhận
                             </span>`;
                 case 'DA_XAC_NHAN':
-                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shadow-2xs">
                                 <i class="fa-solid fa-circle-check text-[10px]"></i> Đã xác nhận
                             </span>`;
                 case 'DANG_KHAM':
-                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap shadow-2xs">
                                 <span class="w-1.5 h-1.5 rounded-full bg-purple-500 pulse-dot"></span> Đang khám
                             </span>`;
                 case 'HOAN_THANH':
-                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-2xs">
                                 <i class="fa-solid fa-check-double text-[10px]"></i> Hoàn thành
                             </span>`;
                 case 'DA_HUY':
-                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                    return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap shadow-2xs">
                                 <i class="fa-solid fa-ban text-[10px]"></i> Đã hủy
                             </span>`;
                 default:
-                    return `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">${status}</span>`;
+                    return `<span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 whitespace-nowrap">${status}</span>`;
             }
         }
 
@@ -909,77 +1441,129 @@
         function renderAppointments() {
             const tbody = document.getElementById('appointmentTableBody');
             const emptyMsg = document.getElementById('appointmentEmptyMessage');
-            const statusFilter = document.getElementById('appointmentStatusFilter')?.value;
 
-            const filtered = state.appointments.filter(a => {
-                return !statusFilter || a.trang_thai === statusFilter;
-            });
+            const isPatient = state.currentUser && (state.currentUser.vai_tro === 'BENH_NHAN' || state.currentUser.ma_vai_tro === 'BENH_NHAN' || state.currentUser.vai_tro_id === 3);
 
-            if (filtered.length === 0) {
+            if (!state.appointments || state.appointments.length === 0) {
                 tbody.innerHTML = '';
                 emptyMsg.classList.remove('hidden');
                 return;
             }
 
             emptyMsg.classList.add('hidden');
-            tbody.innerHTML = filtered.map(a => {
+            tbody.innerHTML = state.appointments.map(a => {
                 const benhNhanName = a.benh_nhan?.ho_ten || 'Khách vãng lai';
                 const benhNhanPhone = a.benh_nhan?.so_dien_thoai || 'Chưa cập nhật';
+                const benhNhanCccd = a.benh_nhan?.so_cccd ? `<div class="text-[11px] text-slate-500 mt-0.5 whitespace-nowrap flex items-center gap-1"><i class="fa-regular fa-id-card text-[10px] text-slate-400"></i><span>${a.benh_nhan.so_cccd}</span></div>` : '';
                 const bacSiName = a.bac_si?.ho_ten || 'Chưa phân công';
                 const chuyenKhoa = a.bac_si?.chuyen_khoa?.ten_khoa || '';
+                const phongKham = a.bac_si?.phong_kham ? ` • ${a.bac_si.phong_kham}` : '';
 
                 // Actions available according to status & login
                 let actionButtons = '';
-                if (a.trang_thai === 'CHO_XAC_NHAN') {
+                const isAdmin = state.currentUser && (state.currentUser.vai_tro === 'ADMIN' || state.currentUser.ma_vai_tro === 'ADMIN');
+                const isDoctor = state.currentUser && (state.currentUser.vai_tro === 'BAC_SI' || state.currentUser.ma_vai_tro === 'BAC_SI');
+                const isMyDoctor = isDoctor && (a.bac_si?.tai_khoan_id === state.currentUser.id || a.bac_si_id === state.currentUser.bac_si_id);
+                const canManage = isAdmin || isMyDoctor;
+
+                // Nút xem bệnh án & thông báo trong cột Thao tác (1 nút duy nhất)
+                const viewMedBtn = `
+                    <button onclick="openMedicalRecordModal(${a.id})" class="px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200/80 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs whitespace-nowrap" title="Xem Hồ Sơ Bệnh Án Điện Tử">
+                        <i class="fa-solid fa-notes-medical text-teal-600"></i>
+                        <span>Bệnh Án</span>
+                    </button>
+                `;
+                const viewNotifBtn = `
+                    <button onclick="openNotificationPreview(${a.id})" class="w-8 h-8 flex items-center justify-center bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200/80 rounded-xl text-xs transition shadow-2xs flex-shrink-0" title="Xem Thông Báo Email & SMS">
+                        <i class="fa-solid fa-bell"></i>
+                    </button>
+                `;
+
+                if (isPatient) {
+                    if (a.trang_thai === 'CHO_XAC_NHAN' || a.trang_thai === 'DA_XAC_NHAN') {
+                        actionButtons = `
+                            ${viewMedBtn}
+                            ${viewNotifBtn}
+                            <button onclick="openCancelModal(${a.id}, '${a.ma_lich_hen}')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs whitespace-nowrap" title="Hủy lịch hẹn này">
+                                <i class="fa-solid fa-ban"></i> Hủy
+                            </button>
+                        `;
+                    } else {
+                        actionButtons = `${viewMedBtn} ${viewNotifBtn}`;
+                    }
+                } else if (canManage) {
+                    if (a.trang_thai === 'CHO_XAC_NHAN') {
+                        actionButtons = `
+                            ${viewMedBtn}
+                            ${viewNotifBtn}
+                            <button onclick="updateAppointmentStatus(${a.id}, 'xac-nhan')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition shadow-xs whitespace-nowrap">
+                                Xác Nhận
+                            </button>
+                            <button onclick="openCancelModal(${a.id}, '${a.ma_lich_hen}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-xl text-xs transition flex-shrink-0" title="Hủy">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DA_XAC_NHAN') {
+                        actionButtons = `
+                            ${viewMedBtn}
+                            ${viewNotifBtn}
+                            <button onclick="updateAppointmentStatus(${a.id}, 'bat-dau')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-xs whitespace-nowrap">
+                                <i class="fa-solid fa-stethoscope mr-1"></i> Khám
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DANG_KHAM') {
+                        actionButtons = `
+                            ${viewMedBtn}
+                            ${viewNotifBtn}
+                            <button onclick="openExamModal(${a.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs whitespace-nowrap">
+                                <i class="fa-solid fa-check mr-1"></i> Hoàn Thành
+                            </button>
+                        `;
+                    } else {
+                        actionButtons = `${viewMedBtn} ${viewNotifBtn}`;
+                    }
+                } else if (isDoctor) {
                     actionButtons = `
-                        <button onclick="updateAppointmentStatus(${a.id}, 'xac-nhan')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition shadow-sm" title="Xác nhận lịch khám">
-                            Xác Nhận
-                        </button>
-                        <button onclick="updateAppointmentStatus(${a.id}, 'huy')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-lg text-xs font-bold transition" title="Hủy lịch">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        ${viewMedBtn}
+                        ${viewNotifBtn}
+                        <span class="text-[11px] text-slate-500 italic bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60 whitespace-nowrap">BS khác phụ trách</span>
                     `;
-                } else if (a.trang_thai === 'DA_XAC_NHAN') {
-                    actionButtons = `
-                        <button onclick="updateAppointmentStatus(${a.id}, 'bat-dau')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition shadow-sm" title="Bắt đầu vào khám">
-                            <i class="fa-solid fa-stethoscope mr-1"></i> Khám
-                        </button>
-                    `;
-                } else if (a.trang_thai === 'DANG_KHAM') {
-                    actionButtons = `
-                        <button onclick="openExamModal(${a.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm" title="Kết luận & Hoàn thành">
-                            <i class="fa-solid fa-check mr-1"></i> Hoàn Thành
-                        </button>
-                    `;
-                } else if (a.trang_thai === 'HOAN_THANH') {
-                    actionButtons = `
-                        <span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> Đã khám</span>
-                    `;
+                } else {
+                    actionButtons = `${viewMedBtn} ${viewNotifBtn}`;
                 }
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3.5 px-4 font-mono font-bold text-xs text-teal-800">${a.ma_lich_hen}</td>
-                        <td class="py-3.5 px-4">
+                        <td class="py-3.5 px-4 font-mono font-bold text-xs text-teal-800 whitespace-nowrap">
+                            <span class="bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200/70 inline-block">${a.ma_lich_hen}</span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap">
                             <div class="font-bold text-slate-800">${benhNhanName}</div>
-                            <div class="text-xs text-slate-500"><i class="fa-solid fa-phone text-[10px] mr-1"></i>${benhNhanPhone}</div>
+                            <div class="text-xs text-slate-500 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-phone text-[10px] text-slate-400"></i><span>${benhNhanPhone}</span></div>
+                            ${benhNhanCccd}
                         </td>
                         <td class="py-3.5 px-4">
-                            <div class="font-semibold text-slate-800">${bacSiName}</div>
-                            <div class="text-xs text-teal-600">${chuyenKhoa}</div>
+                            <div class="font-bold text-slate-800">${bacSiName}</div>
+                            <div class="text-xs text-teal-700 font-medium mt-0.5">${chuyenKhoa}${phongKham}</div>
                         </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-semibold text-slate-700">${a.ngay_kham}</div>
-                            <div class="text-xs text-slate-500 font-medium">${a.gio_kham}</div>
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <div class="font-bold text-slate-700 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar text-teal-600 text-xs"></i>
+                                <span>${formatDateVN(a.ngay_kham)}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5">
+                                <i class="fa-regular fa-clock text-slate-400 text-xs"></i>
+                                <span>${a.gio_kham}</span>
+                            </div>
                         </td>
                         <td class="py-3.5 px-4 text-xs text-slate-600 max-w-xs truncate" title="${a.trieu_chung || ''}">
-                            ${a.trieu_chung || 'Khám tổng quát'}
+                            ${a.trieu_chung || 'Khám sức khỏe tổng quát'}
                         </td>
-                        <td class="py-3.5 px-4 text-center">
+                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
                             ${getStatusBadge(a.trang_thai)}
                         </td>
-                        <td class="py-3.5 px-4 text-right">
-                            <div class="flex items-center justify-end gap-1.5">
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-1.5 flex-nowrap">
                                 ${actionButtons}
                             </div>
                         </td>
@@ -1038,7 +1622,7 @@
                             </div>
 
                             <h4 class="font-bold text-slate-800 text-sm">${inv.benh_nhan_name}</h4>
-                            <p class="text-xs text-slate-500 mt-0.5">Bác sĩ: ${inv.bac_si_name}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Bác sĩ: ${inv.bac_si_name} • ${formatDateVN(inv.ngay_kham)}</p>
 
                             <div class="my-3 space-y-1 bg-slate-50 p-2.5 rounded-xl text-xs text-slate-600">
                                 <div class="flex justify-between">
@@ -1075,12 +1659,12 @@
 
         // ================= ACTION HANDLERS =================
 
-        // Submit Booking Form
+        // Submit Booking Form (Người 2 - Đặt lịch khám kèm hồ sơ bệnh án)
         async function handleBookingSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmitBooking');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...`;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý kiểm tra trùng lịch & lưu hồ sơ...`;
 
             const payload = {
                 bac_si_id: document.getElementById('bookingDoctorSelect').value,
@@ -1088,7 +1672,13 @@
                 gio_kham: document.getElementById('bookingTime').value,
                 ho_ten: document.getElementById('patientName').value,
                 so_dien_thoai: document.getElementById('patientPhone').value,
+                so_cccd: document.getElementById('patientCccd')?.value.trim() || null,
                 trieu_chung: document.getElementById('patientSymptoms').value || 'Khám sức khỏe tổng quát',
+                tien_su_di_ung: document.getElementById('patientAllergy')?.value.trim() || null,
+                tien_su_benh: document.getElementById('patientMedicalHistory')?.value.trim() || null,
+                nhom_mau: document.getElementById('patientBloodGroup')?.value || null,
+                nguoi_lien_he_khan_cap: document.getElementById('patientEmergencyContact')?.value.trim() || null,
+                sdt_khan_cap: document.getElementById('patientEmergencyPhone')?.value.trim() || null,
             };
 
             try {
@@ -1103,15 +1693,27 @@
                 });
 
                 const data = await res.json();
-                if (data.thanh_cong) {
-                    showToast('Đăng ký lịch khám thành công! Mã lịch hẹn: ' + data.du_lieu.ma_lich_hen, 'success');
+                if (data.thanh_cong && data.du_lieu) {
+                    const lh = data.du_lieu;
+                    state.lastCreatedAppointment = lh;
                     closeModal('modalBooking');
                     document.getElementById('bookingForm').reset();
+
+                    // Fill success modal
+                    document.getElementById('successAppCode').textContent = lh.ma_lich_hen;
+                    document.getElementById('successDoctorName').textContent = lh.bac_si?.ho_ten || 'Bác sĩ chuyên khoa';
+                    document.getElementById('successAppTime').textContent = `${lh.gio_kham} - ${formatDateVN(lh.ngay_kham)}`;
+                    document.getElementById('successPatientName').textContent = lh.benh_nhan?.ho_ten || payload.ho_ten;
+                    
+                    const createdAt = lh.created_at ? new Date(lh.created_at).toLocaleString('vi-VN') : new Date().toLocaleString('vi-VN');
+                    document.getElementById('successCreatedAt').textContent = createdAt;
+
+                    openModal('modalBookingSuccess');
+                    showToast('Đặt lịch hẹn thành công!', 'success');
                     await loadAppointments();
-                    switchTab('lichhen');
                 } else {
-                    const errDetail = data.chi_tiet_loi ? Object.values(data.chi_tiet_loi).flat().join(', ') : data.thong_bao;
-                    showToast(errDetail || 'Đặt lịch thất bại, vui lòng thử lại', 'error');
+                    const errDetail = data.chi_tiet_loi ? Object.values(data.chi_tiet_loi).flat().join('<br>') : data.thong_bao;
+                    showToast(errDetail || 'Đặt lịch thất bại, vui lòng kiểm tra lại thông tin', 'error');
                 }
             } catch (err) {
                 showToast('Lỗi kết nối máy chủ', 'error');
@@ -1122,7 +1724,183 @@
             }
         }
 
-        // Update Appointment Status (xac-nhan, bat-dau, huy)
+        // Open Medical Record Modal
+        function openMedicalRecordModal(appointmentId) {
+            const app = state.appointments.find(a => a.id === appointmentId);
+            if (!app) return;
+
+            const bn = app.benh_nhan || {};
+            const bs = app.bac_si || {};
+
+            document.getElementById('medRecHeaderSub').textContent = `Mã lịch hẹn: ${app.ma_lich_hen} • Bệnh nhân: ${bn.ho_ten || 'Khách'}`;
+            document.getElementById('medRecPatientName').textContent = bn.ho_ten || 'Khách vãng lai';
+            document.getElementById('medRecCode').textContent = app.ma_lich_hen;
+            document.getElementById('medRecCccd').textContent = bn.so_cccd || 'Chưa cập nhật';
+            document.getElementById('medRecPhone').textContent = bn.so_dien_thoai || 'Chưa cập nhật';
+            document.getElementById('medRecBlood').textContent = bn.nhom_mau ? `Nhóm ${bn.nhom_mau}` : 'Chưa rõ';
+
+            document.getElementById('medRecAllergy').textContent = bn.tien_su_di_ung || 'Không ghi nhận dị ứng thuốc';
+            document.getElementById('medRecHistory').textContent = bn.tien_su_benh || 'Không ghi nhận bệnh lý mãn tính';
+
+            const emergencyText = (bn.nguoi_lien_he_khan_cap || bn.sdt_khan_cap) ? 
+                `${bn.nguoi_lien_he_khan_cap || 'Người thân'} (${bn.sdt_khan_cap || 'Chưa có SĐT'})` : 
+                'Chưa đăng ký thông tin người thân khẩn cấp';
+            document.getElementById('medRecEmergency').textContent = emergencyText;
+
+            const ckName = bs.chuyen_khoa?.ten_khoa ? ` (${bs.chuyen_khoa.ten_khoa})` : '';
+            document.getElementById('medRecDoctor').textContent = `${bs.ho_ten || 'Bác sĩ'}${ckName}`;
+            document.getElementById('medRecTime').textContent = `${app.gio_kham} ngày ${formatDateVN(app.ngay_kham)}`;
+            document.getElementById('medRecSymptoms').textContent = app.trieu_chung || 'Khám sức khỏe định kỳ';
+
+            const diagContainer = document.getElementById('medRecDiagnosisContainer');
+            const advContainer = document.getElementById('medRecAdviceContainer');
+
+            if (app.chuan_doan) {
+                diagContainer.classList.remove('hidden');
+                document.getElementById('medRecDiagnosis').textContent = app.chuan_doan;
+            } else {
+                diagContainer.classList.add('hidden');
+            }
+
+            if (app.loi_khuyen) {
+                advContainer.classList.remove('hidden');
+                document.getElementById('medRecAdvice').textContent = app.loi_khuyen;
+            } else {
+                advContainer.classList.add('hidden');
+            }
+
+            openModal('modalMedicalRecord');
+        }
+
+        // Open Notification Preview Modal
+        function openNotificationPreview(appointmentId) {
+            const app = state.appointments.find(a => a.id === appointmentId);
+            if (!app) return;
+            populateNotificationModal(app);
+            openModal('modalNotificationPreview');
+        }
+
+        function showBookingSuccessNotification() {
+            if (state.lastCreatedAppointment) {
+                closeModal('modalBookingSuccess');
+                populateNotificationModal(state.lastCreatedAppointment);
+                openModal('modalNotificationPreview');
+            }
+        }
+
+        function populateNotificationModal(app) {
+            const bn = app.benh_nhan || {};
+            const bs = app.bac_si || {};
+            const maLK = app.ma_lich_hen;
+            const ngayFormatted = formatDateVN(app.ngay_kham);
+            const gio = app.gio_kham;
+            const tenBS = bs.ho_ten || 'Bác sĩ phụ trách';
+            const tenKhoa = bs.chuyen_khoa?.ten_khoa ? ` (${bs.chuyen_khoa.ten_khoa})` : '';
+
+            document.getElementById('notifEmailDate').textContent = new Date().toLocaleString('vi-VN');
+            document.getElementById('notifEmailRecipient').textContent = `${bn.ho_ten || 'Quý khách'} (${bn.email || 'benhnhan@gmail.com'})`;
+            document.getElementById('notifEmailPatient').textContent = bn.ho_ten || 'Quý khách';
+            document.getElementById('notifEmailCode').textContent = maLK;
+            document.getElementById('notifEmailDoctor').textContent = `${tenBS}${tenKhoa}`;
+            document.getElementById('notifEmailTime').textContent = `${gio} ngày ${ngayFormatted}`;
+            document.getElementById('notifEmailStatus').textContent = app.trang_thai;
+
+            // Subject & SMS text
+            let subject = `【Đại Việt Clinic】Thông báo lịch khám #${maLK}`;
+            let smsText = `[DaiViet Clinic] Thong bao lich hen ${maLK}.`;
+
+            if (app.trang_thai === 'CHO_XAC_NHAN') {
+                subject = `【Đại Việt Clinic】Xác nhận đặt lịch khám #${maLK}`;
+                smsText = `[DaiViet Clinic] Dat lich ${maLK} thanh cong. Gio: ${gio} ngay ${ngayFormatted} voi BS ${tenBS}. Vui long den truoc 15 phut.`;
+            } else if (app.trang_thai === 'DA_XAC_NHAN') {
+                subject = `【Đại Việt Clinic】Lịch khám #${maLK} đã được phê duyệt`;
+                smsText = `[DaiViet Clinic] Lich hen ${maLK} da duoc BS ${tenBS} XAC NHAN tiep don vao ${gio} ngay ${ngayFormatted}.`;
+            } else if (app.trang_thai === 'HOAN_THANH') {
+                subject = `【Đại Việt Clinic】Cảm ơn bạn đã thăm khám #${maLK}`;
+                smsText = `[DaiViet Clinic] Hoan tat ca kham ${maLK}. Chuc quy khach ${bn.ho_ten || ''} som binh phuc!`;
+            } else if (app.trang_thai === 'DA_HUY') {
+                subject = `【Đại Việt Clinic】Thông báo hủy lịch khám #${maLK}`;
+                smsText = `[DaiViet Clinic] Lich hen ${maLK} ngay ${ngayFormatted} da HUY. Chi tiet LH 19001234.`;
+            }
+
+            document.getElementById('notifEmailSubject').textContent = subject;
+            document.getElementById('notifSmsContent').textContent = smsText;
+
+            switchNotifTab('email');
+        }
+
+        function switchNotifTab(tab) {
+            const btnEmail = document.getElementById('btnTabNotifEmail');
+            const btnSms = document.getElementById('btnTabNotifSms');
+            const viewEmail = document.getElementById('notifEmailView');
+            const viewSms = document.getElementById('notifSmsView');
+
+            if (tab === 'email') {
+                btnEmail.className = 'flex-1 py-1.5 rounded-lg bg-white text-teal-800 shadow-xs transition';
+                btnSms.className = 'flex-1 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                viewEmail.classList.remove('hidden');
+                viewSms.classList.add('hidden');
+            } else {
+                btnSms.className = 'flex-1 py-1.5 rounded-lg bg-white text-teal-800 shadow-xs transition';
+                btnEmail.className = 'flex-1 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                viewEmail.classList.add('hidden');
+                viewSms.classList.remove('hidden');
+            }
+        }
+
+        // Open Cancel Modal
+        function openCancelModal(appointmentId, appointmentCode) {
+            document.getElementById('cancelAppointmentId').value = appointmentId;
+            document.getElementById('cancelModalInfo').textContent = `Mã phiếu khám: ${appointmentCode}`;
+            document.getElementById('cancelReasonInput').value = '';
+            openModal('modalCancelAppointment');
+        }
+
+        // Submit Cancel Appointment
+        async function submitCancelAppointment() {
+            const id = document.getElementById('cancelAppointmentId').value;
+            const reason = document.getElementById('cancelReasonInput').value.trim();
+            const btn = document.getElementById('btnConfirmCancelApp');
+
+            if (!state.token) {
+                showToast('Vui lòng đăng nhập để hủy lịch hẹn', 'error');
+                openLoginModal();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Đang hủy...`;
+
+            try {
+                const res = await fetch(`/api/v1/lich-hen/${id}/huy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify({
+                        ly_do: reason || 'Người bệnh yêu cầu hủy lịch'
+                    })
+                });
+
+                const data = await res.json();
+                if (data.thanh_cong) {
+                    closeModal('modalCancelAppointment');
+                    showToast('Đã hủy lịch hẹn thành công', 'success');
+                    await loadAppointments();
+                } else {
+                    showToast(data.thong_bao || 'Không thể hủy lịch khám này', 'error');
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối khi gửi yêu cầu hủy', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>Xác Nhận Hủy</span>`;
+            }
+        }
+
+        // Update Appointment Status (xac-nhan, bat-dau)
         async function updateAppointmentStatus(id, action) {
             if (!state.token) {
                 showToast('Vui lòng đăng nhập để thực hiện thao tác này', 'error');
