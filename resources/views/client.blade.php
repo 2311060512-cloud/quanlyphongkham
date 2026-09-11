@@ -211,9 +211,9 @@
 
                     <!-- User Profile & Action Buttons -->
                     <div class="flex items-center space-x-3">
-                        <button onclick="openBookingModal()" class="hidden sm:flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-teal-950 font-bold text-sm px-4 py-2.5 rounded-xl shadow-md transition duration-200 transform hover:-translate-y-0.5">
+                        <button onclick="openBookingModal()" id="btnTopBooking" class="hidden sm:flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-teal-950 font-bold text-sm px-4 py-2.5 rounded-xl shadow-md transition duration-200 transform hover:-translate-y-0.5">
                             <i class="fa-solid fa-calendar-plus text-base"></i>
-                            <span>Đặt Lịch Khám</span>
+                            <span id="btnTopBookingText">Đặt Lịch Khám</span>
                         </button>
 
                         <!-- User Profile Badge with Dropdown Actions -->
@@ -293,9 +293,9 @@
 
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
                         <div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Lịch Khám Hệ Thống</span>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400" id="statAppointmentLabel">Lịch Khám Hệ Thống</span>
                             <h3 class="text-3xl font-extrabold text-emerald-700 mt-1" id="statAppointmentCount">0</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Cập nhật theo thời gian thực</p>
+                            <p class="text-xs text-slate-500 mt-0.5" id="statAppointmentSub">Cập nhật theo thời gian thực</p>
                         </div>
                         <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-2xl border border-emerald-100">
                             <i class="fa-solid fa-calendar-check"></i>
@@ -335,7 +335,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                             <i class="fa-solid fa-user-doctor text-teal-600"></i>
-                            <span>Danh Sách Bác Sĩ Chuyên Khoa</span>
+                            <span id="doctorSectionTitle">Danh Sách Bác Sĩ Chuyên Khoa</span>
                         </h2>
                         <span class="text-xs text-slate-500" id="doctorResultCount">Đang tải dữ liệu...</span>
                     </div>
@@ -377,8 +377,8 @@
                             <i class="fa-solid fa-list-check"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-slate-800">Tra Cứu & Điều Phối Lịch Hẹn</h2>
-                            <p class="text-xs text-slate-500">Xem trạng thái, xác nhận khám và cập nhật kết quả điều trị</p>
+                            <h2 class="text-lg font-bold text-slate-800" id="tabLichHenTitle">Tra Cứu & Điều Phối Lịch Hẹn</h2>
+                            <p class="text-xs text-slate-500" id="tabLichHenSubTitle">Xem trạng thái, xác nhận khám và cập nhật kết quả điều trị</p>
                         </div>
                     </div>
 
@@ -392,9 +392,9 @@
                             <option value="DA_HUY">Đã hủy</option>
                         </select>
 
-                        <button onclick="openBookingModal()" class="bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
+                        <button onclick="openBookingModal()" id="btnSectionBooking" class="bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
                             <i class="fa-solid fa-plus"></i>
-                            <span>Thêm Lịch Khám</span>
+                            <span id="btnSectionBookingText">Thêm Lịch Khám</span>
                         </button>
                     </div>
                 </div>
@@ -427,14 +427,14 @@
 
             <!-- ================= TAB 4: VIỆN PHÍ & HÓA ĐƠN ================= -->
             <section id="tab-content-hoadon" class="hidden space-y-6">
-                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+                <div id="invoiceBanner" class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
-                        <span class="text-xs uppercase tracking-wider font-semibold text-emerald-200">Báo Cáo Tài Chính Viện Phí</span>
-                        <h3 class="text-2xl font-bold mt-1">Tổng Doanh Thu Khám & Xét Nghiệm</h3>
-                        <p class="text-xs text-emerald-100 mt-1">Hóa đơn phát sinh tự động sau khi Bác sĩ hoàn thành khám bệnh</p>
+                        <span class="text-xs uppercase tracking-wider font-semibold text-emerald-200" id="invoiceBannerTag">Báo Cáo Tài Chính Viện Phí</span>
+                        <h3 class="text-2xl font-bold mt-1" id="invoiceBannerTitle">Tổng Doanh Thu Khám & Xét Nghiệm</h3>
+                        <p class="text-xs text-emerald-100 mt-1" id="invoiceBannerSub">Hóa đơn phát sinh tự động sau khi Bác sĩ hoàn thành khám bệnh</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-xs uppercase font-semibold text-emerald-200">Đã thu thực tế</span>
+                        <span class="text-xs uppercase font-semibold text-emerald-200" id="invoiceRevenueLabel">Đã thu thực tế</span>
                         <div class="text-3xl font-extrabold text-white" id="totalRevenueDisplay">0 đ</div>
                     </div>
                 </div>
@@ -742,6 +742,134 @@
         </div>
     </div>
 
+    <!-- Modal Xem Kết Quả & Hồ Sơ Khám Bệnh -->
+    <div id="modalMedicalRecord" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-start pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-2xl border border-teal-100 shadow-sm">
+                        <i class="fa-solid fa-file-waveform"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg font-bold text-slate-800">Hồ Sơ & Kết Quả Khám Bệnh</h3>
+                            <span id="recStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Hoàn thành</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Mã lịch hẹn: <span id="recAppointmentCode" class="font-mono font-bold text-teal-800">LH...</span></p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modalMedicalRecord')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="space-y-4 mt-5 text-sm">
+                <!-- Thông tin chung: Bác sĩ & Bệnh nhân -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
+                    <div class="space-y-1.5">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Bác sĩ phụ trách</span>
+                        <div class="font-bold text-slate-800 text-sm" id="recDoctorName">BS...</div>
+                        <div class="text-slate-600" id="recDoctorSpecialty">Chuyên khoa</div>
+                        <div class="text-teal-700 font-semibold" id="recClinicRoom"><i class="fa-solid fa-door-open mr-1"></i> Phòng khám</div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Thông tin người khám</span>
+                        <div class="font-bold text-slate-800 text-sm" id="recPatientName">Nguyễn Văn A</div>
+                        <div class="text-slate-600" id="recPatientPhone">0987...</div>
+                        <div class="text-slate-600"><i class="fa-regular fa-clock mr-1 text-slate-400"></i> <span id="recExamDateTime">2026-09-12 09:00</span></div>
+                    </div>
+                </div>
+
+                <!-- Triệu chứng ban đầu -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Triệu chứng ban đầu:</span>
+                    <p class="bg-white border border-slate-200 rounded-xl p-3 text-xs text-slate-700" id="recSymptoms">-</p>
+                </div>
+
+                <!-- Kết luận & Chẩn đoán của Bác sĩ -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-stethoscope text-teal-600"></i> Chẩn Đoán Của Bác Sĩ:
+                    </span>
+                    <div class="bg-teal-50/70 border border-teal-200 rounded-2xl p-4 text-slate-800 text-sm font-semibold leading-relaxed" id="recDiagnosis">
+                        Chưa cập nhật
+                    </div>
+                </div>
+
+                <!-- Lời khuyên / Hướng dẫn điều trị -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-sky-800 flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-notes-medical text-sky-600"></i> Lời Khuyên & Hướng Dẫn Điều Trị:
+                    </span>
+                    <div class="bg-sky-50/60 border border-sky-200 rounded-2xl p-4 text-slate-700 text-xs leading-relaxed whitespace-pre-line" id="recAdvice">
+                        Chưa có lời khuyên
+                    </div>
+                </div>
+
+                <!-- Dịch vụ cận lâm sàng đã chỉ định -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-800 flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-flask-vial text-indigo-600"></i> Danh Mục Cận Lâm Sàng & Xét Nghiệm Đã Làm:
+                    </span>
+                    <div id="recServicesList" class="space-y-1.5">
+                        <!-- Render via JS -->
+                    </div>
+                </div>
+
+                <!-- Tổng kết viện phí -->
+                <div class="border-t border-slate-100 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/60 p-4 rounded-2xl">
+                    <div>
+                        <span class="text-xs text-slate-500 block font-medium">Trạng thái thanh toán:</span>
+                        <div id="recPaymentStatusBadge" class="mt-1">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">Chờ thanh toán</span>
+                        </div>
+                    </div>
+                    <div class="sm:text-right">
+                        <span class="text-xs text-slate-500 block font-medium">Tổng viện phí:</span>
+                        <span class="text-xl font-extrabold text-teal-800" id="recTotalFee">0 đ</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeModal('modalMedicalRecord')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-xs transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hủy Lịch Hẹn -->
+    <div id="modalCancelAppointment" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center gap-3 pb-3 border-b border-slate-100 text-rose-600">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-lg border border-rose-100">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-800">Xác Nhận Hủy Lịch Khám</h3>
+                    <p class="text-xs text-slate-500" id="cancelAppointmentCode">Mã lịch: LH...</p>
+                </div>
+            </div>
+
+            <form id="formCancelAppointment" onsubmit="handleCancelAppointmentSubmit(event)" class="space-y-4 mt-4 text-xs">
+                <input type="hidden" id="cancelAppointmentId">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Lý do hủy lịch <span class="text-rose-500">*</span></label>
+                    <textarea id="cancelReason" required rows="3" placeholder="Ví dụ: Bận việc đột xuất, đổi giờ khám..." class="w-full border border-slate-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalCancelAppointment')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+                        Bỏ qua
+                    </button>
+                    <button type="submit" id="btnSubmitCancelApp" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-ban"></i>
+                        <span>Xác Nhận Hủy Hẹn</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl border border-slate-800 text-sm">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
@@ -954,22 +1082,92 @@
         function updateProfileHeader() {
             if (!state.currentUser) return;
 
-            document.getElementById('profileName').textContent = state.currentUser.ho_ten || state.currentUser.ten_dang_nhap;
-            document.getElementById('profileRole').textContent = state.currentUser.ten_vai_tro || state.currentUser.vai_tro;
+            const user = state.currentUser;
+            const role = user.vai_tro || 'BENH_NHAN';
 
-            const isAdmin = state.currentUser.vai_tro === 'ADMIN';
+            // 1. Profile Badge in Header
+            document.getElementById('profileName').textContent = user.ho_ten || user.ten_dang_nhap;
+            const roleBadge = document.getElementById('profileRole');
+            if (role === 'ADMIN') {
+                roleBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 border border-rose-400/40 uppercase tracking-wide';
+                roleBadge.textContent = '👑 Quản Trị Viên';
+            } else if (role === 'BAC_SI') {
+                roleBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/30 text-sky-200 border border-sky-400/40 uppercase tracking-wide';
+                roleBadge.textContent = '👨‍⚕️ Bác Sĩ Khám';
+            } else {
+                roleBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 uppercase tracking-wide';
+                roleBadge.textContent = '🧑 Bệnh Nhân';
+            }
+
+            // 2. Navigation Tabs Customization by Role
+            const navBacSi = document.getElementById('nav-bacsi');
+            const navLichHen = document.getElementById('nav-lichhen');
+            const navHoaDon = document.getElementById('nav-hoadon');
             const navTaiKhoan = document.getElementById('nav-taikhoan');
             const mobNavTaiKhoan = document.getElementById('mob-nav-taikhoan');
             const btnAdminAddDoctor = document.getElementById('btnAdminAddDoctor');
+            const btnTopBooking = document.getElementById('btnTopBooking');
+            const btnTopBookingText = document.getElementById('btnTopBookingText');
+            const btnSectionBooking = document.getElementById('btnSectionBooking');
+            const btnSectionBookingText = document.getElementById('btnSectionBookingText');
 
-            if (isAdmin) {
+            // Section Titles
+            const tabLichHenTitle = document.getElementById('tabLichHenTitle');
+            const tabLichHenSubTitle = document.getElementById('tabLichHenSubTitle');
+            const doctorSectionTitle = document.getElementById('doctorSectionTitle');
+            const statAppointmentLabel = document.getElementById('statAppointmentLabel');
+            const statAppointmentSub = document.getElementById('statAppointmentSub');
+
+            if (role === 'ADMIN') {
+                if (navBacSi) navBacSi.innerHTML = `<i class="fa-solid fa-user-doctor mr-1.5"></i> Quản Trị Bác Sĩ`;
+                if (navLichHen) navLichHen.innerHTML = `<i class="fa-solid fa-calendar-check mr-1.5"></i> Điều Phối Lịch Hẹn`;
+                if (navHoaDon) navHoaDon.innerHTML = `<i class="fa-solid fa-receipt mr-1.5"></i> Viện Phí & Doanh Thu`;
                 navTaiKhoan?.classList.remove('hidden');
                 mobNavTaiKhoan?.classList.remove('hidden');
                 btnAdminAddDoctor?.classList.remove('hidden');
-            } else {
+                if (btnTopBooking) btnTopBooking.classList.remove('hidden');
+                if (btnTopBookingText) btnTopBookingText.textContent = 'Thêm Lịch Khám';
+                if (btnSectionBooking) btnSectionBooking.classList.remove('hidden');
+                if (btnSectionBookingText) btnSectionBookingText.textContent = 'Thêm Lịch Khám';
+
+                if (tabLichHenTitle) tabLichHenTitle.textContent = 'Điều Phối Lịch Hẹn Toàn Viện';
+                if (tabLichHenSubTitle) tabLichHenSubTitle.textContent = 'Theo dõi toàn bộ lịch khám, phân bổ bác sĩ và điều phối hoạt động khám chữa bệnh';
+                if (doctorSectionTitle) doctorSectionTitle.textContent = 'Quản Lý Hồ Sơ Bác Sĩ & Chuyên Khoa';
+                if (statAppointmentLabel) statAppointmentLabel.textContent = 'Lịch Toàn Viện';
+                if (statAppointmentSub) statAppointmentSub.textContent = 'Tổng số lịch hẹn ghi nhận';
+            } else if (role === 'BAC_SI') {
+                if (navBacSi) navBacSi.innerHTML = `<i class="fa-solid fa-user-doctor mr-1.5"></i> Danh Sách Bác Sĩ`;
+                if (navLichHen) navLichHen.innerHTML = `<i class="fa-solid fa-calendar-check mr-1.5"></i> Lịch Trực Khám`;
+                if (navHoaDon) navHoaDon.innerHTML = `<i class="fa-solid fa-receipt mr-1.5"></i> Viện Phí Bệnh Nhân`;
                 navTaiKhoan?.classList.add('hidden');
                 mobNavTaiKhoan?.classList.add('hidden');
                 btnAdminAddDoctor?.classList.add('hidden');
+                if (btnTopBooking) btnTopBooking.classList.add('hidden');
+                if (btnSectionBooking) btnSectionBooking.classList.add('hidden');
+
+                if (tabLichHenTitle) tabLichHenTitle.textContent = 'Lịch Trực Khám Của Bác Sĩ';
+                if (tabLichHenSubTitle) tabLichHenSubTitle.textContent = 'Danh sách bệnh nhân đăng ký theo ca trực của bác sĩ. Tiếp nhận và kết luận khám bệnh.';
+                if (doctorSectionTitle) doctorSectionTitle.textContent = 'Đội Ngũ Bác Sĩ & Đồng Nghiệp';
+                if (statAppointmentLabel) statAppointmentLabel.textContent = 'Lịch Khám Của Bác Sĩ';
+                if (statAppointmentSub) statAppointmentSub.textContent = 'Bệnh nhân phụ trách';
+            } else {
+                // BENH_NHAN
+                if (navBacSi) navBacSi.innerHTML = `<i class="fa-solid fa-user-doctor mr-1.5"></i> Đội Ngũ Bác Sĩ`;
+                if (navLichHen) navLichHen.innerHTML = `<i class="fa-solid fa-calendar-check mr-1.5"></i> Lịch Hẹn Của Tôi`;
+                if (navHoaDon) navHoaDon.innerHTML = `<i class="fa-solid fa-receipt mr-1.5"></i> Viện Phí Của Tôi`;
+                navTaiKhoan?.classList.add('hidden');
+                mobNavTaiKhoan?.classList.add('hidden');
+                btnAdminAddDoctor?.classList.add('hidden');
+                if (btnTopBooking) btnTopBooking.classList.remove('hidden');
+                if (btnTopBookingText) btnTopBookingText.textContent = 'Đặt Lịch Khám';
+                if (btnSectionBooking) btnSectionBooking.classList.remove('hidden');
+                if (btnSectionBookingText) btnSectionBookingText.textContent = 'Đặt Hẹn Khám Ngay';
+
+                if (tabLichHenTitle) tabLichHenTitle.textContent = 'Lịch Hẹn Khám Của Tôi';
+                if (tabLichHenSubTitle) tabLichHenSubTitle.textContent = 'Theo dõi tiến trình lịch khám, xem chẩn đoán và lời khuyên của bác sĩ sau khi khám';
+                if (doctorSectionTitle) doctorSectionTitle.textContent = 'Đội Ngũ Bác Sĩ Chuyên Khoa Phòng Khám';
+                if (statAppointmentLabel) statAppointmentLabel.textContent = 'Lịch Hẹn Của Bạn';
+                if (statAppointmentSub) statAppointmentSub.textContent = 'Số lịch hẹn cá nhân';
             }
         }
 
@@ -1020,6 +1218,11 @@
 
         // ================= TAB NAVIGATION =================
         function switchTab(tabId) {
+            // Guard: Non-admin users cannot access account management tab
+            if (tabId === 'taikhoan' && state.currentUser?.vai_tro !== 'ADMIN') {
+                tabId = 'bacsi';
+            }
+
             ['bacsi', 'dichvu', 'lichhen', 'hoadon', 'taikhoan'].forEach(t => {
                 const section = document.getElementById(`tab-content-${t}`);
                 const navBtn = document.getElementById(`nav-${t}`);
@@ -1144,6 +1347,41 @@
 
             container.innerHTML = filtered.map(d => {
                 const isWorking = d.trang_thai === 'DANG_LAM_VIEC';
+                const isCurrentDoctor = state.currentUser && state.currentUser.id === d.tai_khoan_id;
+                const role = state.currentUser?.vai_tro || 'BENH_NHAN';
+
+                let actionHtml = '';
+                if (role === 'BENH_NHAN') {
+                    actionHtml = `
+                        <button onclick="openBookingModal(${d.id})" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Đặt Khám</span>
+                        </button>
+                    `;
+                } else if (role === 'BAC_SI') {
+                    if (isCurrentDoctor) {
+                        actionHtml = `
+                            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                                <i class="fa-solid fa-user-check"></i> Hồ sơ của bạn
+                            </span>
+                        `;
+                    } else {
+                        actionHtml = `
+                            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200">
+                                <i class="fa-solid fa-user-doctor text-slate-400"></i> Đồng nghiệp
+                            </span>
+                        `;
+                    }
+                } else {
+                    // ADMIN
+                    actionHtml = `
+                        <button onclick="openBookingModal(${d.id})" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>Đặt Lịch</span>
+                        </button>
+                    `;
+                }
+
                 return `
                     <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between">
                         <div>
@@ -1190,10 +1428,7 @@
                                 <span class="text-[10px] uppercase font-bold text-slate-400 block">Giá khám ban đầu</span>
                                 <span class="text-base font-extrabold text-teal-700">${formatVND(d.gia_kham)}</span>
                             </div>
-                            <button onclick="openBookingModal(${d.id})" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
-                                <i class="fa-solid fa-calendar-check"></i>
-                                <span>Đặt Khám</span>
-                            </button>
+                            ${actionHtml}
                         </div>
                     </div>
                 `;
@@ -1318,6 +1553,7 @@
             const tbody = document.getElementById('appointmentTableBody');
             const emptyMsg = document.getElementById('appointmentEmptyMessage');
             const statusFilter = document.getElementById('appointmentStatusFilter')?.value;
+            const role = state.currentUser?.vai_tro || 'BENH_NHAN';
 
             const filtered = state.appointments.filter(a => !statusFilter || a.trang_thai === statusFilter);
 
@@ -1335,29 +1571,90 @@
                 const chuyenKhoa = a.bac_si?.chuyen_khoa?.ten_khoa || '';
 
                 let actionButtons = '';
-                if (a.trang_thai === 'CHO_XAC_NHAN') {
-                    actionButtons = `
-                        <button onclick="updateAppointmentStatus(${a.id}, 'xac-nhan')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition shadow-sm" title="Xác nhận lịch khám">
-                            Xác Nhận
-                        </button>
-                        <button onclick="updateAppointmentStatus(${a.id}, 'huy')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-lg text-xs font-bold transition" title="Hủy lịch">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    `;
-                } else if (a.trang_thai === 'DA_XAC_NHAN') {
-                    actionButtons = `
-                        <button onclick="updateAppointmentStatus(${a.id}, 'bat-dau')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition shadow-sm" title="Bắt đầu vào khám">
-                            <i class="fa-solid fa-stethoscope mr-1"></i> Khám
-                        </button>
-                    `;
-                } else if (a.trang_thai === 'DANG_KHAM') {
-                    actionButtons = `
-                        <button onclick="openExamModal(${a.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm" title="Kết luận & Hoàn thành">
-                            <i class="fa-solid fa-check mr-1"></i> Hoàn Thành
-                        </button>
-                    `;
-                } else if (a.trang_thai === 'HOAN_THANH') {
-                    actionButtons = `<span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> Đã khám</span>`;
+
+                if (role === 'BENH_NHAN') {
+                    if (a.trang_thai === 'CHO_XAC_NHAN') {
+                        actionButtons = `
+                            <button onclick="openCancelModal(${a.id}, '${a.ma_lich_hen}')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition border border-rose-200 flex items-center gap-1">
+                                <i class="fa-solid fa-xmark"></i> Hủy Lịch
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DA_XAC_NHAN') {
+                        actionButtons = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200"><i class="fa-solid fa-clock-rotate-left"></i> Đến đúng giờ</span>`;
+                    } else if (a.trang_thai === 'DANG_KHAM') {
+                        actionButtons = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200"><span class="w-1.5 h-1.5 rounded-full bg-purple-500 pulse-dot"></span> Đang khám</span>`;
+                    } else if (a.trang_thai === 'HOAN_THANH') {
+                        actionButtons = `
+                            <button onclick="openMedicalRecordModal(${a.id})" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-waveform"></i> Kết Quả & Đơn
+                            </button>
+                        `;
+                    } else {
+                        actionButtons = `<span class="text-xs text-slate-400 font-medium">Đã hủy hẹn</span>`;
+                    }
+                } else if (role === 'BAC_SI') {
+                    if (a.trang_thai === 'CHO_XAC_NHAN') {
+                        actionButtons = `
+                            <button onclick="updateAppointmentStatus(${a.id}, 'xac-nhan')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+                                Xác Nhận
+                            </button>
+                            <button onclick="openCancelModal(${a.id}, '${a.ma_lich_hen}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-xl text-xs font-bold transition" title="Hủy lịch">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DA_XAC_NHAN') {
+                        actionButtons = `
+                            <button onclick="updateAppointmentStatus(${a.id}, 'bat-dau')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1">
+                                <i class="fa-solid fa-stethoscope"></i> Vào Khám
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DANG_KHAM') {
+                        actionButtons = `
+                            <button onclick="openExamModal(${a.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1">
+                                <i class="fa-solid fa-check"></i> Kết Luận & Kê Đơn
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'HOAN_THANH') {
+                        actionButtons = `
+                            <button onclick="openMedicalRecordModal(${a.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                <i class="fa-solid fa-file-waveform"></i> Bệnh Án
+                            </button>
+                        `;
+                    } else {
+                        actionButtons = `<span class="text-xs text-rose-500 font-medium">Đã hủy</span>`;
+                    }
+                } else {
+                    // ADMIN
+                    if (a.trang_thai === 'CHO_XAC_NHAN') {
+                        actionButtons = `
+                            <button onclick="updateAppointmentStatus(${a.id}, 'xac-nhan')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+                                Xác Nhận
+                            </button>
+                            <button onclick="openCancelModal(${a.id}, '${a.ma_lich_hen}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-xl text-xs font-bold transition" title="Hủy lịch">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DA_XAC_NHAN') {
+                        actionButtons = `
+                            <button onclick="updateAppointmentStatus(${a.id}, 'bat-dau')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+                                <i class="fa-solid fa-stethoscope mr-1"></i> Khám
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'DANG_KHAM') {
+                        actionButtons = `
+                            <button onclick="openExamModal(${a.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+                                <i class="fa-solid fa-check mr-1"></i> Hoàn Thành
+                            </button>
+                        `;
+                    } else if (a.trang_thai === 'HOAN_THANH') {
+                        actionButtons = `
+                            <button onclick="openMedicalRecordModal(${a.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                <i class="fa-solid fa-file-waveform"></i> Hồ Sơ
+                            </button>
+                        `;
+                    } else {
+                        actionButtons = `<span class="text-xs text-rose-500 font-medium">Đã hủy</span>`;
+                    }
                 }
 
                 return `
@@ -1395,9 +1692,16 @@
         function renderInvoices() {
             const container = document.getElementById('invoiceGrid');
             const revenueDisplay = document.getElementById('totalRevenueDisplay');
+            const role = state.currentUser?.vai_tro || 'BENH_NHAN';
+
+            const bannerTag = document.getElementById('invoiceBannerTag');
+            const bannerTitle = document.getElementById('invoiceBannerTitle');
+            const bannerSub = document.getElementById('invoiceBannerSub');
+            const revenueLabel = document.getElementById('invoiceRevenueLabel');
 
             const invoices = [];
             let totalRevenue = 0;
+            let unpaidTotal = 0;
 
             state.appointments.forEach(a => {
                 if (a.hoa_don) {
@@ -1409,11 +1713,32 @@
                     });
                     if (a.hoa_don.trang_thai === 'DA_THANH_TOAN') {
                         totalRevenue += parseFloat(a.hoa_don.tong_tien || 0);
+                    } else {
+                        unpaidTotal += parseFloat(a.hoa_don.tong_tien || 0);
                     }
                 }
             });
 
-            revenueDisplay.textContent = formatVND(totalRevenue);
+            if (role === 'BENH_NHAN') {
+                if (bannerTag) bannerTag.textContent = 'Thông Tin Viện Phí Cá Nhân';
+                if (bannerTitle) bannerTitle.textContent = 'Viện Phí Của Quý Khách';
+                if (bannerSub) bannerSub.textContent = 'Chi phí khám bệnh và các xét nghiệm / cận lâm sàng đã thực hiện';
+                if (revenueLabel) revenueLabel.textContent = unpaidTotal > 0 ? 'Cần thanh toán' : 'Đã thanh toán đủ';
+                if (revenueDisplay) revenueDisplay.textContent = formatVND(unpaidTotal > 0 ? unpaidTotal : totalRevenue);
+            } else if (role === 'BAC_SI') {
+                if (bannerTag) bannerTag.textContent = 'Thống Kê Viện Phí Ca Trực';
+                if (bannerTitle) bannerTitle.textContent = 'Viện Phí Bệnh Nhân Của Bác Sĩ';
+                if (bannerSub) bannerSub.textContent = 'Tổng viện phí phát sinh từ các buổi khám và chỉ định cận lâm sàng của bác sĩ';
+                if (revenueLabel) revenueLabel.textContent = 'Tổng viện phí chỉ định';
+                if (revenueDisplay) revenueDisplay.textContent = formatVND(totalRevenue + unpaidTotal);
+            } else {
+                // ADMIN
+                if (bannerTag) bannerTag.textContent = 'Báo Cáo Tài Chính Viện Phí Toàn Viện';
+                if (bannerTitle) bannerTitle.textContent = 'Tổng Doanh Thu Khám & Xét Nghiệm';
+                if (bannerSub) bannerSub.textContent = 'Hóa đơn phát sinh tự động sau khi Bác sĩ hoàn thành khám bệnh';
+                if (revenueLabel) revenueLabel.textContent = 'Đã thu thực tế';
+                if (revenueDisplay) revenueDisplay.textContent = formatVND(totalRevenue);
+            }
 
             if (invoices.length === 0) {
                 container.innerHTML = `
@@ -1427,8 +1752,44 @@
 
             container.innerHTML = invoices.map(inv => {
                 const isPaid = inv.trang_thai === 'DA_THANH_TOAN';
+
+                let invoiceAction = '';
+                if (role === 'ADMIN') {
+                    invoiceAction = !isPaid ? `
+                        <button onclick="handlePayInvoice(${inv.id})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <span>Thu Viện Phí & Hoàn Tất</span>
+                        </button>
+                    ` : `
+                        <div class="text-center text-xs text-emerald-700 font-semibold py-1.5 bg-emerald-50 rounded-xl border border-emerald-200">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Đã thu tiền (${inv.phuong_thuc_thanh_toan || 'TIEN_MAT'})
+                        </div>
+                    `;
+                } else if (role === 'BAC_SI') {
+                    invoiceAction = isPaid ? `
+                        <div class="text-center text-xs text-emerald-700 font-medium py-1.5 bg-emerald-50 rounded-xl border border-emerald-200">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Bệnh nhân đã thanh toán
+                        </div>
+                    ` : `
+                        <div class="text-center text-xs text-amber-700 font-medium py-1.5 bg-amber-50 rounded-xl border border-amber-200">
+                            <i class="fa-solid fa-clock mr-1"></i> Chờ thanh toán tại Quầy Thu Ngân
+                        </div>
+                    `;
+                } else {
+                    // BENH_NHAN
+                    invoiceAction = isPaid ? `
+                        <div class="text-center text-xs text-emerald-700 font-bold py-1.5 bg-emerald-50 rounded-xl border border-emerald-200">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Quý khách đã thanh toán đủ
+                        </div>
+                    ` : `
+                        <div class="text-center text-xs text-amber-800 font-medium p-2 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-circle-info text-amber-600"></i> Thanh toán tại Quầy Thu Ngân Tầng 1
+                        </div>
+                    `;
+                }
+
                 return `
-                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm flex flex-col justify-between">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <span class="font-mono text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-100">
@@ -1459,16 +1820,7 @@
                         </div>
 
                         <div class="pt-2">
-                            ${!isPaid ? `
-                                <button onclick="handlePayInvoice(${inv.id})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-money-bill-wave"></i>
-                                    <span>Thu Viện Phí & Hoàn Tất</span>
-                                </button>
-                            ` : `
-                                <div class="text-center text-xs text-emerald-700 font-medium py-1">
-                                    <i class="fa-solid fa-circle-check mr-1"></i> Thanh toán: ${inv.phuong_thuc_thanh_toan || 'TIEN_MAT'}
-                                </div>
-                            `}
+                            ${invoiceAction}
                         </div>
                     </div>
                 `;
@@ -1730,6 +2082,99 @@
                 }
             } catch (err) {
                 showToast('Lỗi kết nối', 'error');
+            }
+        }
+
+        // ================= MEDICAL RECORD MODAL =================
+        function openMedicalRecordModal(appointmentId) {
+            const app = state.appointments.find(a => a.id === appointmentId);
+            if (!app) return;
+
+            document.getElementById('recAppointmentCode').textContent = app.ma_lich_hen;
+            document.getElementById('recDoctorName').textContent = app.bac_si?.ho_ten || 'Chưa phân công';
+            document.getElementById('recDoctorSpecialty').textContent = app.bac_si?.chuyen_khoa ? app.bac_si.chuyen_khoa.ten_khoa : 'Đa khoa';
+            document.getElementById('recClinicRoom').innerHTML = `<i class="fa-solid fa-door-open mr-1"></i> ${app.bac_si?.phong_kham || 'Phòng khám đa khoa'}`;
+            
+            document.getElementById('recPatientName').textContent = app.benh_nhan?.ho_ten || 'Bệnh nhân';
+            document.getElementById('recPatientPhone').textContent = app.benh_nhan?.so_dien_thoai || 'Chưa cập nhật';
+            document.getElementById('recExamDateTime').textContent = `${app.ngay_kham} lúc ${app.gio_kham}`;
+            document.getElementById('recSymptoms').textContent = app.trieu_chung || 'Không có triệu chứng ghi nhận';
+
+            document.getElementById('recDiagnosis').textContent = app.chuan_doan || 'Bác sĩ đã hoàn tất khám nhưng chưa cập nhật kết luận chi tiết';
+            document.getElementById('recAdvice').textContent = app.loi_khuyen || 'Uống thuốc theo đơn, nghỉ ngơi hợp lý và tái khám khi có triệu chứng bất thường.';
+
+            // Prescribed services
+            const servicesContainer = document.getElementById('recServicesList');
+            if (app.su_dung_dich_vu && app.su_dung_dich_vu.length > 0) {
+                servicesContainer.innerHTML = app.su_dung_dich_vu.map(s => `
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                            <span class="font-semibold text-slate-800">${s.dich_vu?.ten_dich_vu || 'Dịch vụ y tế'}</span>
+                            <span class="text-slate-400">x${s.so_luong || 1}</span>
+                        </div>
+                        <span class="font-bold text-teal-700">${formatVND(s.thanh_tien || (s.don_gia * (s.so_luong || 1)) || 0)}</span>
+                    </div>
+                `).join('');
+            } else {
+                servicesContainer.innerHTML = `<p class="text-xs text-slate-400 italic bg-slate-50 p-2.5 rounded-xl border border-slate-100">Không có chỉ định xét nghiệm hoặc cận lâm sàng thêm</p>`;
+            }
+
+            // Payment status & fee
+            if (app.hoa_don) {
+                const isPaid = app.hoa_don.trang_thai === 'DA_THANH_TOAN';
+                document.getElementById('recTotalFee').textContent = formatVND(app.hoa_don.tong_tien);
+                document.getElementById('recPaymentStatusBadge').innerHTML = isPaid ?
+                    `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Đã thanh toán (${app.hoa_don.phuong_thuc_thanh_toan || 'TIEN_MAT'})</span>` :
+                    `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">Chờ thanh toán tại Quầy Thu Ngân</span>`;
+            } else {
+                document.getElementById('recTotalFee').textContent = formatVND(app.bac_si?.gia_kham || 0);
+                document.getElementById('recPaymentStatusBadge').innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">Chưa phát sinh hóa đơn</span>`;
+            }
+
+            openModal('modalMedicalRecord');
+        }
+
+        // ================= CANCEL APPOINTMENT MODAL =================
+        function openCancelModal(appointmentId, code) {
+            document.getElementById('cancelAppointmentId').value = appointmentId;
+            document.getElementById('cancelAppointmentCode').textContent = `Mã lịch hẹn: ${code}`;
+            document.getElementById('cancelReason').value = '';
+            openModal('modalCancelAppointment');
+        }
+
+        async function handleCancelAppointmentSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('cancelAppointmentId').value;
+            const reason = document.getElementById('cancelReason').value.trim();
+            const btn = document.getElementById('btnSubmitCancelApp');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Đang hủy...`;
+
+            try {
+                const res = await fetch(`/api/v1/lich-hen/${id}/huy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${state.token}`
+                    },
+                    body: JSON.stringify({ ly_do: reason })
+                });
+
+                const data = await res.json();
+                if (data.thanh_cong) {
+                    showToast('Đã hủy lịch hẹn thành công', 'success');
+                    closeModal('modalCancelAppointment');
+                    await loadAppointments();
+                } else {
+                    showToast(data.thong_bao || 'Không thể hủy lịch hẹn', 'error');
+                }
+            } catch (err) {
+                showToast('Lỗi gửi yêu cầu', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Xác Nhận Hủy Hẹn</span>`;
             }
         }
 
