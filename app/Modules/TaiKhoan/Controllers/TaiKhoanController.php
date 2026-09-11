@@ -44,7 +44,7 @@ class TaiKhoanController extends Controller
 
             $thongBao = $taiKhoan->trang_thai === 'HOAT_DONG' 
                 ? 'Mở khóa tài khoản thành công.' 
-                : 'Đã tạm khóa tài khoản thành công.';
+                : 'Đã khóa tài khoản thành công (trạng thái: KHOA).';
 
             return $this->thanhCongResponse($taiKhoan, $thongBao);
         } catch (\Exception $e) {

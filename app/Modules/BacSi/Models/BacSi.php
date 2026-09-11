@@ -17,11 +17,13 @@ class BacSi extends Model
         'chuyen_khoa_id',
         'ma_bac_si',
         'ho_ten',
+        'hinh_anh',
         'hoc_vi',
         'so_dien_thoai',
         'email',
         'gia_kham',
         'phong_kham',
+        'ca_lam_viec',
         'kinh_nghiem',
         'trang_thai',
     ];

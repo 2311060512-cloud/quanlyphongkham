@@ -70,11 +70,25 @@ class BacSiController extends Controller
     }
 
     /**
-     * API Cập nhật thông tin bác sĩ (chỉnh sửa giá khám, số phòng, học vị, kinh nghiệm làm việc) (Dành cho ADMIN)
+     * API Cập nhật thông tin bác sĩ (chỉnh sửa giá khám, ảnh đại diện, đổi phòng làm việc, ca làm việc, học vị, kinh nghiệm)
+     * Dành cho: ADMIN (cập nhật bất kỳ bác sĩ nào) hoặc BAC_SI (chỉ được cập nhật hồ sơ của chính mình)
      */
     public function capNhat(CapNhatBacSiRequest $request, int $id): JsonResponse
     {
         try {
+            $user = $request->user();
+            $vaiTro = $user?->vaiTro?->ma_vai_tro;
+
+            // Nếu người dùng là BAC_SI, kiểm tra xem ID cập nhật có phải của chính bác sĩ này không
+            if ($vaiTro === 'BAC_SI') {
+                $bacSiHienTai = \App\Modules\BacSi\Models\BacSi::where('tai_khoan_id', $user->id)->first();
+                if (!$bacSiHienTai || $bacSiHienTai->id !== $id) {
+                    return $this->thatBaiResponse('Bạn chỉ có quyền cập nhật thông tin hồ sơ của chính mình.', 403);
+                }
+            } elseif ($vaiTro !== 'ADMIN') {
+                return $this->thatBaiResponse('Bạn không có quyền thực hiện chức năng này.', 403);
+            }
+
             $bacSi = $this->bacSiService->capNhatBacSi($id, $request->validated());
             return $this->thanhCongResponse($bacSi, 'Cập nhật thông tin bác sĩ thành công');
         } catch (\Exception $e) {

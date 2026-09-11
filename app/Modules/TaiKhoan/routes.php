@@ -17,6 +17,9 @@ Route::prefix('tai-khoan')->group(function () {
     // API 2: Đăng ký tài khoản bệnh nhân mới
     Route::post('/dang-ky', [DangNhapController::class, 'dangKy']);
 
+    // API 2.1: Quên mật khẩu (Khôi phục mật khẩu qua email cho bác sĩ, bệnh nhân, admin)
+    Route::post('/quen-mat-khau', [DangNhapController::class, 'quenMatKhau']);
+
     // Các API yêu cầu đã đăng nhập (Token Sanctum)
     Route::middleware('auth:sanctum')->group(function () {
         // API 3: Lấy thông tin tài khoản hiện tại kèm vai trò và hồ sơ
@@ -36,7 +39,7 @@ Route::prefix('tai-khoan')->group(function () {
             // API 7: Lấy danh sách các vai trò trong hệ thống
             Route::get('/vai-tro', [TaiKhoanController::class, 'danhSachVaiTro']);
 
-            // API 8: Khóa / Mở khóa tài khoản (chuyển đổi HOAT_DONG <-> TAM_KHOA)
+            // API 8: Khóa / Mở khóa tài khoản (chuyển đổi HOAT_DONG <-> KHOA)
             Route::post('/{id}/khoa-mo-khoa', [TaiKhoanController::class, 'khoaMoKhoa']);
         });
     });
@@ -46,6 +49,7 @@ Route::prefix('tai-khoan')->group(function () {
 Route::prefix('xac-thuc')->group(function () {
     Route::post('/dang-nhap', [DangNhapController::class, 'dangNhap']);
     Route::post('/dang-ky', [DangNhapController::class, 'dangKy']);
+    Route::post('/quen-mat-khau', [DangNhapController::class, 'quenMatKhau']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/thong-tin', [DangNhapController::class, 'thongTinHienTai']);

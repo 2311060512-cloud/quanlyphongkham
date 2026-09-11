@@ -107,18 +107,20 @@ class BacSiService
             'chuyen_khoa_id' => $duLieu['chuyen_khoa_id'],
             'ma_bac_si' => $maBacSi,
             'ho_ten' => $duLieu['ho_ten'],
+            'hinh_anh' => $duLieu['hinh_anh'] ?? null,
             'hoc_vi' => $duLieu['hoc_vi'] ?? 'Bác sĩ Chuyên khoa',
             'so_dien_thoai' => $duLieu['so_dien_thoai'] ?? null,
             'email' => $duLieu['email'] ?? null,
             'gia_kham' => $duLieu['gia_kham'] ?? 200000,
             'phong_kham' => $duLieu['phong_kham'] ?? 'P101',
+            'ca_lam_viec' => $duLieu['ca_lam_viec'] ?? 'CA_NGAY',
             'kinh_nghiem' => $duLieu['kinh_nghiem'] ?? 'Kinh nghiệm khám và điều trị chuyên sâu',
             'trang_thai' => 'DANG_LAM_VIEC',
         ])->load(['chuyenKhoa', 'taiKhoan']);
     }
 
     /**
-     * Cập nhật thông tin bác sĩ (chỉnh sửa giá khám, số phòng, học vị, kinh nghiệm làm việc)
+     * Cập nhật thông tin bác sĩ (chỉnh sửa giá khám, số phòng, học vị, ảnh đại diện, ca làm việc, kinh nghiệm làm việc)
      */
     public function capNhatBacSi(int $id, array $duLieu): BacSi
     {
@@ -136,6 +138,8 @@ class BacSiService
             'email' => $duLieu['email'] ?? null,
             'gia_kham' => isset($duLieu['gia_kham']) ? (float)$duLieu['gia_kham'] : null,
             'phong_kham' => $duLieu['phong_kham'] ?? null,
+            'hinh_anh' => array_key_exists('hinh_anh', $duLieu) ? $duLieu['hinh_anh'] : null,
+            'ca_lam_viec' => $duLieu['ca_lam_viec'] ?? null,
             'kinh_nghiem' => $duLieu['kinh_nghiem'] ?? null,
         ], fn($val) => !is_null($val));
 
@@ -169,7 +173,7 @@ class BacSiService
 
         // Nếu bác sĩ nghỉ việc, khóa tài khoản tương ứng
         if ($trangThai === 'NGHI_VIEC' && $bacSi->tai_khoan_id) {
-            $this->taiKhoanRepo->capNhat($bacSi->tai_khoan_id, ['trang_thai' => 'TAM_KHOA']);
+            $this->taiKhoanRepo->capNhat($bacSi->tai_khoan_id, ['trang_thai' => 'KHOA']);
         } elseif ($trangThai === 'DANG_LAM_VIEC' && $bacSi->tai_khoan_id) {
             $this->taiKhoanRepo->capNhat($bacSi->tai_khoan_id, ['trang_thai' => 'HOAT_DONG']);
         }

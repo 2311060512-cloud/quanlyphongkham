@@ -49,7 +49,7 @@ class TaiKhoanRepository extends BaseRepository implements TaiKhoanRepositoryInt
             return null;
         }
 
-        $taiKhoan->trang_thai = ($taiKhoan->trang_thai === 'HOAT_DONG') ? 'TAM_KHOA' : 'HOAT_DONG';
+        $taiKhoan->trang_thai = ($taiKhoan->trang_thai === 'HOAT_DONG') ? 'KHOA' : 'HOAT_DONG';
         $taiKhoan->save();
 
         return $taiKhoan->fresh('vaiTro');

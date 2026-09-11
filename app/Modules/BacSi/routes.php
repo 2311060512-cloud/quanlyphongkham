@@ -25,7 +25,13 @@ Route::prefix('bac-si')->group(function () {
     // API 4: Xem chi tiết bác sĩ kèm thông tin chuyên khoa và lịch sử công tác
     Route::get('/{id}', [BacSiController::class, 'chiTiet']);
 
-    // ================= NHÓM 3: DÀNH RIÊNG CHO QUẢN TRỊ VIÊN (ADMIN) =================
+    // ================= NHÓM 3: CẬP NHẬT HỒ SƠ BÁC SĨ (ADMIN HOẶC BÁC SĨ TỰ CẬP NHẬT) =================
+    Route::middleware(['auth:sanctum', 'phan_quyen:ADMIN,BAC_SI'])->group(function () {
+        // API 9: Cập nhật thông tin bác sĩ (chỉnh sửa giá khám, ảnh đại diện, đổi phòng làm việc, ca làm việc, học vị, kinh nghiệm)
+        Route::put('/{id}', [BacSiController::class, 'capNhat']);
+    });
+
+    // ================= NHÓM 4: DÀNH RIÊNG CHO QUẢN TRỊ VIÊN (ADMIN) =================
     Route::middleware(['auth:sanctum', 'phan_quyen:ADMIN'])->group(function () {
         
         // --- QUẢN TRỊ CHUYÊN KHOA ---
@@ -41,9 +47,6 @@ Route::prefix('bac-si')->group(function () {
         // --- QUẢN TRỊ BÁC SĨ ---
         // API 8: Thêm bác sĩ mới (Tự động tạo tài khoản đăng nhập với vai trò BAC_SI và mật khẩu mặc định)
         Route::post('/', [BacSiController::class, 'taoMoi']);
-
-        // API 9: Cập nhật thông tin bác sĩ (chỉnh sửa giá khám, số phòng, học vị, kinh nghiệm làm việc)
-        Route::put('/{id}', [BacSiController::class, 'capNhat']);
 
         // API 10: Đổi trạng thái bác sĩ (DANG_LAM_VIEC / NGHI_PHEP / NGHI_VIEC)
         Route::post('/{id}/doi-trang-thai', [BacSiController::class, 'doiTrangThai']);

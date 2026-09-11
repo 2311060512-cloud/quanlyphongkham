@@ -23,6 +23,8 @@ class CapNhatBacSiRequest extends FormRequest
             'email' => 'nullable|email|max:150',
             'gia_kham' => 'sometimes|required|numeric|min:0',
             'phong_kham' => 'sometimes|required|string|max:100',
+            'hinh_anh' => 'nullable|string|max:255',
+            'ca_lam_viec' => 'nullable|string|in:CA_SANG,CA_CHIEU,CA_NGAY,NGAY_NGHI',
             'kinh_nghiem' => 'nullable|string',
         ];
     }
@@ -32,6 +34,7 @@ class CapNhatBacSiRequest extends FormRequest
         return [
             'chuyen_khoa_id.exists' => 'Chuyên khoa đã chọn không tồn tại.',
             'gia_kham.numeric' => 'Giá khám phải là định dạng số.',
+            'ca_lam_viec.in' => 'Ca làm việc không hợp lệ (CA_SANG, CA_CHIEU, CA_NGAY, NGAY_NGHI).',
         ];
     }
 

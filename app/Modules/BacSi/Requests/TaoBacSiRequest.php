@@ -23,6 +23,8 @@ class TaoBacSiRequest extends FormRequest
             'email' => 'nullable|email|max:150',
             'gia_kham' => 'required|numeric|min:0',
             'phong_kham' => 'required|string|max:100',
+            'hinh_anh' => 'nullable|string|max:255',
+            'ca_lam_viec' => 'nullable|string|in:CA_SANG,CA_CHIEU,CA_NGAY,NGAY_NGHI',
             'kinh_nghiem' => 'nullable|string',
             'ten_dang_nhap' => 'nullable|string|min:3|max:100|unique:tai_khoan,ten_dang_nhap',
             'mat_khau' => 'nullable|string|min:6',

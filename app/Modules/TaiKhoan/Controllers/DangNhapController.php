@@ -8,6 +8,7 @@ use App\Modules\TaiKhoan\Services\TaiKhoanService;
 use App\Modules\TaiKhoan\Requests\DangNhapRequest;
 use App\Modules\TaiKhoan\Requests\DangKyRequest;
 use App\Modules\TaiKhoan\Requests\DoiMatKhauRequest;
+use App\Modules\TaiKhoan\Requests\QuenMatKhauRequest;
 use App\Traits\TraVeDuLieuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +50,22 @@ class DangNhapController extends Controller
         try {
             $ketQua = $this->xacThucService->dangKy($request->validated());
             return $this->thanhCongResponse($ketQua, 'Đăng ký tài khoản thành công', 201);
+        } catch (\Exception $e) {
+            return $this->thatBaiResponse($e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * API Quên mật khẩu: Khôi phục lại mật khẩu cho bác sĩ, bệnh nhân, admin qua email
+     */
+    public function quenMatKhau(QuenMatKhauRequest $request): JsonResponse
+    {
+        try {
+            $ketQua = $this->taiKhoanService->quenMatKhau(
+                $request->input('email'),
+                $request->input('mat_khau_moi')
+            );
+            return $this->thanhCongResponse($ketQua, $ketQua['thong_bao']);
         } catch (\Exception $e) {
             return $this->thatBaiResponse($e->getMessage(), 400);
         }
