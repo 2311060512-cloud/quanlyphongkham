@@ -4,33 +4,32 @@ namespace App\Modules\TaiKhoan\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\TaiKhoan\Services\XacThucService;
+use App\Modules\TaiKhoan\Services\TaiKhoanService;
+use App\Modules\TaiKhoan\Requests\DangNhapRequest;
+use App\Modules\TaiKhoan\Requests\DangKyRequest;
+use App\Modules\TaiKhoan\Requests\DoiMatKhauRequest;
 use App\Traits\TraVeDuLieuTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
 
 class DangNhapController extends Controller
 {
     use TraVeDuLieuTrait;
 
     protected XacThucService $xacThucService;
+    protected TaiKhoanService $taiKhoanService;
 
-    public function __construct(XacThucService $xacThucService)
+    public function __construct(XacThucService $xacThucService, TaiKhoanService $taiKhoanService)
     {
         $this->xacThucService = $xacThucService;
+        $this->taiKhoanService = $taiKhoanService;
     }
 
-    public function dangNhap(Request $request): JsonResponse
+    /**
+     * API Đăng nhập hệ thống (trả về Token và thông tin user, vai trò)
+     */
+    public function dangNhap(DangNhapRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'ten_dang_nhap' => 'required|string',
-            'mat_khau' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->thatBaiResponse('Dữ liệu không hợp lệ', 422, $validator->errors());
-        }
-
         try {
             $ketQua = $this->xacThucService->dangNhap(
                 $request->input('ten_dang_nhap'),
@@ -42,31 +41,42 @@ class DangNhapController extends Controller
         }
     }
 
-    public function dangKy(Request $request): JsonResponse
+    /**
+     * API Đăng ký tài khoản bệnh nhân
+     */
+    public function dangKy(DangKyRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'ten_dang_nhap' => 'required|string|unique:tai_khoan,ten_dang_nhap',
-            'email' => 'required|email|unique:tai_khoan,email',
-            'mat_khau' => 'required|string|min:6',
-            'ho_ten' => 'required|string|max:255',
-            'so_dien_thoai' => 'nullable|string|max:20',
-            'gioi_tinh' => 'nullable|in:NAM,NU,KHAC',
-            'ngay_sinh' => 'nullable|date',
-            'dia_chi' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->thatBaiResponse('Dữ liệu không hợp lệ', 422, $validator->errors());
-        }
-
         try {
-            $ketQua = $this->xacThucService->dangKy($request->all());
+            $ketQua = $this->xacThucService->dangKy($request->validated());
             return $this->thanhCongResponse($ketQua, 'Đăng ký tài khoản thành công', 201);
         } catch (\Exception $e) {
             return $this->thatBaiResponse($e->getMessage(), 400);
         }
     }
 
+    /**
+     * API Đổi mật khẩu tài khoản hiện tại
+     */
+    public function doiMatKhau(DoiMatKhauRequest $request): JsonResponse
+    {
+        try {
+            $taiKhoan = $request->user();
+            $this->taiKhoanService->doiMatKhau(
+                $taiKhoan,
+                $request->input('mat_khau_cu'),
+                $request->input('mat_khau_moi')
+            );
+            return $this->thanhCongResponse(null, 'Đổi mật khẩu thành công. Vui lòng sử dụng mật khẩu mới cho các lần đăng nhập sau.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->thatBaiResponse('Mật khẩu không đúng', 422, $e->errors());
+        } catch (\Exception $e) {
+            return $this->thatBaiResponse($e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * API Lấy thông tin tài khoản đang đăng nhập
+     */
     public function thongTinHienTai(Request $request): JsonResponse
     {
         $taiKhoan = $request->user();
@@ -76,6 +86,9 @@ class DangNhapController extends Controller
         return $this->thanhCongResponse($taiKhoan, 'Thông tin người dùng');
     }
 
+    /**
+     * API Đăng xuất tài khoản (thu hồi Token)
+     */
     public function dangXuat(Request $request): JsonResponse
     {
         $user = $request->user();
