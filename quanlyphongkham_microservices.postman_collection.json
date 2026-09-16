@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "pk-gateway-v1-2026",
+		"name": "Phong Kham Da Khoa - API Gateway v1 Collection",
+		"description": "Bo suu tap API cho Cổng giao tiếp tập trung (00_api_gateway) - Microservices Laravel 12",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "token_admin",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "token_benhnhan",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "00. Health Check (Tong the 4 services)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/health",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "health"]
+				}
+			}
+		},
+		{
+			"name": "01. Dang Nhap Admin (Luu token_admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = pm.response.json();",
+							"if (res.du_lieu && res.du_lieu.token) {",
+							"    pm.collectionVariables.set('token_admin', res.du_lieu.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [{ "key": "Content-Type", "value": "application/json" }],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"admin@phongkham.vn\",\n    \"mat_khau\": \"admin123\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/xac-thuc/dang-nhap",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "xac-thuc", "dang-nhap"]
+				}
+			}
+		},
+		{
+			"name": "01. Dang Nhap Benh Nhan (Luu token_benhnhan)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = pm.response.json();",
+							"if (res.du_lieu && res.du_lieu.token) {",
+							"    pm.collectionVariables.set('token_benhnhan', res.du_lieu.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [{ "key": "Content-Type", "value": "application/json" }],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"benhnhancuong@gmail.com\",\n    \"mat_khau\": \"benhnhan123\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/xac-thuc/dang-nhap",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "xac-thuc", "dang-nhap"]
+				}
+			}
+		},
+		{
+			"name": "01. Thong Tin Nguoi Dung (Xac thuc Gateway + Header Injection)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_admin}}" }
+				],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/xac-thuc/thong-tin",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "xac-thuc", "thong-tin"]
+				}
+			}
+		},
+		{
+			"name": "01. Bac Si - Danh Sach (Public Route)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/bac-si",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "bac-si"]
+				}
+			}
+		},
+		{
+			"name": "02. Benh Nhan - Danh Sach",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_admin}}" }
+				],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/benh-nhan",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "benh-nhan"]
+				}
+			}
+		},
+		{
+			"name": "02. Lich Hen - Dat Lich",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_admin}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"benh_nhan_id\": 1,\n    \"bac_si_id\": 1,\n    \"ngay_kham\": \"2026-10-15\",\n    \"gio_bat_dau\": \"08:00:00\",\n    \"gio_ket_thuc\": \"08:30:00\",\n    \"ly_do_kham\": \"Kham tai mui hong viem xoang\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/lich-hen/dat-lich",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "lich-hen", "dat-lich"]
+				}
+			}
+		},
+		{
+			"name": "03. Can Lam Sang - Danh Muc Dich Vu (Public Route)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/dich-vu",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "dich-vu"]
+				}
+			}
+		},
+		{
+			"name": "03. Can Lam Sang - Chi Dinh (Quyen BAC_SI, ADMIN)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_admin}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"lich_hen_id\": 1,\n    \"benh_nhan_id\": 1,\n    \"bac_si_id\": 1,\n    \"danh_sach_dich_vu_id\": [1, 3]\n}"
+				},
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/dich-vu/chi-dinh",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "dich-vu", "chi-dinh"]
+				}
+			}
+		},
+		{
+			"name": "04. Hoa Don - Tu Dong Tong Hop",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_admin}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"lich_hen_id\": 1,\n    \"giam_gia\": 50000\n}"
+				},
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/hoa-don/tao-tu-dong",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "hoa-don", "tao-tu-dong"]
+				}
+			}
+		},
+		{
+			"name": "04. Phan Quyen - Benh Nhan goi Thong Ke (Ky vong: 403 Forbidden)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_benhnhan}}" }
+				],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/hoa-don/thong-ke",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "hoa-don", "thong-ke"]
+				}
+			}
+		},
+		{
+			"name": "04. Phan Quyen - Admin goi Thong Ke (Ky vong: 200 OK)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_admin}}" }
+				],
+				"url": {
+					"raw": "{{gateway_url}}/api/v1/hoa-don/thong-ke",
+					"host": ["{{gateway_url}}"],
+					"path": ["api", "v1", "hoa-don", "thong-ke"]
+				}
+			}
+		}
+	]
+}
