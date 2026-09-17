@@ -23,7 +23,7 @@ start "04_HOA_DON_THANH_TOAN_8004" cmd /k "title 04_HOA_DON:8004 && cd /d %~dp00
 echo.
 echo ============================================================
 echo   DA KHOI DONG 5 DICH VU THANH CONG!
-echo   -> API Gateway Dashboard: http://127.0.0.1:8000
-echo   -> De dung tat ca: Chay file stop-he-thong.bat
+echo   -- API Gateway Dashboard: http://127.0.0.1:8000
+echo   -- De dung tat ca: Chay file stop-he-thong.bat
 echo ============================================================
 timeout /t 5

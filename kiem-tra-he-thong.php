@@ -9,15 +9,35 @@ echo "============================================================" . PHP_EOL;
 echo "  KIEM TRA TOAN DIEN HE THONG MICROSERVICES PHONG KHAM" . PHP_EOL;
 echo "============================================================" . PHP_EOL . PHP_EOL;
 
-// 1. Kiem tra Database tren Port 3307
-echo "[BƯỚC 1] Kiem tra ket noi 4 Database tren MySQL Laragon (Port 3307)..." . PHP_EOL;
+// 1. Kiem tra Database tren MySQL Laragon
+echo "[BƯỚC 1] Kiem tra ket noi 4 Database tren MySQL Laragon..." . PHP_EOL;
 $dbs = ['db_xac_thuc_bac_si', 'db_benh_nhan_lich_hen', 'db_dich_vu_y_te', 'db_hoa_don_thanh_toan'];
-$dbOk = true;
+$dbConfigs = [
+    ['port' => 3307, 'pass' => ''],
+    ['port' => 3306, 'pass' => 'vanh2005'],
+    ['port' => 3306, 'pass' => ''],
+    ['port' => 3307, 'pass' => 'vanh2005'],
+];
 
+$workingConfig = null;
+foreach ($dbConfigs as $cfg) {
+    try {
+        $testPdo = new PDO("mysql:host=127.0.0.1;port={$cfg['port']}", 'root', $cfg['pass']);
+        $workingConfig = $cfg;
+        break;
+    } catch (Exception $e) {}
+}
+
+if (!$workingConfig) {
+    echo PHP_EOL . "[CANH BAO] Khong the ket noi den MySQL Laragon tren cong 3306 / 3307." . PHP_EOL;
+    exit(1);
+}
+
+$dbOk = true;
 foreach ($dbs as $db) {
     try {
-        $pdo = new PDO("mysql:host=127.0.0.1;port=3307;dbname={$db}", 'root', '');
-        echo "  -> [OK] Database {$db}: Ket noi thanh cong." . PHP_EOL;
+        $pdo = new PDO("mysql:host=127.0.0.1;port={$workingConfig['port']};dbname={$db}", 'root', $workingConfig['pass']);
+        echo "  -> [OK] Database {$db} (Port {$workingConfig['port']}): Ket noi thanh cong." . PHP_EOL;
     } catch (Exception $e) {
         echo "  -> [LOI] Database {$db}: " . $e->getMessage() . PHP_EOL;
         $dbOk = false;
@@ -25,7 +45,7 @@ foreach ($dbs as $db) {
 }
 
 if (!$dbOk) {
-    echo PHP_EOL . "[CANH BAO] Khong the ket noi du 4 database tren Port 3307. Vui long kiem tra MySQL Laragon." . PHP_EOL;
+    echo PHP_EOL . "[CANH BAO] Khong the ket noi du 4 database. Vui long chay lai chay-migrations.bat." . PHP_EOL;
     exit(1);
 }
 
@@ -160,6 +180,22 @@ if ($datLichTrung['code'] === 409 && ($datLichTrung['body']['ma_loi'] ?? '') ===
     echo "     Thong diep: " . $datLichTrung['body']['thong_diep'] . PHP_EOL;
 } else {
     echo "  -> [CANH BAO] Khong phat hien trung lich nhu ky vong: " . json_encode($datLichTrung) . PHP_EOL;
+}
+
+// 7b. TEST NGHIEP VU DOI LICH KHAM (RESCHEDULE)
+echo PHP_EOL . "[BƯỚC 7b] TEST NGHIEP VU DOI LICH KHAM (RESCHEDULE)..." . PHP_EOL;
+$doiLichRes = goiApi("{$gatewayUrl}/api/v1/lich-hen/{$lichHenId}/doi-lich", 'PUT', [
+    'ngay_kham' => $ngayKham,
+    'gio_bat_dau' => '16:00:00',
+    'gio_ket_thuc' => '16:30:00',
+    'ly_do_doi_lich' => 'Kẹt xe đột xuất, xin dời sau 1 tiếng',
+], $token);
+
+if ($doiLichRes['code'] === 200 && ($doiLichRes['body']['thanh_cong'] ?? false)) {
+    echo "  -> [OK] Doi lich thanh cong sang 16:00:00! So lan doi lich: " . ($doiLichRes['body']['du_lieu']['so_lan_doi_lich'] ?? 1) . PHP_EOL;
+    echo "     Thong diep: " . $doiLichRes['body']['thong_diep'] . PHP_EOL;
+} else {
+    echo "  -> [THONG BAO] Ket qua doi lich: " . json_encode($doiLichRes) . PHP_EOL;
 }
 
 // 8. Test Chi Dinh Dich Vu Can Lam Sang (Service 03 qua Gateway)

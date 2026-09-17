@@ -33,7 +33,34 @@ class BenhNhanController extends Controller
         if (!$benhNhan) {
             return response()->json([
                 'thanh_cong' => false,
-                'thong_diep' => 'Khong tim thay ho so benh nhan.'
+                'thong_diep' => 'Không tìm thấy hồ sơ bệnh nhân.'
+            ], 404);
+        }
+
+        return response()->json([
+            'thanh_cong' => true,
+            'du_lieu' => $benhNhan
+        ]);
+    }
+
+    public function hoSoCuaToi(Request $request): JsonResponse
+    {
+        $taiKhoanId = (int)($request->header('X-User-Id') ?: $request->header('X-Nguoi-Dung-Id') ?: $request->query('tai_khoan_id'));
+        if (!$taiKhoanId) {
+            return response()->json([
+                'thanh_cong' => false,
+                'ma_loi' => 'CHUA_DANG_NHAP',
+                'thong_diep' => 'Vui lòng đăng nhập để xem hồ sơ cá nhân.'
+            ], 401);
+        }
+
+        $benhNhan = $this->benhNhanService->chiTietTheoTaiKhoan($taiKhoanId);
+        if (!$benhNhan) {
+            return response()->json([
+                'thanh_cong' => false,
+                'ma_loi' => 'CHUA_CO_HO_SO',
+                'thong_diep' => 'Tài khoản chưa có hồ sơ bệnh án điện tử.',
+                'du_lieu' => null
             ], 404);
         }
 
@@ -46,20 +73,31 @@ class BenhNhanController extends Controller
     public function taoMoi(Request $request): JsonResponse
     {
         $request->validate([
-            'ho_ten' => 'required|string|max:255',
-            'so_dien_thoai' => 'required|string|max:20',
+            'ho_ten' => 'required|string|max:100',
+            'so_dien_thoai' => 'required|string|max:15',
+            'so_cccd' => 'nullable|string|max:20',
             'ngay_sinh' => 'nullable|date',
             'gioi_tinh' => 'nullable|string|in:NAM,NU,KHAC',
-            'dia_chi' => 'nullable|string',
+            'dia_chi' => 'nullable|string|max:255',
+            'nhom_mau' => 'nullable|string|in:A,B,AB,O',
+            'tien_su_di_ung' => 'nullable|string',
             'tien_su_benh' => 'nullable|string',
+            'nguoi_lien_he_khan_cap' => 'nullable|string|max:100',
+            'sdt_khan_cap' => 'nullable|string|max:15',
             'tai_khoan_id' => 'nullable|integer',
         ]);
 
-        $benhNhan = $this->benhNhanService->taoMoi($request->all());
+        $taiKhoanId = $request->header('X-User-Id') ?: $request->header('X-Nguoi-Dung-Id') ?: $request->input('tai_khoan_id');
+        $payload = $request->all();
+        if ($taiKhoanId) {
+            $payload['tai_khoan_id'] = (int)$taiKhoanId;
+        }
+
+        $benhNhan = $this->benhNhanService->taoMoi($payload);
 
         return response()->json([
             'thanh_cong' => true,
-            'thong_diep' => 'Tao ho so benh nhan thanh cong.',
+            'thong_diep' => 'Tạo hồ sơ bệnh án điện tử thành công.',
             'du_lieu' => $benhNhan
         ], 201);
     }

@@ -10,17 +10,24 @@ return new class extends Migration
     {
         Schema::create('lich_hen', function (Blueprint $table) {
             $table->id();
+            $table->string('ma_lich_hen', 30)->unique();
             $table->foreignId('benh_nhan_id')->constrained('benh_nhan')->onDelete('cascade');
-            $table->unsignedBigInteger('bac_si_id'); // ID bac si ben Service 01
-            $table->date('ngay_kham');
+            $table->unsignedBigInteger('bac_si_id')->index(); // ID bac si ben Service 01
+            $table->date('ngay_kham')->index();
             $table->time('gio_bat_dau');
             $table->time('gio_ket_thuc');
-            $table->string('ly_do_kham')->nullable();
-            $table->string('trang_thai', 30)->default('CHO_KHAM'); // CHO_KHAM, DANG_KHAM, HOAN_THANH, DA_HUY
+            $table->text('ly_do_kham')->nullable(); // Trieu chung ban dau
+            $table->string('trang_thai', 30)->default('CHO_XAC_NHAN')->index(); // CHO_XAC_NHAN, DA_XAC_NHAN, DANG_KHAM, HOAN_THANH, DA_HUY
+            $table->text('chuan_doan')->nullable(); // Ket luan kham
+            $table->text('loi_khuyen')->nullable(); // Don thuoc, can dan
             $table->text('ghi_chu_bac_si')->nullable();
+            $table->text('ly_do_huy')->nullable();
+            $table->integer('so_lan_doi_lich')->default(0);
+            $table->text('ly_do_doi_lich')->nullable();
+            $table->longText('tep_dinh_kem')->nullable(); // JSON chua danh sach tep / anh don thuoc, ket qua xet nghiem
             $table->timestamps();
 
-            // Index toi uu truy van kiem tra trung lich
+            // Index toi uu truy van kiem tra trung lich va bo loc
             $table->index(['bac_si_id', 'ngay_kham', 'trang_thai']);
         });
     }

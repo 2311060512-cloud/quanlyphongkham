@@ -34,6 +34,10 @@ Route::get('/nguoi1', function () {
     return view('nguoi1');
 });
 
+Route::get('/nguoi2', function () {
+    return view('nguoi2');
+});
+
 Route::get('/dang-nhap', function () {
     return view('auth');
 });

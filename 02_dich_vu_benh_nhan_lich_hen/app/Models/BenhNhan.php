@@ -13,11 +13,16 @@ class BenhNhan extends Model
         'tai_khoan_id',
         'ma_benh_nhan',
         'ho_ten',
+        'so_dien_thoai',
+        'so_cccd',
         'ngay_sinh',
         'gioi_tinh',
-        'so_dien_thoai',
         'dia_chi',
+        'nhom_mau',
+        'tien_su_di_ung',
         'tien_su_benh',
+        'nguoi_lien_he_khan_cap',
+        'sdt_khan_cap',
     ];
 
     public function danhSachLichHen(): HasMany

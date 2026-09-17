@@ -10,14 +10,22 @@ return new class extends Migration
     {
         Schema::create('benh_nhan', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tai_khoan_id')->nullable(); // Lien ket tai khoan tu Service 01
-            $table->string('ma_benh_nhan', 50)->unique();
-            $table->string('ho_ten', 150);
+            $table->unsignedBigInteger('tai_khoan_id')->nullable()->index(); // Lien ket tai khoan tu Service 01
+            $table->string('ma_benh_nhan', 20)->unique();
+            $table->string('ho_ten', 100);
+            $table->string('so_dien_thoai', 15)->index();
+            $table->string('so_cccd', 20)->nullable()->index();
             $table->date('ngay_sinh')->nullable();
-            $table->string('gioi_tinh', 10)->default('NAM'); // NAM, NU, KHAC
-            $table->string('so_dien_thoai', 20);
-            $table->string('dia_chi')->nullable();
+            $table->enum('gioi_tinh', ['NAM', 'NU', 'KHAC'])->default('NAM');
+            $table->string('dia_chi', 255)->nullable();
+            
+            // Ho so benh an dien tu mo rong
+            $table->string('nhom_mau', 10)->nullable(); // A, B, AB, O
+            $table->text('tien_su_di_ung')->nullable();
             $table->text('tien_su_benh')->nullable();
+            $table->string('nguoi_lien_he_khan_cap', 100)->nullable();
+            $table->string('sdt_khan_cap', 15)->nullable();
+
             $table->timestamps();
         });
     }
