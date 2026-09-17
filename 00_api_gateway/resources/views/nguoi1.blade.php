@@ -572,9 +572,9 @@
 
         // 1. QUẢN LÝ PHIÊN ĐĂNG NHẬP & LOCALSTORAGE
         function initAuthSession() {
-            const savedUser = localStorage.getItem('user_info');
-            const savedToken = localStorage.getItem('token');
-            const savedRole = localStorage.getItem('role');
+            const savedUser = sessionStorage.getItem('user_info') || localStorage.getItem('user_info');
+            const savedToken = sessionStorage.getItem('token') || localStorage.getItem('token');
+            const savedRole = sessionStorage.getItem('role') || localStorage.getItem('role');
 
             if (savedToken && savedUser) {
                 try {

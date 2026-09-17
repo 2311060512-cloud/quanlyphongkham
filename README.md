@@ -20,6 +20,7 @@ Thư mục gốc: `D:\laragon\laragon\www\quanlyphongkham_microservices\` (hoặ
 ├── start-he-thong.bat / .ps1      - Khởi động đồng thời 5 microservices
 ├── stop-he-thong.bat / .ps1       - Dừng tất cả microservices
 ├── kiem-tra-he-thong.php          - Test tích hợp End-to-End tự động
+├── NGUOI_2_BENH_NHAN_LICH_HEN.md  - Báo cáo chi tiết phân hệ 02 (Người 2)
 └── quanlyphongkham_microservices.postman_collection.json - Bộ API Postman
 ```
 

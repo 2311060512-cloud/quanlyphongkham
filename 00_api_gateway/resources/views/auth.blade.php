@@ -370,13 +370,15 @@
                 if (res.ok && json.thanh_cong) {
                     const data = json.du_lieu;
                     
-                    // Lưu session vào sessionStorage theo phiên làm việc trình duyệt
+                    // Lưu session đồng bộ vào cả sessionStorage và localStorage để dùng chung giữa các phân hệ
                     sessionStorage.setItem('token', data.token);
                     sessionStorage.setItem('user_info', JSON.stringify(data.nguoi_dung));
                     sessionStorage.setItem('role', data.vai_tro);
 
-                    // Xóa sạch localStorage cũ nếu có
-                    localStorage.clear();
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user_info', JSON.stringify(data.nguoi_dung));
+                    localStorage.setItem('role', data.vai_tro);
+                    localStorage.setItem('nguoi_dung', JSON.stringify(data.nguoi_dung));
 
                     Swal.fire({
                         icon: 'success',

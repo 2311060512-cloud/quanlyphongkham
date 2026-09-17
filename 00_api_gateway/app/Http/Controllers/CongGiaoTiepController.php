@@ -114,7 +114,7 @@ class CongGiaoTiepController extends Controller
         foreach ($services as $key => $s) {
             $batDau = microtime(true);
             try {
-                $res = Http::timeout(2)->get($s['url']);
+                $res = Http::acceptJson()->timeout(3)->get($s['url']);
                 $latencyMs = round((microtime(true) - $batDau) * 1000, 2);
                 $isOk = $res->successful();
                 $ketQua[$key] = [

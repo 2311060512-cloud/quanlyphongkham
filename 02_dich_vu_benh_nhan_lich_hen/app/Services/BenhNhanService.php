@@ -8,33 +8,62 @@ class BenhNhanService
 {
     public function danhSach(?string $tuKhoa = null)
     {
-        $query = BenhNhan::query();
+        $query = BenhNhan::orderBy('id', 'desc');
+
         if ($tuKhoa) {
             $query->where(function ($q) use ($tuKhoa) {
                 $q->where('ho_ten', 'like', "%{$tuKhoa}%")
                   ->orWhere('so_dien_thoai', 'like', "%{$tuKhoa}%")
+                  ->orWhere('so_cccd', 'like', "%{$tuKhoa}%")
                   ->orWhere('ma_benh_nhan', 'like', "%{$tuKhoa}%");
             });
         }
-        return $query->orderBy('id', 'desc')->get();
+
+        return $query->get();
     }
 
-    public function chiTiet(int $id)
+    public function chiTiet(int $id): ?BenhNhan
     {
         return BenhNhan::with('danhSachLichHen')->find($id);
     }
 
-    public function timTheoTaiKhoan(int $taiKhoanId)
+    public function chiTietTheoTaiKhoan(int $taiKhoanId): ?BenhNhan
     {
-        return BenhNhan::where('tai_khoan_id', $taiKhoanId)->first();
+        return BenhNhan::with('danhSachLichHen')->where('tai_khoan_id', $taiKhoanId)->first();
     }
 
     public function taoMoi(array $data): BenhNhan
     {
-        if (empty($data['ma_benh_nhan'])) {
-            $data['ma_benh_nhan'] = 'BN-' . date('Ymd') . '-' . str_pad((string)rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        $count = BenhNhan::count();
+        $maBn = 'BN' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+        while (BenhNhan::where('ma_benh_nhan', $maBn)->exists()) {
+            $count++;
+            $maBn = 'BN' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
         }
 
-        return BenhNhan::create($data);
+        return BenhNhan::create([
+            'tai_khoan_id' => $data['tai_khoan_id'] ?? null,
+            'ma_benh_nhan' => $maBn,
+            'ho_ten' => $data['ho_ten'],
+            'so_dien_thoai' => $data['so_dien_thoai'],
+            'so_cccd' => $data['so_cccd'] ?? null,
+            'ngay_sinh' => $data['ngay_sinh'] ?? null,
+            'gioi_tinh' => $data['gioi_tinh'] ?? 'NAM',
+            'dia_chi' => $data['dia_chi'] ?? null,
+            'nhom_mau' => $data['nhom_mau'] ?? null,
+            'tien_su_di_ung' => $data['tien_su_di_ung'] ?? null,
+            'tien_su_benh' => $data['tien_su_benh'] ?? null,
+            'nguoi_lien_he_khan_cap' => $data['nguoi_lien_he_khan_cap'] ?? null,
+            'sdt_khan_cap' => $data['sdt_khan_cap'] ?? null,
+        ]);
+    }
+
+    public function capNhat(int $id, array $data): ?BenhNhan
+    {
+        $benhNhan = BenhNhan::find($id);
+        if (!$benhNhan) return null;
+
+        $benhNhan->update($data);
+        return $benhNhan;
     }
 }
