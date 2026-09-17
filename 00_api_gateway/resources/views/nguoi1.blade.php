@@ -78,28 +78,28 @@
                 </div>
 
                 <!-- Navigation Tabs -->
-                <div class="hidden md:flex space-x-1 items-center">
+                <div id="nav-tabs-container" class="hidden md:flex space-x-1 items-center">
                     <button onclick="switchView('view-doctors')" id="nav-doctors" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg transition-colors tab-active">
                         <i class="fa-solid fa-user-doctor mr-1.5"></i> Danh Mục Bác Sĩ
                     </button>
-                    <button onclick="switchView('view-admin-doctors')" id="nav-admin-doctors" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-medical-600 rounded-lg transition-colors admin-only hidden">
-                        <i class="fa-solid fa-user-gear mr-1.5"></i> Quản Trị Bác Sĩ
+                    <button onclick="switchView('view-admin-doctors')" id="nav-admin-doctors" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-medical-600 rounded-lg transition-colors">
+                        <i class="fa-solid fa-user-gear mr-1.5"></i> Quản Trị Bác Sĩ & Khoa
                     </button>
-                    <button onclick="switchView('view-admin-accounts')" id="nav-admin-accounts" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-medical-600 rounded-lg transition-colors admin-only hidden">
+                    <button onclick="switchView('view-admin-accounts')" id="nav-admin-accounts" class="tab-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-medical-600 rounded-lg transition-colors">
                         <i class="fa-solid fa-users-gear mr-1.5"></i> Quản Lý Tài Khoản
                     </button>
+                    <a href="/dashboard" class="px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-medical-700 hover:bg-slate-100 rounded-lg transition border border-slate-200 inline-flex items-center ml-2">
+                        <i class="fa-solid fa-house mr-1 text-medical-600"></i> Trang Chủ
+                    </a>
                 </div>
 
                 <!-- User Session & Auth Buttons -->
                 <div class="flex items-center space-x-3">
                     <!-- Guest View -->
                     <div id="guest-nav-actions" class="flex items-center space-x-2">
-                        <a href="/dang-nhap" class="px-3.5 py-1.5 text-sm font-semibold text-medical-700 bg-medical-50 hover:bg-medical-100 rounded-lg transition border border-medical-200 inline-flex items-center">
-                            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> Đăng Nhập
-                        </a>
-                        <a href="/dang-ky" class="px-3.5 py-1.5 text-sm font-semibold text-white bg-medical-600 hover:bg-medical-700 rounded-lg shadow-sm transition inline-flex items-center">
-                            <i class="fa-solid fa-user-plus mr-1.5"></i> Đăng Ký
-                        </a>
+                        <button onclick="openAdminLoginModal()" class="px-3.5 py-1.5 text-sm font-semibold text-medical-700 bg-medical-50 hover:bg-medical-100 rounded-lg transition border border-medical-200 inline-flex items-center">
+                            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> Đăng Nhập ADMIN
+                        </button>
                     </div>
 
                     <!-- Logged-in User Profile Dropdown -->
@@ -132,8 +132,44 @@
     <!-- ============================================================= -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- MÀN HÌNH 1: DANH MỤC BÁC SĨ & CHUYÊN KHOA (PUBLIC / BỆNH NHÂN) -->
-        <section id="view-doctors" class="app-view">
+        <!-- CẢNH BÁO YÊU CẦU ĐĂNG NHẬP ADMIN -->
+        <div id="admin-required-gate" class="hidden my-12 flex items-center justify-center">
+            <div class="max-w-md w-full bg-white rounded-3xl border border-amber-200 shadow-xl p-8 text-center relative overflow-hidden">
+                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-xl font-black text-slate-900 mb-2">Yêu Cầu Quyền Quản Trị Viên (ADMIN)</h2>
+                <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                    Phân hệ này yêu cầu đăng nhập bằng tài khoản <strong class="text-amber-600 font-bold">ADMIN</strong> để xem và thao tác dữ liệu. Vui lòng đăng nhập tài khoản ADMIN để tiếp tục.
+                </p>
+                <div class="bg-slate-50 rounded-2xl p-4 mb-6 text-xs text-slate-600 border border-slate-200 text-left space-y-2">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                        <i class="fa-solid fa-key text-amber-500"></i> Tài khoản ADMIN mặc định:
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">Tài khoản:</span>
+                        <code class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">admin</code>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">Mật khẩu:</span>
+                        <code class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">Admin@123</code>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" onclick="openAdminLoginModal()" class="flex-1 py-3 px-4 bg-medical-600 hover:bg-medical-700 text-white font-bold rounded-xl text-sm transition shadow-md shadow-medical-600/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Đăng Nhập ADMIN
+                    </button>
+                    <a href="/dashboard" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-house"></i> Về Trang Chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- VÙNG NỘI DUNG PHÂN HỆ (CHỈ HIỂN THỊ KHI ĐÃ ĐĂNG NHẬP ADMIN) -->
+        <div id="nguoi1-content">
+            <!-- MÀN HÌNH 1: DANH MỤC BÁC SĨ & CHUYÊN KHOA (PUBLIC / BỆNH NHÂN) -->
+            <section id="view-doctors" class="app-view">
             <!-- Hero Banner -->
             <div class="bg-gradient-to-r from-medical-700 via-medical-600 to-sky-500 rounded-2xl p-6 sm:p-8 text-white shadow-lg shadow-medical-600/20 mb-8">
                 <div class="max-w-2xl">
@@ -246,6 +282,7 @@
                 </div>
             </div>
         </section>
+        </div> <!-- Kết thúc #nguoi1-content -->
 
     </main>
 
@@ -561,16 +598,17 @@
         // KHỞI ĐỘNG KHI TẢI TRANG
         document.addEventListener('DOMContentLoaded', async () => {
             initAuthSession();
-            await loadSpecialties();
-            await loadDoctors();
+            updateAccessGate();
 
-            // Nếu người dùng đang là Admin thì load tài khoản
+            // Nếu người dùng đang là Admin thì tải dữ liệu
             if (isAdmin()) {
+                await loadSpecialties();
+                await loadDoctors();
                 loadUserAccounts();
             }
         });
 
-        // 1. QUẢN LÝ PHIÊN ĐĂNG NHẬP & LOCALSTORAGE
+        // 1. QUẢN LÝ PHIÊN ĐĂNG NHẬP & ACCESS GATE
         function initAuthSession() {
             const savedUser = sessionStorage.getItem('user_info') || localStorage.getItem('user_info');
             const savedToken = sessionStorage.getItem('token') || localStorage.getItem('token');
@@ -590,7 +628,35 @@
         }
 
         function isAdmin() {
-            return AppData.currentUser && (AppData.currentUser.vai_tro === 'ADMIN' || localStorage.getItem('role') === 'ADMIN');
+            const role = (AppData.currentUser && AppData.currentUser.vai_tro) 
+                || sessionStorage.getItem('role') 
+                || localStorage.getItem('role');
+            const token = AppData.token 
+                || sessionStorage.getItem('token') 
+                || localStorage.getItem('token');
+            return !!(token && role && role.toUpperCase() === 'ADMIN');
+        }
+
+        function updateAccessGate() {
+            const isAdm = isAdmin();
+            const gate = document.getElementById('admin-required-gate');
+            const content = document.getElementById('nguoi1-content');
+            const navTabs = document.getElementById('nav-tabs-container');
+
+            if (isAdm) {
+                if (gate) gate.classList.add('hidden');
+                if (content) content.classList.remove('hidden');
+                if (navTabs) navTabs.classList.remove('opacity-30', 'pointer-events-none');
+            } else {
+                if (gate) gate.classList.remove('hidden');
+                if (content) content.classList.add('hidden');
+                if (navTabs) navTabs.classList.add('opacity-30', 'pointer-events-none');
+            }
+        }
+
+        function openAdminLoginModal() {
+            fillLoginForm('admin', 'Admin@123');
+            openModal('modal-login');
         }
 
         function renderUserHeader(user) {
@@ -602,19 +668,11 @@
 
             const initials = (user.ho_ten || user.ten_dang_nhap || 'AD').substring(0, 2).toUpperCase();
             document.getElementById('user-avatar-text').textContent = initials;
-
-            // Hiển thị các tab dành riêng cho Admin
-            if (user.vai_tro === 'ADMIN') {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-            } else {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-            }
         }
 
         function renderGuestHeader() {
             document.getElementById('guest-nav-actions').classList.remove('hidden');
             document.getElementById('user-nav-actions').classList.add('hidden');
-            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
         }
 
         function fillLoginForm(u, p) {
@@ -642,28 +700,42 @@
 
                 if (res.ok && json.thanh_cong) {
                     const data = json.du_lieu;
+
+                    if (data.vai_tro !== 'ADMIN') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Yêu Cầu Quyền ADMIN',
+                            text: `Tài khoản ${data.nguoi_dung.ho_ten} (${data.vai_tro}) không phải là Quản Trị Viên (ADMIN). Vui lòng đăng nhập bằng tài khoản Quản Trị Viên để truy cập phân hệ này!`
+                        });
+                        return;
+                    }
+
                     AppData.token = data.token;
                     AppData.currentUser = data.nguoi_dung;
 
-                    // Lưu vào localStorage
+                    // Lưu vào localStorage & sessionStorage
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user_info', JSON.stringify(data.nguoi_dung));
                     localStorage.setItem('role', data.vai_tro);
+                    sessionStorage.setItem('token', data.token);
+                    sessionStorage.setItem('user_info', JSON.stringify(data.nguoi_dung));
+                    sessionStorage.setItem('role', data.vai_tro);
 
                     renderUserHeader(AppData.currentUser);
+                    updateAccessGate();
                     closeModal('modal-login');
 
                     Swal.fire({
                         icon: 'success',
-                        title: 'Đăng nhập thành công!',
-                        text: `Xin chào ${data.nguoi_dung.ho_ten} (${data.vai_tro})`,
-                        timer: 1800,
+                        title: 'Đăng nhập ADMIN thành công!',
+                        text: `Xin chào Quản Trị Viên: ${data.nguoi_dung.ho_ten}`,
+                        timer: 1600,
                         showConfirmButton: false
                     });
 
-                    if (data.vai_tro === 'ADMIN') {
-                        loadUserAccounts();
-                    }
+                    await loadSpecialties();
+                    await loadDoctors();
+                    loadUserAccounts();
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -1084,12 +1156,19 @@
 
         // 12. QUẢN LÝ TÀI KHOẢN NGƯỜI DÙNG (loadUserAccounts / toggleAccountStatus)
         async function loadUserAccounts() {
-            if (!isAdmin()) return;
+            const token = AppData.token || sessionStorage.getItem('token') || localStorage.getItem('token');
+            if (!token) {
+                const tbody = document.getElementById('admin-accounts-tbody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">Vui lòng <a href="javascript:void(0)" onclick="openModal(\'modal-login\')" class="text-medical-600 font-bold underline">đăng nhập với tài khoản ADMIN</a> để xem và quản lý tài khoản.</td></tr>';
+                }
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_BASE_URL}/tai-khoan`, {
                     headers: {
-                        'Authorization': `Bearer ${AppData.token}`,
+                        'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
                     }
                 });
@@ -1213,9 +1292,20 @@
             const activeView = document.getElementById(viewId);
             if (activeView) activeView.classList.remove('hidden');
 
-            if (viewId === 'view-doctors') document.getElementById('nav-doctors').classList.add('tab-active');
-            if (viewId === 'view-admin-doctors') document.getElementById('nav-admin-doctors').classList.add('tab-active');
-            if (viewId === 'view-admin-accounts') document.getElementById('nav-admin-accounts').classList.add('tab-active');
+            if (viewId === 'view-doctors') {
+                const btn = document.getElementById('nav-doctors');
+                if (btn) btn.classList.add('tab-active');
+            }
+            if (viewId === 'view-admin-doctors') {
+                const btn = document.getElementById('nav-admin-doctors');
+                if (btn) btn.classList.add('tab-active');
+                if (!AppData.doctors || AppData.doctors.length === 0) loadDoctors();
+            }
+            if (viewId === 'view-admin-accounts') {
+                const btn = document.getElementById('nav-admin-accounts');
+                if (btn) btn.classList.add('tab-active');
+                loadUserAccounts();
+            }
         }
 
         function openModal(id) {

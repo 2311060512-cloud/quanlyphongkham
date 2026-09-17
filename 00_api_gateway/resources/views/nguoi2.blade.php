@@ -116,7 +116,7 @@
                 </div>
 
                 <!-- Navigation Tabs -->
-                <div class="hidden md:flex space-x-1 items-center">
+                <div id="nav-tabs-container" class="hidden md:flex space-x-1 items-center">
                     <button onclick="switchView('view-booking')" id="nav-booking" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg transition-colors tab-active">
                         <i class="fa-solid fa-calendar-plus mr-1.5"></i> Đặt Lịch Khám
                     </button>
@@ -132,23 +132,20 @@
                 <div class="flex items-center space-x-3">
                     <!-- Guest View -->
                     <div id="guest-nav-actions" class="flex items-center space-x-2">
-                        <a href="/dang-nhap" class="px-3.5 py-1.5 text-sm font-semibold text-medical-700 bg-medical-50 hover:bg-medical-100 rounded-lg transition border border-medical-200 inline-flex items-center">
-                            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> Đăng Nhập
-                        </a>
-                        <a href="/dang-ky" class="px-3.5 py-1.5 text-sm font-semibold text-white bg-medical-600 hover:bg-medical-700 rounded-lg shadow-sm transition inline-flex items-center">
-                            <i class="fa-solid fa-user-plus mr-1.5"></i> Đăng Ký
-                        </a>
+                        <button onclick="openAdminLoginModal()" class="px-3.5 py-1.5 text-sm font-semibold text-medical-700 bg-medical-50 hover:bg-medical-100 rounded-lg transition border border-medical-200 inline-flex items-center">
+                            <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> Đăng Nhập ADMIN
+                        </button>
                     </div>
 
                     <!-- Logged-in User Profile -->
                     <div id="user-nav-actions" class="hidden flex items-center space-x-3">
                         <div class="flex items-center space-x-2 text-sm bg-slate-100 py-1.5 px-3 rounded-lg border border-slate-200">
                             <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-medical-600 to-sky-400 text-white flex items-center justify-center font-bold text-xs shadow" id="user-avatar-text">
-                                BN
+                                AD
                             </div>
                             <div>
-                                <span class="font-bold text-slate-800 text-xs block leading-tight" id="user-display-name">Người Dùng</span>
-                                <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-medical-100 text-medical-800" id="user-display-role">BENH_NHAN</span>
+                                <span class="font-bold text-slate-800 text-xs block leading-tight" id="user-display-name">Quản Trị Viên</span>
+                                <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-medical-100 text-medical-800" id="user-display-role">ADMIN</span>
                             </div>
                         </div>
 
@@ -161,7 +158,7 @@
         </div>
 
         <!-- Mobile Navigation Tabs -->
-        <div class="flex md:hidden border-t border-slate-200 bg-slate-50 px-2 py-1 justify-around">
+        <div id="nav-m-tabs-container" class="flex md:hidden border-t border-slate-200 bg-slate-50 px-2 py-1 justify-around">
             <button onclick="switchView('view-booking')" id="nav-m-booking" class="px-3 py-1.5 text-xs font-bold text-medical-600">
                 <i class="fa-solid fa-calendar-plus block text-center text-sm mb-0.5"></i> Đặt Lịch
             </button>
@@ -179,10 +176,46 @@
     <!-- ============================================================= -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- ============================================================= -->
-        <!-- TAB 1: FORM ĐẶT LỊCH KHÁM BỆNH TRỰC TUYẾN -->
-        <!-- ============================================================= -->
-        <section id="view-booking" class="app-view">
+        <!-- CẢNH BÁO YÊU CẦU ĐĂNG NHẬP ADMIN -->
+        <div id="admin-required-gate" class="hidden my-12 flex items-center justify-center">
+            <div class="max-w-md w-full bg-white rounded-3xl border border-amber-200 shadow-xl p-8 text-center relative overflow-hidden">
+                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-xl font-black text-slate-900 mb-2">Yêu Cầu Quyền Quản Trị Viên (ADMIN)</h2>
+                <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                    Phân hệ này yêu cầu đăng nhập bằng tài khoản <strong class="text-amber-600 font-bold">ADMIN</strong> để xem và thao tác dữ liệu. Vui lòng đăng nhập tài khoản ADMIN để tiếp tục.
+                </p>
+                <div class="bg-slate-50 rounded-2xl p-4 mb-6 text-xs text-slate-600 border border-slate-200 text-left space-y-2">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                        <i class="fa-solid fa-key text-amber-500"></i> Tài khoản ADMIN mặc định:
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">Tài khoản:</span>
+                        <code class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">admin</code>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">Mật khẩu:</span>
+                        <code class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">Admin@123</code>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" onclick="openAdminLoginModal()" class="flex-1 py-3 px-4 bg-medical-600 hover:bg-medical-700 text-white font-bold rounded-xl text-sm transition shadow-md shadow-medical-600/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Đăng Nhập ADMIN
+                    </button>
+                    <a href="/dashboard" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-house"></i> Về Trang Chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- VÙNG NỘI DUNG PHÂN HỆ (CHỈ HIỂN THỊ KHI ĐÃ ĐĂNG NHẬP ADMIN) -->
+        <div id="nguoi2-content">
+            <!-- ============================================================= -->
+            <!-- TAB 1: FORM ĐẶT LỊCH KHÁM BỆNH TRỰC TUYẾN -->
+            <!-- ============================================================= -->
+            <section id="view-booking" class="app-view">
             <!-- Hero Banner -->
             <div class="bg-gradient-to-r from-medical-800 via-medical-700 to-sky-600 rounded-2xl p-6 sm:p-8 text-white shadow-xl shadow-medical-900/15 mb-8 relative overflow-hidden">
                 <div class="absolute -right-8 -bottom-10 opacity-10 text-9xl pointer-events-none">
@@ -560,6 +593,7 @@
                 <!-- Sẽ render động qua Javascript -->
             </div>
         </section>
+        </div> <!-- Kết thúc #nguoi2-content -->
 
     </main>
 
@@ -750,6 +784,50 @@
     </div>
 
     <!-- ============================================================= -->
+    <!-- MODAL 5: ĐĂNG NHẬP ADMIN -->
+    <!-- ============================================================= -->
+    <div id="modal-login" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden transform transition-all">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Đăng Nhập ADMIN</h3>
+                    <p class="text-xs text-slate-500">Đăng nhập tài khoản Quản trị viên để truy cập phân hệ.</p>
+                </div>
+                <button onclick="closeModal('modal-login')" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tên Đăng Nhập / Email</label>
+                    <input type="text" id="login-username" required placeholder="admin..." value="admin" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Mật Khẩu</label>
+                    <input type="password" id="login-password" required placeholder="Nhập mật khẩu..." value="Admin@123" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-500">
+                </div>
+
+                <!-- Gợi ý tài khoản demo nhanh -->
+                <div class="bg-medical-50/70 p-3 rounded-xl border border-medical-100 text-xs">
+                    <div class="font-bold text-medical-800 mb-1 flex items-center">
+                        <i class="fa-solid fa-lightbulb mr-1.5 text-amber-500"></i> Tài khoản Quản trị viên mẫu:
+                    </div>
+                    <div class="flex items-center justify-between text-slate-600">
+                        <span>Tài khoản: <strong class="text-slate-800 font-mono">admin</strong></span>
+                        <span>Mật khẩu: <strong class="text-slate-800 font-mono">Admin@123</strong></span>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-login-submit" class="w-full py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-sm rounded-lg shadow-md shadow-medical-600/20 transition">
+                    Đăng Nhập ADMIN
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================= -->
     <!-- FOOTER -->
     <!-- ============================================================= -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
@@ -774,23 +852,65 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Thiết lập ngày tối thiểu cho input chọn ngày (min = today)
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('booking-ngay-kham').min = today;
-            document.getElementById('booking-ngay-kham').value = today;
+            const bookingDateEl = document.getElementById('booking-ngay-kham');
+            if (bookingDateEl) {
+                bookingDateEl.min = today;
+                bookingDateEl.value = today;
+            }
 
-            // Kiểm tra trạng thái đăng nhập
+            // Kiểm tra trạng thái đăng nhập & kiểm soát Gate
             kiemTraTrangThaiDangNhap();
+            updateAccessGate();
 
-            // Tải danh sách bác sĩ
-            await taiDanhSachBacSi();
-
-            // Tải danh sách lịch hẹn
-            await taiDanhSachLichHen();
+            // Chỉ tải dữ liệu nếu là ADMIN
+            if (isUserAdmin()) {
+                await taiDanhSachBacSi();
+                await taiDanhSachLichHen();
+            }
         });
+
+        function isUserAdmin() {
+            const role = (currentUser && currentUser.vai_tro) 
+                || sessionStorage.getItem('role') 
+                || localStorage.getItem('role');
+            const token = sessionStorage.getItem('token') 
+                || localStorage.getItem('token') 
+                || localStorage.getItem('jwt_token');
+            return !!(token && role && role.toUpperCase() === 'ADMIN');
+        }
+
+        function updateAccessGate() {
+            const isAdm = isUserAdmin();
+            const gate = document.getElementById('admin-required-gate');
+            const content = document.getElementById('nguoi2-content');
+            const navTabs = document.getElementById('nav-tabs-container');
+            const navMTabs = document.getElementById('nav-m-tabs-container');
+
+            if (isAdm) {
+                if (gate) gate.classList.add('hidden');
+                if (content) content.classList.remove('hidden');
+                if (navTabs) navTabs.classList.remove('opacity-30', 'pointer-events-none');
+                if (navMTabs) navMTabs.classList.remove('opacity-30', 'pointer-events-none');
+            } else {
+                if (gate) gate.classList.remove('hidden');
+                if (content) content.classList.add('hidden');
+                if (navTabs) navTabs.classList.add('opacity-30', 'pointer-events-none');
+                if (navMTabs) navMTabs.classList.add('opacity-30', 'pointer-events-none');
+            }
+        }
+
+        function openAdminLoginModal() {
+            const u = document.getElementById('login-username');
+            const p = document.getElementById('login-password');
+            if (u) u.value = 'admin';
+            if (p) p.value = 'Admin@123';
+            openModal('modal-login');
+        }
 
         // 1. Quản lý trạng thái xác thực (Auth Gate)
         function kiemTraTrangThaiDangNhap() {
             const token = sessionStorage.getItem('token') || localStorage.getItem('token') || localStorage.getItem('jwt_token');
-            const userData = sessionStorage.getItem('user_info') || localStorage.getItem('nguoi_dung') || localStorage.getItem('user_info');
+            const userData = sessionStorage.getItem('user_info') || localStorage.getItem('user_info') || localStorage.getItem('nguoi_dung');
 
             if (token && userData) {
                 try {
@@ -798,20 +918,19 @@
                     document.getElementById('guest-nav-actions').classList.add('hidden');
                     document.getElementById('user-nav-actions').classList.remove('hidden');
 
-                    document.getElementById('user-display-name').textContent = currentUser.ho_ten || 'Người Dùng';
-                    document.getElementById('user-display-role').textContent = currentUser.vai_tro || 'BENH_NHAN';
+                    document.getElementById('user-display-name').textContent = currentUser.ho_ten || 'Quản Trị Viên';
+                    document.getElementById('user-display-role').textContent = currentUser.vai_tro || 'ADMIN';
                     
-                    const initials = (currentUser.ho_ten || 'ND').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    const initials = (currentUser.ho_ten || 'AD').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                     document.getElementById('user-avatar-text').textContent = initials;
 
-                    // Tự động điền thông tin bệnh nhân vào form đặt lịch
-                    document.getElementById('booking-ho-ten').value = currentUser.ho_ten || '';
-                    document.getElementById('booking-sdt').value = currentUser.so_dien_thoai || '';
-                    if (currentUser.so_cccd) document.getElementById('booking-cccd').value = currentUser.so_cccd;
-                    if (currentUser.ngay_sinh) document.getElementById('booking-ngay-sinh').value = currentUser.ngay_sinh;
-                    if (currentUser.gioi_tinh) document.getElementById('booking-gioi-tinh').value = currentUser.gioi_tinh;
+                    // Tự động điền thông tin vào form đặt lịch
+                    if (document.getElementById('booking-ho-ten')) document.getElementById('booking-ho-ten').value = currentUser.ho_ten || '';
+                    if (document.getElementById('booking-sdt')) document.getElementById('booking-sdt').value = currentUser.so_dien_thoai || '';
+                    if (currentUser.so_cccd && document.getElementById('booking-cccd')) document.getElementById('booking-cccd').value = currentUser.so_cccd;
+                    if (currentUser.ngay_sinh && document.getElementById('booking-ngay-sinh')) document.getElementById('booking-ngay-sinh').value = currentUser.ngay_sinh;
+                    if (currentUser.gioi_tinh && document.getElementById('booking-gioi-tinh')) document.getElementById('booking-gioi-tinh').value = currentUser.gioi_tinh;
 
-                    // Tải thêm thông tin bệnh án điện tử đã lưu nếu có
                     taiHoSoBenhAnDienTu();
                 } catch (e) {
                     console.error("Lỗi đọc dữ liệu người dùng:", e);
@@ -819,12 +938,81 @@
             } else {
                 document.getElementById('guest-nav-actions').classList.remove('hidden');
                 document.getElementById('user-nav-actions').classList.add('hidden');
-                document.getElementById('booking-guest-alert').classList.remove('hidden');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            Swal.fire({
+                title: 'Đang xác thực...',
+                text: 'Vui lòng chờ giây lát',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const res = await fetch(`${GATEWAY_URL}/api/xac-thuc/dang-nhap`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ten_dang_nhap: username, mat_khau: password })
+                });
+
+                const json = await res.json();
+                Swal.close();
+
+                if (res.ok && json.thanh_cong) {
+                    const data = json.du_lieu;
+
+                    if (data.vai_tro !== 'ADMIN') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Yêu Cầu Quyền ADMIN',
+                            text: `Tài khoản ${data.nguoi_dung.ho_ten} (${data.vai_tro}) không phải là Quản Trị Viên (ADMIN). Vui lòng đăng nhập bằng tài khoản Quản Trị Viên để truy cập phân hệ này!`
+                        });
+                        return;
+                    }
+
+                    currentUser = data.nguoi_dung;
+                    sessionStorage.setItem('token', data.token);
+                    sessionStorage.setItem('user_info', JSON.stringify(data.nguoi_dung));
+                    sessionStorage.setItem('role', data.vai_tro);
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('jwt_token', data.token);
+                    localStorage.setItem('user_info', JSON.stringify(data.nguoi_dung));
+                    localStorage.setItem('nguoi_dung', JSON.stringify(data.nguoi_dung));
+                    localStorage.setItem('role', data.vai_tro);
+
+                    kiemTraTrangThaiDangNhap();
+                    updateAccessGate();
+                    closeModal('modal-login');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đăng nhập ADMIN thành công!',
+                        text: `Xin chào Quản Trị Viên: ${data.nguoi_dung.ho_ten}`,
+                        timer: 1600,
+                        showConfirmButton: false
+                    });
+
+                    await taiDanhSachBacSi();
+                    await taiDanhSachLichHen();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Đăng nhập thất bại',
+                        text: json.thong_diep || 'Tên đăng nhập hoặc mật khẩu không chính xác.'
+                    });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Lỗi máy chủ', text: 'Không thể kết nối đến API Gateway.' });
             }
         }
 
         async function taiHoSoBenhAnDienTu() {
-            const token = localStorage.getItem('token') || localStorage.getItem('jwt_token');
+            const token = sessionStorage.getItem('token') || localStorage.getItem('token') || localStorage.getItem('jwt_token');
             if (!token) return;
 
             try {
@@ -837,11 +1025,11 @@
                 const data = await res.json();
                 if (data.thanh_cong && data.du_lieu) {
                     const bn = data.du_lieu;
-                    if (bn.nhom_mau) document.getElementById('booking-nhom-mau').value = bn.nhom_mau;
-                    if (bn.tien_su_di_ung) document.getElementById('booking-tien-su-di-ung').value = bn.tien_su_di_ung;
-                    if (bn.tien_su_benh) document.getElementById('booking-tien-su-benh').value = bn.tien_su_benh;
-                    if (bn.nguoi_lien_he_khan_cap) document.getElementById('booking-nguoi-than').value = bn.nguoi_lien_he_khan_cap;
-                    if (bn.sdt_khan_cap) document.getElementById('booking-sdt-khan-cap').value = bn.sdt_khan_cap;
+                    if (bn.nhom_mau && document.getElementById('booking-nhom-mau')) document.getElementById('booking-nhom-mau').value = bn.nhom_mau;
+                    if (bn.tien_su_di_ung && document.getElementById('booking-tien-su-di-ung')) document.getElementById('booking-tien-su-di-ung').value = bn.tien_su_di_ung;
+                    if (bn.tien_su_benh && document.getElementById('booking-tien-su-benh')) document.getElementById('booking-tien-su-benh').value = bn.tien_su_benh;
+                    if (bn.nguoi_lien_he_khan_cap && document.getElementById('booking-nguoi-than')) document.getElementById('booking-nguoi-than').value = bn.nguoi_lien_he_khan_cap;
+                    if (bn.sdt_khan_cap && document.getElementById('booking-sdt-khan-cap')) document.getElementById('booking-sdt-khan-cap').value = bn.sdt_khan_cap;
                 }
             } catch (e) {
                 console.log("Chưa có hồ sơ bệnh án mở rộng sẵn.");
@@ -851,7 +1039,7 @@
         function handleLogout() {
             Swal.fire({
                 title: 'Đăng xuất tài khoản?',
-                text: 'Bạn sẽ cần đăng nhập lại để thực hiện các chức năng phân hệ.',
+                text: 'Bạn sẽ cần đăng nhập lại tài khoản ADMIN để truy cập phân hệ.',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Đăng xuất',
@@ -859,10 +1047,8 @@
                 confirmButtonColor: '#e11d48',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('jwt_token');
-                    localStorage.removeItem('nguoi_dung');
-                    localStorage.removeItem('user_info');
+                    sessionStorage.clear();
+                    localStorage.clear();
                     window.location.reload();
                 }
             });
