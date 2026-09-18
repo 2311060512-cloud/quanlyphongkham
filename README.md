@@ -1,6 +1,6 @@
 # HỆ THỐNG QUẢN LÝ PHÒNG KHÁM ĐA KHOA (LARAVEL MICROSERVICES)
 
-Khung hệ thống Microservices phòng khám đa khoa xây dựng trên môi trường **Laragon (PHP 8.2, Composer, MySQL Port 3307)** với 100% quy ước đặt tên Tiếng Việt không dấu.
+Khung hệ thống Microservices phòng khám đa khoa xây dựng trên môi trường **Laragon (PHP 8.2, Composer, MySQL Port 3307)** 
 
 .\start-he-thong.bat
 
