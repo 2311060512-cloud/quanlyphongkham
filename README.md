@@ -9,11 +9,11 @@ Khung hệ thống Microservices phòng khám đa khoa xây dựng trên môi tr
 
 Thư mục gốc: `D:\laragon\laragon\www\quanlyphongkham_microservices\` (hoặc `quanlyphongkhamdv`):
 ```text
-├── 00_api_gateway/               (Port: 8000) - API Gateway, Reverse Proxy & JWT Auth
-├── 01_dich_vu_xac_thuc_bac_si/   (Port: 8001) - DB: db_xac_thuc_bac_si (Người 1)
-├── 02_dich_vu_benh_nhan_lich_hen/(Port: 8002) - DB: db_benh_nhan_lich_hen (Người 2)
-├── 03_dich_vu_y_te_can_lam_sang/ (Port: 8003) - DB: db_dich_vu_y_te (Người 3)
-├── 04_dich_vu_hoa_don_thanh_toan/(Port: 8004) - DB: db_hoa_don_thanh_toan (Người 4)
+├── 00_api_gateway/               (Port: 8000) - API Gateway, Reverse Proxy & JWT Auth (Dương)
+├── 01_dich_vu_xac_thuc_bac_si/   (Port: 8001) - DB: db_xac_thuc_bac_si (Dương)
+├── 02_dich_vu_benh_nhan_lich_hen/(Port: 8002) - DB: db_benh_nhan_lich_hen (Việt Anh)
+├── 03_dich_vu_y_te_can_lam_sang/ (Port: 8003) - DB: db_dich_vu_y_te (Khải)
+├── 04_dich_vu_hoa_don_thanh_toan/(Port: 8004) - DB: db_hoa_don_thanh_toan (Toàn)
 │
 ├── khoi-tao-database.php          - Tự động tạo 4 database trên MySQL port 3307
 ├── chay-migrations.bat / .ps1     - Chạy migration & seeders cho 4 services
