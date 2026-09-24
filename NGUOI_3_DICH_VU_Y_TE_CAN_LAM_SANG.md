@@ -1,6 +1,6 @@
 # BÁO CÁO PHÂN HỆ 03: KHÁM CHUYÊN MÔN & DỊCH VỤ CẬN LÂM SÀNG
-**Thành viên:** Người 3
-**Microservice:** `03_dich_vu_y_te_can_lam_sang` (Port: `8003`, Database: `db_dich_vu_y_te`)
+**Thành viên:** Người 3(Khải)
+**Microservice:** `clinical-service` (Port: `8003`, Database: `db_dich_vu_y_te`)
 
 ---
 

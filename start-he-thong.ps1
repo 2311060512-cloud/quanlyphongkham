@@ -6,11 +6,11 @@ Write-Host "   KHOI DONG 5 MICROSERVICES PHONG KHAM DA KHOA" -ForegroundColor Cy
 Write-Host "============================================================" -ForegroundColor Cyan
 
 $services = @(
-    @{ name = "00_api_gateway"; port = 8000; title = "00_API_GATEWAY" },
-    @{ name = "01_dich_vu_xac_thuc_bac_si"; port = 8001; title = "01_XAC_THUC_BAC_SI" },
-    @{ name = "02_dich_vu_benh_nhan_lich_hen"; port = 8002; title = "02_BENH_NHAN_LICH_HEN" },
-    @{ name = "03_dich_vu_y_te_can_lam_sang"; port = 8003; title = "03_Y_TE_CAN_LAM_SANG" },
-    @{ name = "04_dich_vu_hoa_don_thanh_toan"; port = 8004; title = "04_HOA_DON_THANH_TOAN" }
+    @{ name = "api-gateway"; port = 8000; title = "API_GATEWAY" },
+    @{ name = "auth-service"; port = 8001; title = "AUTH_SERVICE" },
+    @{ name = "appointment-service"; port = 8002; title = "APPOINTMENT_SERVICE" },
+    @{ name = "clinical-service"; port = 8003; title = "CLINICAL_SERVICE" },
+    @{ name = "billing-service"; port = 8004; title = "BILLING_SERVICE" }
 )
 
 foreach ($s in $services) {

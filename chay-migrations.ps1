@@ -9,10 +9,10 @@ Write-Host "`n[1/5] Khoi tao co so du lieu tren MySQL 3307..." -ForegroundColor 
 php khoi-tao-database.php
 
 $services = @(
-    @{ name = "01_dich_vu_xac_thuc_bac_si"; db = "db_xac_thuc_bac_si" },
-    @{ name = "02_dich_vu_benh_nhan_lich_hen"; db = "db_benh_nhan_lich_hen" },
-    @{ name = "03_dich_vu_y_te_can_lam_sang"; db = "db_dich_vu_y_te" },
-    @{ name = "04_dich_vu_hoa_don_thanh_toan"; db = "db_hoa_don_thanh_toan" }
+    @{ name = "auth-service"; db = "db_xac_thuc_bac_si" },
+    @{ name = "appointment-service"; db = "db_benh_nhan_lich_hen" },
+    @{ name = "clinical-service"; db = "db_dich_vu_y_te" },
+    @{ name = "billing-service"; db = "db_hoa_don_thanh_toan" }
 )
 
 $step = 2
