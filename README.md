@@ -43,7 +43,7 @@ Dự án được phân chia theo 4 phân hệ dịch vụ độc lập tương 
 
 ---
 
-## 📌 III. CẤU TRÚC THƯ MỤC DỰ ÁN
+## 📌 III. CẤU TRÚC THƯ MỤC DỰ ÁN & HƯỚNG DẪN XÂY DỰNG TỪNG SERVICE
 
 ```text
 quanlyphongkham_microservices/
@@ -63,6 +63,119 @@ quanlyphongkham_microservices/
 ├── NGUOI_3_DICH_VU_Y_TE_CAN_LAM_SANG.md - Báo cáo phân hệ 03 chi tiết
 └── quanlyphongkham_microservices.postman_collection.json - Bộ API Postman kiểm thử đầy đủ
 ```
+
+---
+
+### 🌐 1. `api-gateway/` — Cổng Giao Tiếp Tập Trung & Web Portal (Port: 8000)
+> **Phụ trách:** 👤 Dương (Leader) | **Database:** *Không dùng DB riêng*
+
+#### 🎯 Chức năng thành viên cần xây dựng & duy trì:
+- **Reverse Proxy Dispatcher:** Nhận toàn bộ request từ Client tại port 8000 và chuyển tiếp chuẩn xác sang 4 service con (8001, 8002, 8003, 8004) dựa trên tiền tố đường dẫn:
+  - `/api/v1/xac-thuc/*`, `/api/v1/tai-khoan/*`, `/api/v1/bac-si/*`, `/api/v1/chuyen-khoa/*` ➔ `auth-service:8001`
+  - `/api/v1/benh-nhan/*`, `/api/v1/lich-hen/*` ➔ `appointment-service:8002`
+  - `/api/v1/dich-vu/*`, `/api/v1/kham-benh/*`, `/api/v1/can-lam-sang/*` ➔ `clinical-service:8003`
+  - `/api/v1/hoa-don/*` ➔ `billing-service:8004`
+- **Xác thực bảo mật tập trung (JWT Auth):** Giải mã Token JWT của người dùng, kiểm tra tính hợp lệ và tự động đính kèm các Header danh tính: `X-User-Id`, `X-User-Role`, `X-User-Email`, `X-User-Name` sang các service con.
+- **Phân quyền tập trung (Role-based Gate):** Chặn các request không đủ quyền hạn (ví dụ: chỉ `ADMIN` mới được thêm bác sĩ, chỉ `BAC_SI` mới được kê cận lâm sàng).
+- **Hạ tầng Health Check Realtime:** Quét trạng thái liveness (Online/Offline, độ trễ ms) của cả 4 services và trả về báo cáo tổng hợp tại `/api/v1/health`.
+- **Giao diện Web Portal:** Hệ thống Blade view tích hợp (`dashboard.blade.php`, `auth.blade.php`) phục vụ trải nghiệm người dùng đầy đủ cho cả Admin, Bác sĩ và Bệnh nhân.
+
+---
+
+### 🔐 2. `auth-service/` — Dịch Vụ Định Danh, Tài Khoản & Bác Sĩ (Port: 8001)
+> **Phụ trách:** 👤 Dương | **Database:** `db_xac_thuc_bac_si`
+
+#### 🎯 Chức năng thành viên cần xây dựng & duy trì:
+- **Quản lý Tài khoản & Phân quyền:** Đăng ký tài khoản mới, Đăng nhập, Đổi mật khẩu, Khóa/Kích hoạt tài khoản người dùng; cấp phát mã Token JWT chuẩn.
+- **Quản lý Danh mục Chuyên khoa:** Thêm, cập nhật, hiển thị danh sách các chuyên khoa trong phòng khám (Nội, Ngoại, Nhi, Tai Mũi Họng, Răng Hàm Mặt, Tim mạch...).
+- **Quản lý Hồ sơ Bác sĩ:**
+  - Thiết lập thông tin bác sĩ: Học vị, số năm kinh nghiệm, liên kết tài khoản và chuyên khoa.
+  - Cấu hình **Bảng giá khám bệnh ban đầu (`gia_kham`)** của từng bác sĩ.
+  - Lọc danh sách bác sĩ theo chuyên khoa và trạng thái làm việc.
+- **Điểm cung cấp liên dịch vụ:** Cung cấp API `GET /api/v1/bac-si/{id}` trả về `gia_kham` để `billing-service` tự động kéo đơn giá khám vào hóa đơn viện phí.
+
+#### 🗄️ Cấu trúc dữ liệu (Models/Tables):
+- `VaiTro` (`vai_tro`): `id`, `ma_vai_tro`, `ten_vai_tro`, `mo_ta`
+- `TaiKhoan` (`tai_khoan`): `id`, `vai_tro_id`, `ho_ten`, `email`, `so_dien_thoai`, `mat_khau`, `trang_thai`
+- `ChuyenKhoa` (`chuyen_khoa`): `id`, `ma_chuyen_khoa`, `ten_chuyen_khoa`, `mo_ta`
+- `BacSi` (`bac_si`): `id`, `tai_khoan_id`, `chuyen_khoa_id`, `hoc_vi`, `so_nam_kinh_nghiem`, `gia_kham`, `trang_thai`
+
+---
+
+### 📅 3. `appointment-service/` — Dịch Vụ Bệnh Nhân & Lịch Hẹn Khám (Port: 8002)
+> **Phụ trách:** 👤 Việt Anh | **Database:** `db_benh_nhan_lich_hen`
+
+#### 🎯 Chức năng thành viên cần xây dựng & duy trì:
+- **Quản lý Hồ sơ Bệnh nhân (Bệnh án điện tử ban đầu):**
+  - Tự động sinh mã y tế `BNxxxx` độc nhất.
+  - Lưu trữ thông tin cá nhân: Họ tên, ngày sinh, giới tính, CCCD/CMND, số điện thoại, địa chỉ cư trú.
+  - Quản lý tiền sử y tế: Nhóm máu (`A`, `B`, `AB`, `O`), tiền sử dị ứng thuốc, bệnh lý mãn tính, thông tin người liên hệ khẩn cấp.
+- **Quy trình Đặt lịch khám thông minh:**
+  - Bệnh nhân lựa chọn bác sĩ, ngày hẹn và khung giờ khám (theo slot 30 phút).
+  - Tự động liên kết hoặc khởi tạo mới hồ sơ bệnh nhân nếu là lượt khám đầu.
+- **Thuật toán cốt lõi Chống trùng lịch Bác sĩ (Conflict Prevention):**
+  - Kiểm tra giao thoa thời gian ca khám: chặn tuyệt đối 2 bệnh nhân đặt cùng 1 bác sĩ trong cùng 1 khung giờ.
+  - Bắt buộc trả về HTTP Status `409 Conflict` kèm mã lỗi `TRUNG_LICH_KHAM` khi phát hiện trùng slot.
+  - Chặn đặt lịch vào các ngày trong quá khứ (`HTTP 422`).
+- **Nghiệp vụ Dời lịch & Hủy ca khám:**
+  - Dời lịch sang khung giờ mới, tự động kiểm tra slot trống và đếm số lần dời lịch.
+  - Chính sách hủy ca khám nghiêm ngặt: Chặn hủy ca khám khi thời gian diễn ra còn dưới 2 tiếng (`KHONG_THE_HUY_SAT_GIO`).
+- **Điểm cung cấp liên dịch vụ:** Cung cấp API `GET /api/v1/lich-hen/{id}` trả về `benh_nhan_id`, `bac_si_id`, `ngay_kham` cho `billing-service` tổng hợp hóa đơn.
+
+#### 🗄️ Cấu trúc dữ liệu (Models/Tables):
+- `BenhNhan` (`benh_nhan`): `id`, `ma_benh_nhan`, `tai_khoan_id`, `ho_ten`, `ngay_sinh`, `gioi_tinh`, `so_dien_thoai`, `email`, `dia_chi`, `so_cccd`, `nhom_mau`, `tien_su_di_ung`, `tien_su_benh`, `nguoi_lien_he_khan_cap`, `sdt_khan_cap`
+- `LichHen` (`lich_hen`): `id`, `ma_lich_hen`, `benh_nhan_id`, `bac_si_id`, `ngay_kham`, `gio_bat_dau`, `gio_ket_thuc`, `ly_do_kham`, `trang_thai`, `ghi_chu_bac_si`, `so_lan_doi_lich`
+
+---
+
+### 🔬 4. `clinical-service/` — Dịch Vụ Khám Chuyên Môn & Cận Lâm Sàng (Port: 8003)
+> **Phụ trách:** 👤 Khải | **Database:** `db_dich_vu_y_te`
+
+#### 🎯 Chức năng thành viên cần xây dựng & duy trì:
+- **Quản lý Danh mục Kỹ thuật Y tế (Bảng giá CLS):**
+  - Tạo lập và quản lý danh mục các gói xét nghiệm (Công thức máu, Nước tiểu, Sinh hóa...), Chẩn đoán hình ảnh (Chụp X-Quang, Siêu âm ổ bụng, Nội soi tai mũi họng...), Thủ thuật y tế kèm theo đơn giá niêm yết.
+- **Kê chỉ định Cận lâm sàng theo ca khám:**
+  - Bác sĩ phụ trách ca khám (`lich_hen_id`) chỉ định 1 hoặc nhiều dịch vụ cận lâm sàng cho bệnh nhân.
+  - Hỗ trợ hủy chỉ định dịch vụ nếu kỹ thuật viên chưa thực hiện.
+- **Quy trình Thực hiện & Trả kết quả Cận lâm sàng:**
+  - Hàng đợi chờ xét nghiệm/siêu âm cho kỹ thuật viên phòng cận lâm sàng.
+  - Nhập kết quả chỉ số đo lường, kết luận chẩn đoán hình ảnh và upload tệp/ảnh kết quả (`file_ket_qua`).
+- **Khám bệnh, Chẩn đoán & Kê đơn thuốc:**
+  - Bác sĩ nhập triệu chứng lâm sàng, chẩn đoán xác định bệnh, kê đơn thuốc điều trị và dặn dò tái khám.
+  - Đóng và hoàn tất ca khám chuyển sang bước quyết toán viện phí.
+- **Điểm cung cấp liên dịch vụ:** Cung cấp API `GET /api/v1/dich-vu/lich-hen/{lich_hen_id}` trả về danh sách cận lâm sàng kèm `don_gia * so_luong` để `billing-service` tự động cộng tiền cận lâm sàng vào viện phí.
+
+#### 🗄️ Cấu trúc dữ liệu (Models/Tables):
+- `DichVu` (`dich_vu`): `id`, `ma_dich_vu`, `ten_dich_vu`, `loai_dich_vu`, `don_gia`, `mo_ta`, `trang_thai`
+- `SuDungDichVu` (`su_dung_dich_vu`): `id`, `lich_hen_id`, `benh_nhan_id`, `bac_si_id`, `dich_vu_id`, `so_luong`, `don_gia`, `ket_qua`, `ghi_chu`, `file_ket_qua`, `trang_thai`
+- `HoSoKhamBenh` (`ho_so_kham_benh`): `id`, `lich_hen_id`, `benh_nhan_id`, `bac_si_id`, `trieu_chung`, `chan_doan`, `don_thuoc`, `loi_dan_bac_si`, `ngay_tai_kham`
+
+---
+
+### 💳 5. `billing-service/` — Dịch Vụ Viện Phí, Hóa Đơn & Thanh Toán (Port: 8004)
+> **Phụ trách:** 👤 Toàn | **Database:** `db_hoa_don_thanh_toan`
+
+#### 🎯 Chức năng thành viên cần xây dựng & duy trì:
+- **Cơ chế Tổng hợp Viện phí Tự động Liên dịch vụ (Core Feature):**
+  - Tự động gọi HTTP song song sang 3 service con để tổng hợp đầy đủ chi phí ca khám:
+    1. Gọi `appointment-service` ➔ Lấy `lich_hen_id`, `benh_nhan_id`, `bac_si_id`.
+    2. Gọi `auth-service` ➔ Lấy `gia_kham` ban đầu của bác sĩ phụ trách.
+    3. Gọi `clinical-service` ➔ Lấy toàn bộ danh sách dịch vụ cận lâm sàng đã dùng: `sum(don_gia * so_luong)`.
+  - Tự động lập Hóa đơn tổng hợp và từng dòng Chi tiết hóa đơn:
+    $$\text{Thực thu} = \text{Tiền khám} + \text{Tiền cận lâm sàng} - \text{Giảm giá}$$
+- **Quản lý Hóa đơn & Biên lai Viện phí:**
+  - Sinh mã hóa đơn chuẩn `HDxxxx`, lưu trữ trạng thái thanh toán (`CHUA_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HOAN_TIEN`).
+  - Hỗ trợ in biên lai viện phí chi tiết từng hạng mục cho bệnh nhân.
+- **Xử lý Giao dịch Thanh toán Đa phương thức:**
+  - Tiếp nhận xác nhận thanh toán qua các hình thức: `TIEN_MAT` (tại quầy thu ngân), `CHUYEN_KHOAN`, cổng thanh toán trực tuyến (`VNPAY`, `MOMO`).
+- **Báo cáo Thống kê Doanh thu & Dòng tiền:**
+  - Thống kê doanh thu phòng khám theo ngày, tuần, tháng.
+  - Phân tích cơ cấu nguồn thu (tỷ trọng tiền khám bác sĩ so với tiền dịch vụ xét nghiệm/siêu âm).
+  - Thống kê tỷ lệ ca khám đã thanh toán / nợ viện phí.
+
+#### 🗄️ Cấu trúc dữ liệu (Models/Tables):
+- `HoaDon` (`hoa_don`): `id`, `ma_hoa_don`, `lich_hen_id`, `benh_nhan_id`, `tien_kham`, `tien_dich_vu`, `tong_tien`, `giam_gia`, `thuc_thu`, `phuong_thuc_thanh_toan`, `trang_thai`, `ngay_thanh_toan`, `ghi_chu`
+- `ChiTietHoaDon` (`chi_tiet_hoa_don`): `id`, `hoa_don_id`, `loai_khoan_thu` (`TIEN_KHAM`, `CAN_LAM_SANG`, `THUOC`), `ten_khoan_thu`, `so_luong`, `don_gia`, `thanh_tien`
 
 ---
 
