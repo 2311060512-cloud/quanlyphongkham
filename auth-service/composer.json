@@ -1,11 +1,12 @@
 {
-    "name": "phongkham/04_dich_vu_hoa_don_thanh_toan",
+    "name": "phongkham/auth-service",
     "type": "project",
-    "description": "Dich vu Tong hop hoa don tu dong & Thanh toan",
+    "description": "Dich vu Xac thuc, Tai khoan, Chuyen khoa & Bac si",
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^12.0"
+        "laravel/framework": "^12.0",
+        "laravel/sanctum": "*"
     },
     "autoload": {
         "psr-4": {

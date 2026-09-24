@@ -99,25 +99,25 @@ class GatewayController extends Controller
     public function healthCheck(): JsonResponse
     {
         $services = [
-            '01_dich_vu_xac_thuc_bac_si' => [
+            'auth-service' => [
                 'url' => config('services.dich_vu_xac_thuc', 'http://127.0.0.1:8001'),
                 'port' => 8001,
                 'db' => 'db_xac_thuc_bac_si',
                 'vai_tro' => 'Xac thuc, Tai khoan, Chuyen khoa, Bac si'
             ],
-            '02_dich_vu_benh_nhan_lich_hen' => [
+            'appointment-service' => [
                 'url' => config('services.dich_vu_lich_hen', 'http://127.0.0.1:8002'),
                 'port' => 8002,
                 'db' => 'db_benh_nhan_lich_hen',
                 'vai_tro' => 'Ho so benh nhan & Chong trung lich bac si'
             ],
-            '03_dich_vu_y_te_can_lam_sang' => [
+            'clinical-service' => [
                 'url' => config('services.dich_vu_y_te', 'http://127.0.0.1:8003'),
                 'port' => 8003,
                 'db' => 'db_dich_vu_y_te',
                 'vai_tro' => 'Danh muc dich vu & Ke can lam sang'
             ],
-            '04_dich_vu_hoa_don_thanh_toan' => [
+            'billing-service' => [
                 'url' => config('services.dich_vu_hoa_don', 'http://127.0.0.1:8004'),
                 'port' => 8004,
                 'db' => 'db_hoa_don_thanh_toan',
@@ -155,7 +155,7 @@ class GatewayController extends Controller
         }
 
         return response()->json([
-            'gateway' => '00_api_gateway (Port 8000)',
+            'gateway' => 'api-gateway (Port 8000)',
             'trang_thai_chung' => $tatCaHoatDong ? 'HOAT_DONG_TOT' : 'MOT_SO_DICH_VU_NGOAI_TUYEN',
             'thoi_gian' => now()->toIso8601String(),
             'danh_sach_dich_vu' => $ketQua

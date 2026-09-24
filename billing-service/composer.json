@@ -1,7 +1,7 @@
 {
-    "name": "phongkham/02_dich_vu_benh_nhan_lich_hen",
+    "name": "phongkham/billing-service",
     "type": "project",
-    "description": "Dich vu Ho so Benh nhan & Dat lich hen chong trung",
+    "description": "Dich vu Tong hop hoa don tu dong & Thanh toan",
     "license": "MIT",
     "require": {
         "php": "^8.2",

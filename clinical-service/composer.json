@@ -1,12 +1,11 @@
 {
-    "name": "phongkham/01_dich_vu_xac_thuc_bac_si",
+    "name": "phongkham/clinical-service",
     "type": "project",
-    "description": "Dich vu Xac thuc, Tai khoan, Chuyen khoa & Bac si",
+    "description": "Dich vu Can lam sang, Xet nghiem & Sieu am",
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^12.0",
-        "laravel/sanctum": "*"
+        "laravel/framework": "^12.0"
     },
     "autoload": {
         "psr-4": {

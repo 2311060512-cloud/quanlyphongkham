@@ -1,7 +1,7 @@
 # 📋 BÁO CÁO CÔNG VIỆC PHÂN HỆ 02: BỆNH NHÂN & ĐẶT LỊCH KHÁM (NGƯỜI 2)
 > **Dự án:** Hệ Thống Quản Lý Phòng Khám Đa Khoa (Kiến Trúc Microservices)  
 > **Người thực hiện:** Người 2 (Phân hệ Bệnh Nhân & Đặt Lịch Khám)  
-> **Thư mục phụ trách:** `02_dich_vu_benh_nhan_lich_hen/` (Port `8002`)  
+> **Thư mục phụ trách:** `appointment-service/` (Port `8002`)  
 > **Cơ sở dữ liệu:** `db_benh_nhan_lich_hen` (MySQL Port 3307 mặc định / 3306)
 
 ---
@@ -23,7 +23,7 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
 ## 🗄️ II. CƠ SỞ DỮ LIỆU & MIGRATIONS (`db_benh_nhan_lich_hen`)
 
 ### 1. File Migration: Tạo bảng Hồ Sơ Bệnh Nhân
-- **Đường dẫn:** `02_dich_vu_benh_nhan_lich_hen/database/migrations/2026_01_01_000001_create_benh_nhan_table.php`
+- **Đường dẫn:** `appointment-service/database/migrations/2026_01_01_000001_create_benh_nhan_table.php`
 - **Bảng:** `benh_nhan`
 - **Các trường dữ liệu:**
   - `id`: Khóa chính tự tăng (bigIncrements).
@@ -45,7 +45,7 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
   - `timestamps`: `created_at`, `updated_at`.
 
 ### 2. File Migration: Tạo bảng Lịch Hẹn Khám Bệnh
-- **Đường dẫn:** `02_dich_vu_benh_nhan_lich_hen/database/migrations/2026_01_01_000002_create_lich_hen_table.php`
+- **Đường dẫn:** `appointment-service/database/migrations/2026_01_01_000002_create_lich_hen_table.php`
 - **Bảng:** `lich_hen`
 - **Các trường dữ liệu:**
   - `id`: Khóa chính tự tăng (bigIncrements).
@@ -70,7 +70,7 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
   - `timestamps`: `created_at`, `updated_at`.
 
 ### 3. File Seeder: Khởi tạo dữ liệu mẫu
-- **Đường dẫn:** `02_dich_vu_benh_nhan_lich_hen/database/seeders/DatabaseSeeder.php`
+- **Đường dẫn:** `appointment-service/database/seeders/DatabaseSeeder.php`
 - Cung cấp sẵn hồ sơ bệnh nhân chuẩn (`BN20260001`, `BN20260002`...) và các ca lịch hẹn mẫu giúp nhóm trưởng và các thành viên test chạy hệ thống ngay lập tức mà không cần tự nhập liệu.
 
 ---
@@ -78,39 +78,39 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
 ## 💻 III. DANH SÁCH FILE SOURCE CODE BACKEND ĐÃ TẠO & CẬP NHẬT
 
 ### 1. Lớp Model (Eloquent ORM)
-- `02_dich_vu_benh_nhan_lich_hen/app/Models/BenhNhan.php`:
+- `appointment-service/app/Models/BenhNhan.php`:
   - Quan hệ 1-N: `hasMany(LichHen::class, 'benh_nhan_id')`.
   - Khai báo đầy đủ `$fillable` bảo vệ dữ liệu hồ sơ y tế.
-- `02_dich_vu_benh_nhan_lich_hen/app/Models/LichHen.php`:
+- `appointment-service/app/Models/LichHen.php`:
   - Quan hệ N-1: `belongsTo(BenhNhan::class, 'benh_nhan_id')`.
   - `$casts`: `tep_dinh_kem => 'array'`, `ngay_kham => 'date:Y-m-d'`, `thoi_gian_doi_lich_gan_nhat => 'datetime'`.
 
 ### 2. Lớp Nghiệp Vụ Chuyên Sâu (Service Layer)
-- `02_dich_vu_benh_nhan_lich_hen/app/Services/LichHenService.php`:
+- `appointment-service/app/Services/LichHenService.php`:
   - `kiemTraTrungLich($bacSiId, $ngayKham, $gioBatDau, $gioKetThuc, $boQuaLichHenId = null)`: Thuật toán kiểm tra giao thoa khoảng thời gian chống trùng ca khám.
   - `datLichKham($duLieu)`: Quy trình tạo lịch hẹn khép kín, tự động tạo mới hồ sơ bệnh nhân nếu chưa có, sinh mã `LKxxxx` độc nhất.
   - `doiLichKham($id, $ngayKhamMoi, $gioBatDauMoi, $gioKetThucMoi, $lyDoDoi)`: Nghiệp vụ dời lịch, kiểm tra xung đột slot của bác sĩ, tăng `so_lan_doi_lich`.
   - `huyLichHen($id, $lyDoHuy, $vaiTro, $userHienTai)`: Áp dụng quy tắc chặn hủy sát giờ nếu ca khám diễn ra trong vòng 2 tiếng.
   - `dieuPhoiTrangThai($id, $trangThaiMoi, $ghiChu)`: Chuyển đổi trạng thái khám (`DA_XAC_NHAN`, `DANG_KHAM`, `HOAN_THANH`).
   - `layLichSuKhamBenhNhan($benhNhanId, $soDienThoai)`: Truy xuất toàn bộ lịch sử ca khám.
-- `02_dich_vu_benh_nhan_lich_hen/app/Services/BenhNhanService.php`:
+- `appointment-service/app/Services/BenhNhanService.php`:
   - Tự động sinh mã `BN` theo năm và số thứ tự tự tăng.
   - Cập nhật thông tin bệnh án điện tử, liên hệ khẩn cấp.
 
 ### 3. Lớp Controller (REST API Handler)
-- `02_dich_vu_benh_nhan_lich_hen/app/Http/Controllers/Controller.php`:
+- `appointment-service/app/Http/Controllers/Controller.php`:
   - Lớp Base Controller chuẩn hóa cho Laravel 12.
-- `02_dich_vu_benh_nhan_lich_hen/app/Http/Controllers/LichHenController.php`:
+- `appointment-service/app/Http/Controllers/LichHenController.php`:
   - Xử lý các request đặt lịch, dời lịch, điều phối trạng thái, xem lịch hẹn.
-- `02_dich_vu_benh_nhan_lich_hen/app/Http/Controllers/BenhNhanController.php`:
+- `appointment-service/app/Http/Controllers/BenhNhanController.php`:
   - Xử lý tra cứu và cập nhật hồ sơ bệnh nhân.
 
 ### 4. Middleware, Notification & Route
-- `02_dich_vu_benh_nhan_lich_hen/app/Http/Middleware/XacThucService02Middleware.php`:
+- `appointment-service/app/Http/Middleware/XacThucService02Middleware.php`:
   - Xác thực bảo mật nội bộ và chuyển đổi thông tin từ Gateway Header.
-- `02_dich_vu_benh_nhan_lich_hen/app/Notifications/ThongBaoLichHenNotification.php`:
+- `appointment-service/app/Notifications/ThongBaoLichHenNotification.php`:
   - Định nghĩa sự kiện thông báo trạng thái ca khám.
-- `02_dich_vu_benh_nhan_lich_hen/routes/api.php`:
+- `appointment-service/routes/api.php`:
   - Đăng ký đầy đủ danh mục RESTful API v1 của Microservice 02.
 
 ---
@@ -131,21 +131,21 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
 
 ## 🎨 V. GIAO DIỆN & TÍCH HỢP GATEWAY (FRONTEND)
 
-1. **Giao diện Dashboard tổng thể (`00_api_gateway/resources/views/dashboard.blade.php`):**
+1. **Giao diện Dashboard tổng thể (`api-gateway/resources/views/dashboard.blade.php`):**
    - **Tab Cổng Bệnh Nhân:** Cho phép tra cứu danh sách bác sĩ của Service 01, xem giá niêm yết và ấn Đặt lịch trực tiếp.
    - **Form Đặt Lịch Thông Minh:** Tích hợp bộ chọn khung giờ 30 phút, form điền bệnh án điện tử (nhóm máu, dị ứng, bệnh nền) và upload ảnh y tế.
    - **Bọc Form cách ly (`autocomplete="off"`):** Khắc phục triệt để hiện tượng trình duyệt Chrome nhận nhầm ô "Lý do khám" thành tính năng lưu mật khẩu tài khoản.
    - **Modal Dời Lịch Hẹn (Reschedule):** Cho phép bệnh nhân chủ động chọn ngày và ca khám mới trực tiếp trên bảng lịch khám.
-2. **Trang Chuyên Biệt Người 2 (`00_api_gateway/resources/views/nguoi2.blade.php`):**
+2. **Trang Chuyên Biệt Người 2 (`api-gateway/resources/views/nguoi2.blade.php`):**
    - Cung cấp cổng demo riêng biệt cho phân hệ Đặt lịch & Bệnh nhân, độc lập và dễ dàng kiểm thử nghiệm vụ.
-3. **Bộ điều hướng Gateway (`00_api_gateway/app/Http/Controllers/CongGiaoTiepController.php`):**
+3. **Bộ điều hướng Gateway (`api-gateway/app/Http/Controllers/CongGiaoTiepController.php`):**
    - Định tuyến an toàn các API `/api/v1/lich-hen/*` sang `http://127.0.0.1:8002`.
 
 ---
 
 ## 🧪 VI. KẾT QUẢ KIỂM THỬ (AUTOMATED TESTING)
 
-1. **Bộ Test Chuyên Biệt Microservice 02 (`02_dich_vu_benh_nhan_lich_hen/tests/Feature/Nguoi2MicroserviceTest.php`):**
+1. **Bộ Test Chuyên Biệt Microservice 02 (`appointment-service/tests/Feature/Nguoi2MicroserviceTest.php`):**
    - `test_dat_lich_kham_thanh_cong`: Đạt.
    - `test_chan_trung_lich_kham_cung_bac_si_cung_gio` (Mã lỗi 409 Conflict): Đạt.
    - `test_chan_dat_lich_ngay_trong_qua_khu` (Mã lỗi 422): Đạt.

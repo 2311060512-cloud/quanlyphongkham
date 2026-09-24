@@ -1,5 +1,5 @@
 {
-    "name": "phongkham/00_api_gateway",
+    "name": "phongkham/api-gateway",
     "type": "project",
     "description": "API Gateway Reverse Proxy & JWT Auth",
     "license": "MIT",

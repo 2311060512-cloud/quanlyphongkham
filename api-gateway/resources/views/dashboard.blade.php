@@ -2566,10 +2566,10 @@
             const res = await goiApi('GET', '/api/v1/health');
             if (res.ok && res.data && res.data.danh_sach_dich_vu) {
                 const list = res.data.danh_sach_dich_vu;
-                capNhatBadgeService('badge-svc-1', list['01_dich_vu_xac_thuc_bac_si']);
-                capNhatBadgeService('badge-svc-2', list['02_dich_vu_benh_nhan_lich_hen']);
-                capNhatBadgeService('badge-svc-3', list['03_dich_vu_y_te_can_lam_sang']);
-                capNhatBadgeService('badge-svc-4', list['04_dich_vu_hoa_don_thanh_toan']);
+                capNhatBadgeService('badge-svc-1', list['auth-service']);
+                capNhatBadgeService('badge-svc-2', list['appointment-service']);
+                capNhatBadgeService('badge-svc-3', list['clinical-service']);
+                capNhatBadgeService('badge-svc-4', list['billing-service']);
 
                 showToast('success', 'Hệ Thống Trực Tuyến', 'Cả 4 Microservices đều đang ONLINE!');
             }

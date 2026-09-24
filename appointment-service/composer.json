@@ -1,7 +1,7 @@
 {
-    "name": "phongkham/03_dich_vu_y_te_can_lam_sang",
+    "name": "phongkham/appointment-service",
     "type": "project",
-    "description": "Dich vu Can lam sang, Xet nghiem & Sieu am",
+    "description": "Dich vu Ho so Benh nhan & Dat lich hen chong trung",
     "license": "MIT",
     "require": {
         "php": "^8.2",

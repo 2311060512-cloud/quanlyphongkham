@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return response()->json([
-        'dich_vu' => '03_dich_vu_y_te_can_lam_sang',
+        'dich_vu' => 'billing-service',
         'trang_thai' => 'DANG_HOAT_DONG',
-        'port' => 8003,
-        'co_so_du_lieu' => 'db_dich_vu_y_te'
+        'port' => 8004,
+        'co_so_du_lieu' => 'db_hoa_don_thanh_toan'
     ]);
 });

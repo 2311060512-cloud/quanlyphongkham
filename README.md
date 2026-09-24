@@ -9,11 +9,11 @@ Khung hệ thống Microservices phòng khám đa khoa xây dựng trên môi tr
 
 Thư mục gốc: `D:\laragon\laragon\www\quanlyphongkham_microservices\` (hoặc `quanlyphongkhamdv`):
 ```text
-├── 00_api_gateway/               (Port: 8000) - API Gateway, Reverse Proxy & JWT Auth (Dương)
-├── 01_dich_vu_xac_thuc_bac_si/   (Port: 8001) - DB: db_xac_thuc_bac_si (Dương)
-├── 02_dich_vu_benh_nhan_lich_hen/(Port: 8002) - DB: db_benh_nhan_lich_hen (Việt Anh)
-├── 03_dich_vu_y_te_can_lam_sang/ (Port: 8003) - DB: db_dich_vu_y_te (Khải)
-├── 04_dich_vu_hoa_don_thanh_toan/(Port: 8004) - DB: db_hoa_don_thanh_toan (Toàn)
+├── api-gateway/                  (Port: 8000) - API Gateway, Reverse Proxy & JWT Auth (Dương)
+├── auth-service/                 (Port: 8001) - DB: db_xac_thuc_bac_si (Dương)
+├── appointment-service/          (Port: 8002) - DB: db_benh_nhan_lich_hen (Việt Anh)
+├── clinical-service/             (Port: 8003) - DB: db_dich_vu_y_te (Khải)
+├── billing-service/              (Port: 8004) - DB: db_hoa_don_thanh_toan (Toàn)
 │
 ├── khoi-tao-database.php          - Tự động tạo 4 database trên MySQL port 3307
 ├── chay-migrations.bat / .ps1     - Chạy migration & seeders cho 4 services
@@ -21,6 +21,7 @@ Thư mục gốc: `D:\laragon\laragon\www\quanlyphongkham_microservices\` (hoặ
 ├── stop-he-thong.bat / .ps1       - Dừng tất cả microservices
 ├── kiem-tra-he-thong.php          - Test tích hợp End-to-End tự động
 ├── NGUOI_2_BENH_NHAN_LICH_HEN.md  - Báo cáo chi tiết phân hệ 02 (Người 2)
+├── NGUOI_3_DICH_VU_Y_TE_CAN_LAM_SANG.md - Báo cáo chi tiết phân hệ 03 (Người 3)
 └── quanlyphongkham_microservices.postman_collection.json - Bộ API Postman
 ```
 
@@ -45,11 +46,11 @@ Chạy file khởi động:
 powershell -ExecutionPolicy Bypass -File start-he-thong.ps1
 ```
 Lệnh sẽ mở 5 cửa sổ console tương ứng với 5 ports:
-- **Port 8000:** `00_api_gateway` (Gateway chính & Dashboard)
-- **Port 8001:** `01_dich_vu_xac_thuc_bac_si`
-- **Port 8002:** `02_dich_vu_benh_nhan_lich_hen`
-- **Port 8003:** `03_dich_vu_y_te_can_lam_sang`
-- **Port 8004:** `04_dich_vu_hoa_don_thanh_toan`
+- **Port 8000:** `api-gateway` (Gateway chính & Dashboard)
+- **Port 8001:** `auth-service`
+- **Port 8002:** `appointment-service`
+- **Port 8003:** `clinical-service`
+- **Port 8004:** `billing-service`
 
 ### Bước 3: Mở Dashboard & Kiểm Thử
 - Truy cập trình duyệt: **`http://127.0.0.1:8000`**

@@ -9,12 +9,12 @@ Hệ thống được thiết kế theo mô hình **Microservices** chuẩn hóa
 
 ```mermaid
 graph TD
-    Client["Trình duyệt / Mobile App / Postman"] -->|HTTP Port 8000| Gateway["00_api_gateway (Port 8000)<br>Reverse Proxy & JWT Auth"]
+    Client["Trình duyệt / Mobile App / Postman"] -->|HTTP Port 8000| Gateway["api-gateway (Port 8000)<br>Reverse Proxy & JWT Auth"]
     
-    Gateway -->|Forward + X-User-Id/Role| S1["01_dich_vu_xac_thuc_bac_si (Port 8001)"]
-    Gateway -->|Forward + X-User-Id/Role| S2["02_dich_vu_benh_nhan_lich_hen (Port 8002)"]
-    Gateway -->|Forward + X-User-Id/Role| S3["03_dich_vu_y_te_can_lam_sang (Port 8003)"]
-    Gateway -->|Forward + X-User-Id/Role| S4["04_dich_vu_hoa_don_thanh_toan (Port 8004)"]
+    Gateway -->|Forward + X-User-Id/Role| S1["auth-service (Port 8001)"]
+    Gateway -->|Forward + X-User-Id/Role| S2["appointment-service (Port 8002)"]
+    Gateway -->|Forward + X-User-Id/Role| S3["clinical-service (Port 8003)"]
+    Gateway -->|Forward + X-User-Id/Role| S4["billing-service (Port 8004)"]
     
     S4 -.->|HTTP: Lay gia kham| S1
     S4 -.->|HTTP: Lay thong tin lich hen| S2
@@ -48,7 +48,7 @@ graph TD
 
 ## 3. Phân Chia Trách Nhiệm Nghiệp Vụ & Thành Viên
 
-### 👤 Người 1: Microservice 01 (`01_dich_vu_xac_thuc_bac_si` - Port: 8001)
+### 👤 Người 1: Microservice 01 (`auth-service` - Port: 8001)
 - **Cơ sở dữ liệu:** `db_xac_thuc_bac_si`
 - **Thực thể (Models):**
   - `VaiTro` (`id`, `ma_vai_tro`, `ten_vai_tro`, `mo_ta`)
@@ -66,7 +66,7 @@ graph TD
 
 ---
 
-### 👤 Người 2: Microservice 02 (`02_dich_vu_benh_nhan_lich_hen` - Port: 8002)
+### 👤 Người 2: Microservice 02 (`appointment-service` - Port: 8002)
 - **Cơ sở dữ liệu:** `db_benh_nhan_lich_hen`
 - **Thực thể (Models):**
   - `BenhNhan` (`id`, `tai_khoan_id`, `ma_benh_nhan`, `ho_ten`, `ngay_sinh`, `gioi_tinh`, `so_dien_thoai`, `dia_chi`, `tien_su_benh`)
@@ -90,7 +90,7 @@ graph TD
 
 ---
 
-### 👤 Người 3: Microservice 03 (`03_dich_vu_y_te_can_lam_sang` - Port: 8003)
+### 👤 Người 3: Microservice 03 (`clinical-service` - Port: 8003)
 - **Cơ sở dữ liệu:** `db_dich_vu_y_te`
 - **Thực thể (Models):**
   - `DichVu` (`id`, `ma_dich_vu`, `ten_dich_vu`, `loai_dich_vu`, `don_gia`, `mo_ta`, `trang_thai`)
@@ -104,7 +104,7 @@ graph TD
 
 ---
 
-### 👤 Người 4: Microservice 04 (`04_dich_vu_hoa_don_thanh_toan` - Port: 8004)
+### 👤 Người 4: Microservice 04 (`billing-service` - Port: 8004)
 - **Cơ sở dữ liệu:** `db_hoa_don_thanh_toan`
 - **Thực thể (Models):**
   - `HoaDon` (`id`, `ma_hoa_don`, `lich_hen_id`, `benh_nhan_id`, `tien_kham`, `tien_dich_vu`, `tong_tien`, `giam_gia`, `thuc_thu`, `phuong_thuc_thanh_toan`, `trang_thai`, `ngay_thanh_toan`, `ghi_chu`)
