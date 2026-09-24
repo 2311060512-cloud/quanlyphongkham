@@ -1,5 +1,5 @@
 # BÁO CÁO PHÂN HỆ 03: KHÁM CHUYÊN MÔN & DỊCH VỤ CẬN LÂM SÀNG
-**Thành viên:** Người 3
+**Thành viên:** Người 3(Khải)
 **Microservice:** `clinical-service` (Port: `8003`, Database: `db_dich_vu_y_te`)
 
 ---

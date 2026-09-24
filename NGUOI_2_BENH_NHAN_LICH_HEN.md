@@ -1,6 +1,6 @@
 # 📋 BÁO CÁO CÔNG VIỆC PHÂN HỆ 02: BỆNH NHÂN & ĐẶT LỊCH KHÁM (NGƯỜI 2)
 > **Dự án:** Hệ Thống Quản Lý Phòng Khám Đa Khoa (Kiến Trúc Microservices)  
-> **Người thực hiện:** Người 2 (Phân hệ Bệnh Nhân & Đặt Lịch Khám)  
+> **Người thực hiện:** Người 2(Vanh) (Phân hệ Bệnh Nhân & Đặt Lịch Khám)  
 > **Thư mục phụ trách:** `appointment-service/` (Port `8002`)  
 > **Cơ sở dữ liệu:** `db_benh_nhan_lich_hen` (MySQL Port 3307 mặc định / 3306)
 
