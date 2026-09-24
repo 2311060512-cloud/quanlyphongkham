@@ -31,11 +31,11 @@ Route::get('/benh-nhan', function () {
 });
 
 Route::get('/nguoi1', function () {
-    return view('nguoi1');
+    return redirect('/dashboard');
 });
 
 Route::get('/nguoi2', function () {
-    return view('nguoi2');
+    return redirect('/dashboard');
 });
 
 Route::get('/dang-nhap', function () {

@@ -13,12 +13,10 @@ class BacSiController extends Controller
     use TraVeDuLieuTrait;
 
     protected BacSiService $bacSiService;
-    protected ChuyenKhoaService $chuyenKhoaService;
 
-    public function __construct(BacSiService $bacSiService, ChuyenKhoaService $chuyenKhoaService)
+    public function __construct(BacSiService $bacSiService)
     {
         $this->bacSiService = $bacSiService;
-        $this->chuyenKhoaService = $chuyenKhoaService;
     }
 
     /**
@@ -101,43 +99,5 @@ class BacSiController extends Controller
         }
 
         return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
-    }
-
-    /**
-     * GET /api/v1/bac-si/chuyen-khoa
-     * Danh sach chuyen khoa kham (Public)
-     */
-    public function danhSachChuyenKhoa(): JsonResponse
-    {
-        $ketQua = $this->chuyenKhoaService->danhSach();
-        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
-    }
-
-    /**
-     * POST /api/v1/bac-si/chuyen-khoa
-     * Admin them chuyen khoa moi
-     */
-    public function themChuyenKhoa(Request $request): JsonResponse
-    {
-        $duLieu = $request->validate([
-            'ma_khoa' => 'nullable|string|max:50',
-            'ma_chuyen_khoa' => 'nullable|string|max:50',
-            'ten_khoa' => 'nullable|string|max:150',
-            'ten_chuyen_khoa' => 'nullable|string|max:150',
-            'mo_ta' => 'nullable|string',
-            'hinh_anh' => 'nullable|string|max:255',
-        ]);
-
-        $ketQua = $this->chuyenKhoaService->themMoi($duLieu);
-
-        if (!$ketQua['thanh_cong']) {
-            return $this->thatBaiResponse(
-                $ketQua['thong_diep'],
-                $ketQua['ma_loi'],
-                422
-            );
-        }
-
-        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep'], 201);
     }
 }

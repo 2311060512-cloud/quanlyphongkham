@@ -30,22 +30,21 @@ $dinhTuyenMicroservice1 = function () {
     });
 
     // Phân hệ B: Chuyên Khoa & Bác Sĩ (Module BacSi)
-    Route::prefix('bac-si')->group(function () {
-        // 1. Chuyen khoa ben trong bac-si
-        Route::get('chuyen-khoa', [BacSiController::class, 'danhSachChuyenKhoa']);
-        Route::post('chuyen-khoa', [BacSiController::class, 'themChuyenKhoa']);
+    Route::prefix('chuyen-khoa')->group(function () {
+        Route::get('/', [ChuyenKhoaController::class, 'danhSach']);
+        Route::post('/', [ChuyenKhoaController::class, 'themMoi']);
+    });
 
-        // 2. CRUD Bac si
+    Route::prefix('bac-si')->group(function () {
+        // Alias tương thích ngược cho bac-si/chuyen-khoa
+        Route::get('chuyen-khoa', [ChuyenKhoaController::class, 'danhSach']);
+        Route::post('chuyen-khoa', [ChuyenKhoaController::class, 'themMoi']);
+
+        // CRUD Bác sĩ
         Route::get('/', [BacSiController::class, 'danhSach']);
         Route::get('{id}', [BacSiController::class, 'chiTiet'])->whereNumber('id');
         Route::post('/', [BacSiController::class, 'themMoi']);
         Route::put('{id}', [BacSiController::class, 'capNhat'])->whereNumber('id');
-    });
-
-    // Alias chuyen-khoa truc tiep
-    Route::prefix('chuyen-khoa')->group(function () {
-        Route::get('/', [ChuyenKhoaController::class, 'danhSach']);
-        Route::post('/', [ChuyenKhoaController::class, 'themMoi']);
     });
 };
 
