@@ -243,7 +243,7 @@
                     <span>Tổng Quan & Giám Sát Hệ Thống</span>
                 </h2>
                 <span class="text-slate-300 hidden sm:inline">|</span>
-                <span id="brand-subtitle" class="text-xs font-medium text-slate-500 hidden md:inline truncate">Phòng Khám Đa Khoa - 5 Microservices</span>
+                <span id="brand-subtitle" class="text-xs font-medium text-slate-500 hidden md:inline truncate">Phòng Khám Đa Khoa</span>
             </div>
 
             <!-- Quick Actions -->
