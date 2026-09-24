@@ -1367,24 +1367,43 @@
                 document.getElementById('label-active-token').textContent = AppState.token ? (AppState.token.substring(0, 36) + '...') : 'Chưa có Token';
             }
 
-            // Mở tab mặc định theo vai trò người đăng nhập
-            if (role === 'BENH_NHAN') {
-                chuyenTab('tab-benh-nhan-lich');
-            } else if (role === 'BAC_SI') {
-                chuyenTab('tab-bac-si');
+            // Khôi phục tab đang đứng nếu có (từ URL Hash hoặc SessionStorage khi reload trang)
+            const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
+            const savedTab = hashTab || sessionStorage.getItem('current_active_tab');
+            const targetSection = savedTab ? document.getElementById(savedTab) : null;
+
+            if (targetSection) {
+                chuyenTab(savedTab);
             } else {
-                chuyenTab('tab-admin-giam-sat');
+                // Mở tab mặc định theo vai trò người đăng nhập
+                if (role === 'BENH_NHAN') {
+                    chuyenTab('tab-benh-nhan-lich');
+                } else if (role === 'BAC_SI') {
+                    chuyenTab('tab-bac-si');
+                } else {
+                    chuyenTab('tab-admin-giam-sat');
+                }
             }
         }
 
         // HÀM CHUYỂN TAB TRÊN THANH MENU SIDEBAR BÊN TRÁI
         function chuyenTab(tabId, clickedBtn = null) {
+            const targetSection = document.getElementById(tabId);
+            if (!targetSection) return;
+
+            // Lưu trạng thái tab hiện tại vào sessionStorage & URL Hash để khi F5 / Reload vẫn giữ nguyên tab
+            try {
+                sessionStorage.setItem('current_active_tab', tabId);
+                if (window.location.hash !== '#' + tabId) {
+                    history.replaceState(null, null, '#' + tabId);
+                }
+            } catch (e) {}
+
             // Cập nhật active cho menu bên trái
             document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
 
-            const targetSection = document.getElementById(tabId);
-            if (targetSection) targetSection.classList.add('active');
+            targetSection.classList.add('active');
 
             if (clickedBtn) {
                 clickedBtn.classList.add('active');
@@ -1410,6 +1429,14 @@
                 pageTitle.innerHTML = `<i class="${titles[tabId].icon}"></i><span>${titles[tabId].text}</span>`;
             }
         }
+
+        // Lắng nghe sự kiện hashchange để hỗ trợ nút Back/Forward trên trình duyệt
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                chuyenTab(hash);
+            }
+        });
 
         // HÀM GỌI API QUA GATEWAY (PORT 8000)
         async function goiApi(method, path, body = null) {
