@@ -2304,6 +2304,7 @@
                 'tab-admin-giam-sat',
                 'tab-benh-nhan-lich',
                 'tab-benh-nhan',
+                'tab-admin-benh-nhan',
                 'tab-bac-si',
                 'tab-bac-si-lich-su',
                 'tab-admin-thu-ngan',
@@ -2313,7 +2314,8 @@
             'BAC_SI': [
                 'tab-bac-si',
                 'tab-bac-si-lich-su',
-                'tab-benh-nhan-lich'
+                'tab-benh-nhan-lich',
+                'tab-admin-benh-nhan'
             ],
             'BENH_NHAN': [
                 'tab-benh-nhan-lich',
@@ -2480,6 +2482,7 @@
                 'tab-admin-giam-sat': { icon: 'fa-solid fa-chart-pie text-purple-600', text: 'Tổng Quan & Giám Sát Hệ Thống' },
                 'tab-benh-nhan-lich': { icon: 'fa-solid fa-calendar-days text-sky-600', text: 'Quản Lý Lịch Khám Bệnh' },
                 'tab-benh-nhan': { icon: 'fa-regular fa-calendar-plus text-medical-600', text: 'Tra Cứu Bác Sĩ & Đặt Lịch Khám' },
+                'tab-admin-benh-nhan': { icon: 'fa-solid fa-hospital-user text-rose-500', text: 'Quản Lý Bệnh Nhân & Hồ Sơ Bệnh Án (EHR)' },
                 'tab-bac-si': { icon: 'fa-solid fa-stethoscope text-teal-600', text: 'Bàn Khám Bác Sĩ & Cận Lâm Sàng' },
                 'tab-bac-si-lich-su': { icon: 'fa-solid fa-clipboard-user text-emerald-600', text: 'Danh Sách Ca Khám Hôm Nay' },
                 'tab-admin-thu-ngan': { icon: 'fa-solid fa-file-invoice-dollar text-amber-600', text: 'Thu Ngân & Quản Lý Viện Phí' },
