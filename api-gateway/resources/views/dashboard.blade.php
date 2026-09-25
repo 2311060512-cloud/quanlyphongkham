@@ -3634,7 +3634,7 @@
                 <html>
                     <head>
                         <title>Phiếu Khám Bệnh & Toa Thuốc</title>
-                        <script src="https://cdn.tailwindcss.com"></script>
+                        <script src="https://cdn.tailwindcss.com"><\/script>
                         <style>
                             @media print {
                                 body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -4335,7 +4335,7 @@
                 <html>
                     <head>
                         <title>Tóm Tắt Bệnh Án Điện Tử - ${bn.ho_ten}</title>
-                        <script src="https://cdn.tailwindcss.com"></script>
+                        <script src="https://cdn.tailwindcss.com"><\/script>
                         <style>
                             @media print {
                                 body { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: sans-serif; font-size: 12px; }
