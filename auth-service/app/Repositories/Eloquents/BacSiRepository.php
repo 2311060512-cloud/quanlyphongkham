@@ -52,4 +52,10 @@ class BacSiRepository implements BacSiRepositoryInterface
         }
         return null;
     }
+
+    public function xoa(int $id): bool
+    {
+        $bacSi = BacSi::find($id);
+        return $bacSi ? (bool)$bacSi->delete() : false;
+    }
 }

@@ -71,14 +71,14 @@ quanlyphongkham_microservices/
 
 #### 🎯 Chức năng thành viên cần xây dựng & duy trì:
 - **Reverse Proxy Dispatcher:** Nhận toàn bộ request từ Client tại port 8000 và chuyển tiếp chuẩn xác sang 4 service con (8001, 8002, 8003, 8004) dựa trên tiền tố đường dẫn:
-  - `/api/v1/xac-thuc/*`, `/api/v1/tai-khoan/*`, `/api/v1/bac-si/*`, `/api/v1/chuyen-khoa/*` ➔ `auth-service:8001`
+  - `/api/v1/xac-thuc/*`, `/api/v1/tai-khoan/*`, `/api/v1/bac-si/*`, `/api/v1/chuyen-khoa/*`, `/api/v1/lich-truc/*` ➔ `auth-service:8001`
   - `/api/v1/benh-nhan/*`, `/api/v1/lich-hen/*` ➔ `appointment-service:8002`
   - `/api/v1/dich-vu/*`, `/api/v1/kham-benh/*`, `/api/v1/can-lam-sang/*` ➔ `clinical-service:8003`
   - `/api/v1/hoa-don/*` ➔ `billing-service:8004`
 - **Xác thực bảo mật tập trung (JWT Auth):** Giải mã Token JWT của người dùng, kiểm tra tính hợp lệ và tự động đính kèm các Header danh tính: `X-User-Id`, `X-User-Role`, `X-User-Email`, `X-User-Name` sang các service con.
-- **Phân quyền tập trung (Role-based Gate):** Chặn các request không đủ quyền hạn (ví dụ: chỉ `ADMIN` mới được thêm bác sĩ, chỉ `BAC_SI` mới được kê cận lâm sàng).
+- **Phân quyền tập trung (Role-based Gate):** Chặn các request không đủ quyền hạn (ví dụ: chỉ `ADMIN` mới được thêm bác sĩ/chuyên khoa, chỉ `BAC_SI` mới được kê cận lâm sàng).
 - **Hạ tầng Health Check Realtime:** Quét trạng thái liveness (Online/Offline, độ trễ ms) của cả 4 services và trả về báo cáo tổng hợp tại `/api/v1/health`.
-- **Giao diện Web Portal:** Hệ thống Blade view tích hợp (`dashboard.blade.php`, `auth.blade.php`) phục vụ trải nghiệm người dùng đầy đủ cho cả Admin, Bác sĩ và Bệnh nhân.
+- **Giao diện Web Portal:** Hệ thống Blade view tích hợp (`dashboard.blade.php`, `auth.blade.php`) phục vụ trải nghiệm người dùng đầy đủ cho cả Admin, Bác sĩ và Bệnh nhân; tích hợp Modal Cập nhật Hồ sơ cá nhân & Upload Avatar, Modal Quản lý Ca trực Bác sĩ, và cơ chế tự động đối soát ca trực khi Đặt lịch hẹn.
 
 ---
 
@@ -86,19 +86,28 @@ quanlyphongkham_microservices/
 > **Phụ trách:** 👤 Dương | **Database:** `db_xac_thuc_bac_si`
 
 #### 🎯 Chức năng thành viên cần xây dựng & duy trì:
-- **Quản lý Tài khoản & Phân quyền:** Đăng ký tài khoản mới, Đăng nhập, Đổi mật khẩu, Khóa/Kích hoạt tài khoản người dùng; cấp phát mã Token JWT chuẩn.
-- **Quản lý Danh mục Chuyên khoa:** Thêm, cập nhật, hiển thị danh sách các chuyên khoa trong phòng khám (Nội, Ngoại, Nhi, Tai Mũi Họng, Răng Hàm Mặt, Tim mạch...).
-- **Quản lý Hồ sơ Bác sĩ:**
-  - Thiết lập thông tin bác sĩ: Học vị, số năm kinh nghiệm, liên kết tài khoản và chuyên khoa.
-  - Cấu hình **Bảng giá khám bệnh ban đầu (`gia_kham`)** của từng bác sĩ.
-  - Lọc danh sách bác sĩ theo chuyên khoa và trạng thái làm việc.
+- **Quản lý Tài khoản & Phân quyền RBAC:**
+  - Đăng ký, Đăng nhập, Đổi mật khẩu, Khóa/Mở khóa tài khoản, Xóa tài khoản người dùng; cấp phát mã Token JWT chuẩn.
+  - Cơ chế bảo vệ đặc quyền: **Nghiêm cấm tuyệt đối việc khóa hoặc xóa tài khoản Quản trị viên tối cao (ADMIN)** ở cả tầng Backend lẫn Frontend.
+- **Hồ sơ Cá nhân (Profile) & Upload Avatar:**
+  - Cho phép người dùng (Bác sĩ, Bệnh nhân, Admin) cập nhật thông tin cá nhân: Họ tên, Số điện thoại, Email, Ngày sinh, Giới tính, Địa chỉ cư trú.
+  - Đối với Bác sĩ: Cập nhật Học vị, Phòng khám, Số năm kinh nghiệm công tác; dữ liệu được đồng bộ tức thời giữa bảng `tai_khoan` và `bac_si`.
+  - Tải lên ảnh đại diện (Upload Avatar) định dạng Base64 Data URL, hiển thị đồng bộ trên thẻ bác sĩ, thanh điều hướng và thông tin hồ sơ.
+- **Quản lý Danh mục Chuyên khoa & Bác sĩ (CRUD hoàn chỉnh):**
+  - Thêm, Sửa, Xóa chuyên khoa phòng khám (Nội, Nhi, Răng Hàm Mặt, Mắt, Tai Mũi Họng...).
+  - Thêm, Sửa, Xóa bác sĩ chuyên khoa; thiết lập phòng khám và giá khám ban đầu (`gia_kham`).
+- **Quản lý Lịch trực / Ca làm việc của Bác sĩ (Doctor Shifts):**
+  - Quản lý ca trực cố định theo các ngày trong tuần (Thứ Hai đến Chủ Nhật): Ca Sáng (07:30 - 11:30), Ca Chiều (13:30 - 17:00), Ca Tối, Cả Ngày.
+  - Thiết lập phòng khám và số lượng bệnh nhân khám tối đa trên mỗi ca.
+  - Cung cấp API kiểm tra lịch trực theo ngày `GET /api/v1/bac-si/{id}/kiem-tra-truc?ngay=YYYY-MM-DD` để liên kết chặt chẽ với phân hệ Đặt lịch hẹn tại API Gateway.
 - **Điểm cung cấp liên dịch vụ:** Cung cấp API `GET /api/v1/bac-si/{id}` trả về `gia_kham` để `billing-service` tự động kéo đơn giá khám vào hóa đơn viện phí.
 
 #### 🗄️ Cấu trúc dữ liệu (Models/Tables):
 - `VaiTro` (`vai_tro`): `id`, `ma_vai_tro`, `ten_vai_tro`, `mo_ta`
-- `TaiKhoan` (`tai_khoan`): `id`, `vai_tro_id`, `ho_ten`, `email`, `so_dien_thoai`, `mat_khau`, `trang_thai`
-- `ChuyenKhoa` (`chuyen_khoa`): `id`, `ma_chuyen_khoa`, `ten_chuyen_khoa`, `mo_ta`
-- `BacSi` (`bac_si`): `id`, `tai_khoan_id`, `chuyen_khoa_id`, `hoc_vi`, `so_nam_kinh_nghiem`, `gia_kham`, `trang_thai`
+- `TaiKhoan` (`tai_khoan`): `id`, `vai_tro_id`, `ho_ten`, `avatar`, `email`, `so_dien_thoai`, `ngay_sinh`, `gioi_tinh`, `dia_chi`, `mat_khau`, `trang_thai`
+- `ChuyenKhoa` (`chuyen_khoa`): `id`, `ma_khoa`, `ten_khoa`, `mo_ta`, `trang_thai`
+- `BacSi` (`bac_si`): `id`, `tai_khoan_id`, `chuyen_khoa_id`, `ma_bac_si`, `ho_ten`, `avatar`, `hoc_vi`, `so_dien_thoai`, `email`, `gia_kham`, `phong_kham`, `kinh_nghiem`, `trang_thai`
+- `LichTrucBacSi` (`lich_truc_bac_si`): `id`, `bac_si_id`, `thu`, `ngay_trong_tuan`, `ca_truc`, `gio_bat_dau`, `gio_ket_thuc`, `so_luong_kham_toi_da`, `phong_kham`, `trang_thai`
 
 ---
 
@@ -229,12 +238,12 @@ powershell -ExecutionPolicy Bypass -File stop-he-thong.ps1
 
 ## 🔑 V. TÀI KHOẢN MẪU ĐÃ SEED SẴN
 
-| Vai trò (`vai_tro`) | Email đăng nhập | Mật khẩu | Thông tin chi tiết |
+| Vai trò (`vai_tro`) | Email / Tên đăng nhập | Mật khẩu | Thông tin chi tiết |
 |---|---|---|---|
-| **ADMIN** | `admin@phongkham.vn` | `admin123` | Quản trị viên hệ thống phòng khám |
-| **BAC_SI** | `bacsian@phongkham.vn` | `bacsi123` | BS.CKI Nguyễn Văn An (Khoa Nội tổng quát - Giá khám: 200,000đ) |
-| **BAC_SI** | `bacsibinh@phongkham.vn` | `bacsi123` | ThS.BS Trần Thị Bình (Khoa Tim mạch - Giá khám: 250,000đ) |
-| **BENH_NHAN** | `benhnhancuong@gmail.com` | `benhnhan123` | Bệnh nhân Lê Văn Cường (Mã hồ sơ: `BN20260001`) |
+| **ADMIN** | `admin@phongkham.vn` / `admin` | `Admin@123` | Quản trị viên hệ thống phòng khám (toàn quyền) |
+| **BAC_SI** | `bstuan@phongkham.vn` / `bstuan` | `123456` | BS. CKII Nguyễn Anh Tuấn (Khoa Nội tổng quát - Giá khám: 200,000đ) |
+| **BAC_SI** | `bslan@phongkham.vn` / `bslan` | `123456` | ThS. BS Trần Phương Lan (Khoa Nhi - Giá khám: 250,000đ) |
+| **BENH_NHAN** | `benhnhancuong@gmail.com` / `benhnhan` | `123456` | Bệnh nhân Lê Văn Cường (Mã hồ sơ: `BN20260001`) |
 
 ---
 

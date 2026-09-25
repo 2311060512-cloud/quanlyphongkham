@@ -14,6 +14,7 @@ class BacSi extends Model
         'chuyen_khoa_id',
         'ma_bac_si',
         'ho_ten',
+        'avatar',
         'hoc_vi',
         'so_dien_thoai',
         'email',
@@ -35,6 +36,11 @@ class BacSi extends Model
     public function chuyenKhoa(): BelongsTo
     {
         return $this->belongsTo(ChuyenKhoa::class, 'chuyen_khoa_id');
+    }
+
+    public function lichTruc()
+    {
+        return $this->hasMany(LichTrucBacSi::class, 'bac_si_id');
     }
 
     // Accessors tuong thich ten truong cu neu co

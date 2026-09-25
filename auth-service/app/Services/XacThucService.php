@@ -174,9 +174,21 @@ class XacThucService
                     'ho_ten' => $taiKhoan->ho_ten,
                     'email' => $taiKhoan->email,
                     'so_dien_thoai' => $taiKhoan->so_dien_thoai,
+                    'avatar' => $taiKhoan->avatar,
+                    'ngay_sinh' => $taiKhoan->ngay_sinh,
+                    'gioi_tinh' => $taiKhoan->gioi_tinh,
+                    'dia_chi' => $taiKhoan->dia_chi,
                     'vai_tro' => $maVaiTro,
                     'ten_vai_tro' => $taiKhoan->vaiTro->ten_vai_tro ?? $maVaiTro,
-                    'trang_thai' => $taiKhoan->trang_thai,
+                    'bac_si' => $taiKhoan->bacSi ? [
+                        'id' => $taiKhoan->bacSi->id,
+                        'chuyen_khoa_id' => $taiKhoan->bacSi->chuyen_khoa_id,
+                        'hoc_vi' => $taiKhoan->bacSi->hoc_vi,
+                        'gia_kham' => $taiKhoan->bacSi->gia_kham,
+                        'phong_kham' => $taiKhoan->bacSi->phong_kham,
+                        'kinh_nghiem' => $taiKhoan->bacSi->kinh_nghiem,
+                        'avatar' => $taiKhoan->bacSi->avatar,
+                    ] : null,
                 ];
             }
         }
@@ -193,9 +205,22 @@ class XacThucService
                     'ho_ten' => $taiKhoan->ho_ten,
                     'email' => $taiKhoan->email,
                     'so_dien_thoai' => $taiKhoan->so_dien_thoai,
+                    'avatar' => $taiKhoan->avatar,
+                    'ngay_sinh' => $taiKhoan->ngay_sinh,
+                    'gioi_tinh' => $taiKhoan->gioi_tinh,
+                    'dia_chi' => $taiKhoan->dia_chi,
                     'vai_tro' => $maVaiTro,
                     'ten_vai_tro' => $taiKhoan->vaiTro->ten_vai_tro ?? $maVaiTro,
                     'trang_thai' => $taiKhoan->trang_thai,
+                    'bac_si' => $taiKhoan->bacSi ? [
+                        'id' => $taiKhoan->bacSi->id,
+                        'chuyen_khoa_id' => $taiKhoan->bacSi->chuyen_khoa_id,
+                        'hoc_vi' => $taiKhoan->bacSi->hoc_vi,
+                        'gia_kham' => $taiKhoan->bacSi->gia_kham,
+                        'phong_kham' => $taiKhoan->bacSi->phong_kham,
+                        'kinh_nghiem' => $taiKhoan->bacSi->kinh_nghiem,
+                        'avatar' => $taiKhoan->bacSi->avatar,
+                    ] : null,
                 ];
             }
         }
@@ -244,6 +269,97 @@ class XacThucService
         return [
             'thanh_cong' => true,
             'thong_diep' => 'Đổi mật khẩu thành công.'
+        ];
+    }
+
+    /**
+     * Cập nhật thông tin hồ sơ cá nhân (Profile)
+     */
+    public function capNhatHoSo(int $userId, array $duLieu): array
+    {
+        $taiKhoan = $this->taiKhoanRepo->timTheoId($userId);
+        if (!$taiKhoan) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'TAI_KHOAN_KHONG_TON_TAI',
+                'thong_diep' => 'Không tìm thấy tài khoản người dùng.'
+            ];
+        }
+
+        $fields = ['ho_ten', 'so_dien_thoai', 'email', 'ngay_sinh', 'gioi_tinh', 'dia_chi', 'avatar'];
+        $updateTk = [];
+        foreach ($fields as $f) {
+            if (array_key_exists($f, $duLieu)) {
+                $updateTk[$f] = $duLieu[$f];
+            }
+        }
+
+        if (!empty($updateTk)) {
+            if (!empty($updateTk['email']) && $updateTk['email'] !== $taiKhoan->email) {
+                if (TaiKhoan::where('email', $updateTk['email'])->where('id', '!=', $userId)->exists()) {
+                    return [
+                        'thanh_cong' => false,
+                        'ma_loi' => 'EMAIL_DA_TON_TAI',
+                        'thong_diep' => 'Email đã được sử dụng bởi tài khoản khác.'
+                    ];
+                }
+            }
+            $this->taiKhoanRepo->capNhat($userId, $updateTk);
+        }
+
+        // Đồng bộ thông tin sang bảng bác sĩ nếu tài khoản là Bác sĩ
+        if ($taiKhoan->bacSi) {
+            $bacSi = $taiKhoan->bacSi;
+            $updateBs = [];
+            if (isset($duLieu['ho_ten'])) $updateBs['ho_ten'] = $duLieu['ho_ten'];
+            if (isset($duLieu['so_dien_thoai'])) $updateBs['so_dien_thoai'] = $duLieu['so_dien_thoai'];
+            if (isset($duLieu['email'])) $updateBs['email'] = $duLieu['email'];
+            if (isset($duLieu['avatar'])) $updateBs['avatar'] = $duLieu['avatar'];
+            if (isset($duLieu['hoc_vi'])) $updateBs['hoc_vi'] = $duLieu['hoc_vi'];
+            if (isset($duLieu['kinh_nghiem'])) $updateBs['kinh_nghiem'] = $duLieu['kinh_nghiem'];
+            if (isset($duLieu['phong_kham'])) $updateBs['phong_kham'] = $duLieu['phong_kham'];
+            if (!empty($updateBs)) {
+                $bacSi->update($updateBs);
+            }
+        }
+
+        $taiKhoanMoi = $this->taiKhoanRepo->timTheoId($userId);
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => 'Cập nhật thông tin hồ sơ cá nhân thành công.',
+            'du_lieu' => $taiKhoanMoi->load('vaiTro', 'bacSi')
+        ];
+    }
+
+    /**
+     * Cập nhật Avatar người dùng
+     */
+    public function capNhatAvatar(int $userId, string $avatar): array
+    {
+        $taiKhoan = $this->taiKhoanRepo->timTheoId($userId);
+        if (!$taiKhoan) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'TAI_KHOAN_KHONG_TON_TAI',
+                'thong_diep' => 'Không tìm thấy tài khoản người dùng.'
+            ];
+        }
+
+        $taiKhoan->avatar = $avatar;
+        $taiKhoan->save();
+
+        if ($taiKhoan->bacSi) {
+            $taiKhoan->bacSi->avatar = $avatar;
+            $taiKhoan->bacSi->save();
+        }
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => 'Cập nhật ảnh đại diện thành công.',
+            'du_lieu' => [
+                'id' => $taiKhoan->id,
+                'avatar' => $avatar
+            ]
         ];
     }
 }

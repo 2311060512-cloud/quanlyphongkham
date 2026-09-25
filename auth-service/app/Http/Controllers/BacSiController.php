@@ -100,4 +100,23 @@ class BacSiController extends Controller
 
         return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
     }
+
+    /**
+     * DELETE /api/v1/bac-si/{id}
+     * Xóa bác sĩ (Chỉ Admin)
+     */
+    public function xoa(int $id): JsonResponse
+    {
+        $ketQua = $this->bacSiService->xoa($id);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse(
+                $ketQua['thong_diep'],
+                $ketQua['ma_loi'],
+                400
+            );
+        }
+
+        return $this->thanhCongResponse(null, $ketQua['thong_diep']);
+    }
 }

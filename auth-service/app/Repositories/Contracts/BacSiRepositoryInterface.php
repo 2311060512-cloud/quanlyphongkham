@@ -11,4 +11,5 @@ interface BacSiRepositoryInterface
     public function timTheoId(int $id): ?BacSi;
     public function taoMoi(array $duLieu): BacSi;
     public function capNhat(int $id, array $duLieu): ?BacSi;
+    public function xoa(int $id): bool;
 }

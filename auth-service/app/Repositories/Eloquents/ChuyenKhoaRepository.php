@@ -22,4 +22,20 @@ class ChuyenKhoaRepository implements ChuyenKhoaRepositoryInterface
     {
         return ChuyenKhoa::create($duLieu);
     }
+
+    public function capNhat(int $id, array $duLieu): ?ChuyenKhoa
+    {
+        $ck = ChuyenKhoa::find($id);
+        if ($ck) {
+            $ck->update($duLieu);
+            return $ck->fresh();
+        }
+        return null;
+    }
+
+    public function xoa(int $id): bool
+    {
+        $ck = ChuyenKhoa::find($id);
+        return $ck ? (bool)$ck->delete() : false;
+    }
 }
