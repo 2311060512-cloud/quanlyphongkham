@@ -25,6 +25,7 @@ return new class extends Migration
             $table->text('tien_su_benh')->nullable();
             $table->string('nguoi_lien_he_khan_cap', 100)->nullable();
             $table->string('sdt_khan_cap', 15)->nullable();
+            $table->string('quan_he_chu_tai_khoan', 30)->default('BAN_THAN'); // BAN_THAN, CON, CHA_ME, VO_CHONG, NGUOI_THAN
 
             $table->timestamps();
         });

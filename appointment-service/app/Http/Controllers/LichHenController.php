@@ -339,4 +339,43 @@ class LichHenController extends Controller
 
         return response()->json($ketQua, 200);
     }
+
+    /**
+     * TRA CỨU KHUNG GIỜ KHÁM KHẢ DỤNG THEO THỜI GIAN THỰC (BookingCare & Zocdoc style)
+     */
+    public function slotsKhaDung(Request $request): JsonResponse
+    {
+        $bacSiId = (int)$request->query('bac_si_id');
+        $ngayKham = $request->query('ngay_kham') ?: date('Y-m-d');
+        $loaiTruId = $request->query('loai_tru_id') ? (int)$request->query('loai_tru_id') : null;
+
+        if (!$bacSiId) {
+            return response()->json([
+                'thanh_cong' => false,
+                'thong_diep' => 'Vui lòng chọn bác sĩ để tra cứu khung giờ khám.'
+            ], 422);
+        }
+
+        $ketQua = $this->lichHenService->laySlotsKhaDung($bacSiId, $ngayKham, $loaiTruId);
+
+        return response()->json([
+            'thanh_cong' => true,
+            'du_lieu' => $ketQua
+        ]);
+    }
+
+    /**
+     * BÁC SĨ KÊ TOA THUỐC VÀ KẾT LUẬN KHÁM
+     */
+    public function ketLuanKham(int $id, Request $request): JsonResponse
+    {
+        $userId = (int)($request->header('X-User-Id') ?: $request->header('X-Nguoi-Dung-Id') ?: $request->input('bac_si_id'));
+        $vaiTro = $request->header('X-User-Role') ?: $request->header('X-Vai-Tro') ?: $request->input('vai_tro');
+
+        $ketQua = $this->lichHenService->capNhatKetLuanKham($id, $request->all(), $userId ?: null, $vaiTro);
+
+        $status = $ketQua['status'] ?? ($ketQua['thanh_cong'] ? 200 : 400);
+        return response()->json($ketQua, $status);
+    }
+
 }

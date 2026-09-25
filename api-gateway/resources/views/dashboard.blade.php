@@ -824,7 +824,7 @@
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
                     <div>
                         <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Chọn Bác Sĩ:</label>
-                        <select id="modal-dl-bac-si" onchange="capNhatGiaKhamModal()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                        <select id="modal-dl-bac-si" onchange="capNhatGiaKhamModal(); taiSlotsKhaDungDatLich();" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
                             <!-- Dynamic -->
                         </select>
                     </div>
@@ -834,9 +834,50 @@
                         <span id="modal-dl-gia-kham" class="font-extrabold text-medical-700 text-sm">200,000 đ</span>
                     </div>
 
+                    <!-- TÍNH NĂNG ĐẶT LỊCH CHO NGƯỜI THÂN (Medpro & YouMed Style) -->
+                    <div class="p-3 bg-sky-50/60 border border-sky-200/80 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-sky-900 uppercase tracking-wider">
+                                <i class="fa-solid fa-people-roof text-sky-600 mr-1"></i> Đối Tượng Khám Bệnh:
+                            </span>
+                            <div class="inline-flex p-0.5 bg-sky-100 rounded-xl text-[11px] font-bold">
+                                <button type="button" id="btn-tab-ban-than" onclick="chuyenDoiTuongKham('BAN_THAN')" class="px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition">
+                                    Bản Thân
+                                </button>
+                                <button type="button" id="btn-tab-nguoi-than" onclick="chuyenDoiTuongKham('NGUOI_THAN')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+                                    Người Thân
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown chọn hồ sơ gia đình -->
+                        <div id="khu-vuc-nguoi-than" class="hidden pt-1.5 border-t border-sky-200/60 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <select id="modal-dl-chon-ho-so" onchange="chonHoSoGiaDinhDropdown(this.value)" class="w-full px-3 py-1.5 text-xs bg-white border border-sky-300 rounded-xl font-medium text-slate-800 focus:ring-2 focus:ring-sky-500">
+                                    <option value="MOI">+ Tạo hồ sơ người thân mới (Con cái, Bố/Mẹ...)</option>
+                                </select>
+                            </div>
+                            <div id="form-nguoi-than-moi" class="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Mối Quan Hệ:</label>
+                                    <select id="modal-dl-quan-he" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold">
+                                        <option value="CON">Con cái (Bé nhỏ / Thanh thiếu niên)</option>
+                                        <option value="CHA_ME">Bố / Mẹ</option>
+                                        <option value="VO_CHONG">Vợ / Chồng</option>
+                                        <option value="NGUOI_THAN">Người thân khác</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Ngày Sinh Người Thân:</label>
+                                    <input type="date" id="modal-dl-ngay-sinh-nt" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ tên Bệnh nhân:</label>
+                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1" id="lbl-ho-ten-bn">Họ tên Bệnh nhân:</label>
                             <input type="text" id="modal-dl-ho-ten" autocomplete="off" placeholder="Nhập họ tên..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
                         </div>
                         <div>
@@ -847,20 +888,35 @@
 
                     <div>
                         <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ngày khám:</label>
-                        <input type="date" id="modal-dl-ngay" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                        <input type="date" id="modal-dl-ngay" onchange="taiSlotsKhaDungDatLich();" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
                     </div>
 
+                    <!-- BỘ CHỌN KHUNG GIỜ KHÁM THỜI GIAN THỰC (Realtime Slots - BookingCare Style) -->
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1.5">Chọn Khung Giờ (Ca khám 30 phút):</label>
-                        <div class="grid grid-cols-4 gap-2" id="modal-dl-slots">
-                            <button type="button" class="slot-btn selected py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '08:00', '08:30')">08:00</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '08:30', '09:00')">08:30</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '09:00', '09:30')">09:00</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '09:30', '10:00')">09:30</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '10:00', '10:30')">10:00</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '14:00', '14:30')">14:00</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '14:30', '15:00')">14:30</button>
-                            <button type="button" class="slot-btn py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlot(this, '15:00', '15:30')">15:00</button>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="font-bold uppercase tracking-wider text-slate-700 text-xs">Khung Giờ Khám (Ca 30 phút):</label>
+                            <span id="modal-dl-slots-status" class="text-[11px] font-bold text-sky-600 flex items-center gap-1">
+                                <i class="fa-solid fa-bolt text-amber-500"></i> <span id="modal-dl-slots-count">Đang kiểm tra slot...</span>
+                            </span>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                            <div>
+                                <div class="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
+                                    <i class="fa-solid fa-sun text-amber-500"></i> Buổi Sáng (08:00 - 11:30)
+                                </div>
+                                <div class="grid grid-cols-4 gap-2" id="modal-dl-slots-sang">
+                                    <!-- Render động từ API slots-kha-dung -->
+                                </div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-200/70">
+                                <div class="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
+                                    <i class="fa-solid fa-cloud-sun text-sky-500"></i> Buổi Chiều (13:30 - 16:30)
+                                </div>
+                                <div class="grid grid-cols-4 gap-2" id="modal-dl-slots-chieu">
+                                    <!-- Render động từ API slots-kha-dung -->
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1256,6 +1312,208 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    
+    <!-- ============================================================= -->
+    <!-- MODAL BÁC SĨ KÊ TOA THUỐC & KẾT LUẬN KHÁM                     -->
+    <!-- ============================================================= -->
+    <div class="modal-backdrop" id="modal-ke-toa-thuoc">
+        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
+            <form id="form-ke-toa-thuoc" onsubmit="event.preventDefault(); xacNhanKeToaThuoc();" autocomplete="off">
+                <div class="bg-gradient-to-r from-purple-700 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
+                    <h3 class="text-sm font-extrabold flex items-center space-x-2">
+                        <i class="fa-solid fa-file-prescription text-amber-300 text-base"></i>
+                        <span>Kê Toa Thuốc & Kết Luận Chẩn Đoán Khám Bệnh</span>
+                    </h3>
+                    <button type="button" onclick="dongModal('modal-ke-toa-thuoc')" class="text-white/70 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+                    <input type="hidden" id="modal-kt-id">
+
+                    <!-- Thông tin ca khám -->
+                    <div class="grid grid-cols-3 gap-2 bg-purple-50/70 p-3.5 rounded-2xl border border-purple-100">
+                        <div>
+                            <div class="text-[10px] text-purple-700 font-bold uppercase">Mã Ca Khám</div>
+                            <div class="font-extrabold text-slate-800 text-sm mt-0.5" id="modal-kt-ma-ca">#--</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-purple-700 font-bold uppercase">Bệnh Nhân</div>
+                            <div class="font-bold text-slate-800 text-xs mt-0.5" id="modal-kt-ten-bn">--</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-purple-700 font-bold uppercase">Lý Do Khám</div>
+                            <div class="text-slate-600 text-[11px] mt-0.5 truncate" id="modal-kt-ly-do">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Chẩn đoán bệnh -->
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
+                            <span>Chẩn Đoán Bệnh / Kết Luận Y Khoa:</span>
+                            <span class="text-rose-500 font-normal">* Bắt buộc</span>
+                        </label>
+                        <input type="text" id="modal-kt-chuan-doan" required placeholder="Ví dụ: Viêm phế quản cấp tính, Viêm họng hạt, Rối loạn tiêu hóa..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800 font-medium">
+                    </div>
+
+                    <!-- Lời khuyên & dặn dò -->
+                    <div>
+                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Lời Dặn Dò & Chế Độ Nghỉ Ngơi / Dinh Dưỡng:</label>
+                        <textarea id="modal-kt-loi-khuyen" rows="2" placeholder="Ví dụ: Uống nhiều nước ấm, súc họng nước muối sinh lý, kiêng đồ uống lạnh, nghỉ ngơi 3 ngày..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white"></textarea>
+                    </div>
+
+                    <!-- Bảng Kê Toa Thuốc Điện Tử -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="font-bold uppercase tracking-wider text-slate-700 text-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-pills text-purple-600"></i>
+                                <span>Danh Mục Thuốc Kê Đơn (Toa Thuốc):</span>
+                            </label>
+                            <button type="button" onclick="themDongThuoc()" class="px-2.5 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus"></i> Thêm Thuốc
+                            </button>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px]">
+                                    <tr>
+                                        <th class="py-2 px-3">Tên Thuốc & Biệt Dược</th>
+                                        <th class="py-2 px-2 w-24">Hàm Lượng</th>
+                                        <th class="py-2 px-2 w-20">Số Lượng</th>
+                                        <th class="py-2 px-3">Hướng Dẫn Sử Dụng</th>
+                                        <th class="py-2 px-2 text-center w-10">Xóa</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-ke-toa-thuoc" class="divide-y divide-slate-100 bg-white">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                        <div>
+                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ngày Hẹn Tái Khám (Nếu có):</label>
+                            <input type="date" id="modal-kt-ngay-tai-kham" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium">
+                        </div>
+                        <div class="flex items-center pt-5">
+                            <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+                                <input type="checkbox" id="modal-kt-hoan-thanh-ngay" checked class="w-4 h-4 text-purple-600 rounded">
+                                <span>Chuyển trạng thái sang "HOÀN THÀNH"</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="dongModal('modal-ke-toa-thuoc')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md shadow-purple-600/20 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Lưu Toa Thuốc & Hoàn Tất</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- MODAL XEM PHIẾU KHÁM & TOA THUỐC ĐIỆN TỬ (BỆNH NHÂN XEM)      -->
+    <!-- ============================================================= -->
+    <div class="modal-backdrop" id="modal-xem-toa-thuoc">
+        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 text-white flex items-center justify-between">
+                <h3 class="text-sm font-extrabold flex items-center space-x-2">
+                    <i class="fa-solid fa-notes-medical text-amber-300"></i>
+                    <span>Phiếu Khám Bệnh & Đơn Thuốc Điện Tử</span>
+                </h3>
+                <button type="button" onclick="dongModal('modal-xem-toa-thuoc')" class="text-white/70 hover:text-white text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs" id="in-phieu-kham-area">
+                <!-- Tiêu đề phòng khám chuẩn y tế -->
+                <div class="border-b-2 border-slate-800 pb-3 flex justify-between items-start">
+                    <div>
+                        <div class="text-xs font-black uppercase text-medical-700 tracking-wider">HỆ THỐNG PHÒNG KHÁM ĐA KHOA QUỐC TẾ</div>
+                        <div class="text-[11px] text-slate-500">Địa chỉ: 123 Đường Sức Khỏe, Quận Y Tế, TP.HCM | Hotline: 1900 6868</div>
+                        <div class="text-[11px] text-slate-500">Giấy phép hoạt động số: 2026/BYT-GPHĐ</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-mono font-black text-slate-900 text-sm" id="view-toa-ma-ca">LK#--</div>
+                        <div class="text-[10px] text-slate-400" id="view-toa-ngay-kham">Ngày: --/--/----</div>
+                    </div>
+                </div>
+
+                <div class="text-center py-1">
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">PHIẾU KHÁM BỆNH & TOA THUỐC ĐIỆN TỬ</h2>
+                </div>
+
+                <!-- Thông tin Bệnh nhân -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 grid grid-cols-2 gap-2 text-xs">
+                    <div>Họ và tên: <strong class="text-slate-900 font-extrabold" id="view-toa-ten-bn">--</strong></div>
+                    <div>Số điện thoại: <span class="font-mono text-slate-700 font-bold" id="view-toa-sdt-bn">--</span></div>
+                    <div>Nhóm máu: <span class="font-bold text-rose-600" id="view-toa-nhom-mau">--</span></div>
+                    <div>Bác sĩ khám: <strong class="text-slate-900 font-bold" id="view-toa-bac-si">--</strong></div>
+                    <div class="col-span-2 text-amber-800 font-medium">Tiền sử dị ứng: <span id="view-toa-di-ung">Không ghi nhận</span></div>
+                </div>
+
+                <!-- Chẩn đoán & Lời khuyên -->
+                <div class="space-y-2">
+                    <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+                        <div class="text-[10px] font-bold text-emerald-800 uppercase">Chẩn Đoán Bệnh:</div>
+                        <div class="text-xs font-bold text-slate-900 mt-0.5" id="view-toa-chuan-doan">Chưa có kết luận</div>
+                    </div>
+                    <div class="p-3 bg-sky-50/70 border border-sky-200 rounded-xl">
+                        <div class="text-[10px] font-bold text-sky-800 uppercase">Lời Dặn Của Bác Sĩ:</div>
+                        <div class="text-xs text-slate-800 mt-0.5 whitespace-pre-line" id="view-toa-loi-khuyen">Theo dõi sức khỏe và tái khám theo chỉ định.</div>
+                    </div>
+                </div>
+
+                <!-- Danh mục thuốc kê đơn -->
+                <div class="space-y-1.5">
+                    <div class="font-bold uppercase tracking-wider text-slate-800 text-[11px] flex items-center justify-between">
+                        <span>Đơn Thuốc Điều Trị:</span>
+                        <span class="text-slate-400 font-normal italic">(Uống theo đúng chỉ định)</span>
+                    </div>
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="py-2 px-3">STT</th>
+                                    <th class="py-2 px-3">Tên Thuốc & Biệt Dược</th>
+                                    <th class="py-2 px-2">Hàm Lượng</th>
+                                    <th class="py-2 px-2 text-center">Số Lượng</th>
+                                    <th class="py-2 px-3">Cách Dùng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="view-toa-tbody-thuoc" class="divide-y divide-slate-100 bg-white">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end pt-4 border-t border-slate-100">
+                    <div class="text-slate-600 text-xs">
+                        Hẹn ngày tái khám: <strong class="text-rose-600 font-bold" id="view-toa-tai-kham">Không có hẹn</strong>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[11px] text-slate-400">Bác sĩ khám bệnh</div>
+                        <div class="font-script text-base text-medical-800 font-bold italic mt-2" id="view-toa-chu-ky">BS. Phụ Trách</div>
+                        <div class="text-xs font-bold text-slate-800 mt-1" id="view-toa-bs-ten">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between">
+                <button type="button" onclick="inPhieuKhamToaThuoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>In Phiếu Khám / Lưu PDF</span>
+                </button>
+                <button type="button" onclick="dongModal('modal-xem-toa-thuoc')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+            </div>
         </div>
     </div>
 
@@ -1737,6 +1995,18 @@
                 sdt_khan_cap: document.getElementById('modal-dl-sdt-khan-cap') ? document.getElementById('modal-dl-sdt-khan-cap').value : null,
             };
 
+            if (typeof AppStateDoiTuongKham !== 'undefined' && AppStateDoiTuongKham === 'NGUOI_THAN') {
+                const chonHoSo = document.getElementById('modal-dl-chon-ho-so')?.value;
+                if (chonHoSo && chonHoSo !== 'MOI') {
+                    payload.benh_nhan_id = Number(chonHoSo);
+                } else {
+                    payload.quan_he_chu_tai_khoan = document.getElementById('modal-dl-quan-he')?.value || 'NGUOI_THAN';
+                    payload.ngay_sinh = document.getElementById('modal-dl-ngay-sinh-nt')?.value || null;
+                }
+            } else {
+                payload.quan_he_chu_tai_khoan = 'BAN_THAN';
+            }
+
             const res = await goiApi('POST', '/api/v1/lich-hen/dat-lich', payload);
 
             if (res.ok) {
@@ -1932,7 +2202,11 @@
                     <tr class="hover:bg-slate-50/70 transition">
                         <td class="py-3 px-4 font-bold text-slate-800">#${lh.id}</td>
                         <td class="py-3 px-4">
-                            <span class="font-bold text-slate-900 block">${tenBn}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-slate-900">${tenBn}</span>
+                                ${lh.benh_nhan && lh.benh_nhan.quan_he_chu_tai_khoan && lh.benh_nhan.quan_he_chu_tai_khoan !== 'BAN_THAN' ? 
+                                    `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-700 border border-purple-200">${lh.benh_nhan.quan_he_chu_tai_khoan === 'CON' ? 'Con cái' : (lh.benh_nhan.quan_he_chu_tai_khoan === 'CHA_ME' ? 'Bố/Mẹ' : 'Người thân')}</span>` : ''}
+                            </div>
                             ${sdtBn ? `<span class="text-[11px] text-slate-400 font-mono">${sdtBn}</span>` : ''}
                         </td>
                         <td class="py-3 px-4 font-extrabold text-slate-900">${tenBs}</td>
@@ -2643,6 +2917,335 @@
                 title: `${title} - ${message}`
             });
         }
+    
+        // =============================================================
+        // PHÂN HỆ 02: TÍNH NĂNG MỞ RỘNG (SLOT THỜI GIAN THỰC, HỒ SƠ GIA ĐÌNH, TOA THUỐC)
+        // =============================================================
+
+        let AppStateDoiTuongKham = 'BAN_THAN';
+        let DanhSachHoSoGiaDinh = [];
+
+        // 1. CHUYỂN ĐỔI ĐỐI TƯỢNG ĐẶT KHÁM (BẢN THÂN vs NGƯỜI THÂN)
+        function chuyenDoiTuongKham(loai) {
+            AppStateDoiTuongKham = loai;
+            const btnBt = document.getElementById('btn-tab-ban-than');
+            const btnNt = document.getElementById('btn-tab-nguoi-than');
+            const khuVucNt = document.getElementById('khu-vuc-nguoi-than');
+            const lblHoTen = document.getElementById('lbl-ho-ten-bn');
+
+            if (loai === 'BAN_THAN') {
+                btnBt.className = 'px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition';
+                btnNt.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                khuVucNt.classList.add('hidden');
+                if (lblHoTen) lblHoTen.textContent = 'Họ tên Bệnh nhân:';
+
+                if (AppState.currentUser) {
+                    document.getElementById('modal-dl-ho-ten').value = AppState.currentUser.ho_ten || '';
+                    document.getElementById('modal-dl-sdt').value = AppState.currentUser.so_dien_thoai || '';
+                }
+            } else {
+                btnNt.className = 'px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition';
+                btnBt.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                khuVucNt.classList.remove('hidden');
+                if (lblHoTen) lblHoTen.textContent = 'Họ tên Người Thân:';
+
+                document.getElementById('modal-dl-ho-ten').value = '';
+                taiDanhSachHoSoGiaDinh();
+            }
+        }
+
+        async function taiDanhSachHoSoGiaDinh() {
+            const selectEl = document.getElementById('modal-dl-chon-ho-so');
+            if (!selectEl) return;
+
+            try {
+                const res = await goiApi('GET', '/api/v1/benh-nhan/ho-so-gia-dinh');
+                if (res.ok && res.data && res.data.du_lieu) {
+                    DanhSachHoSoGiaDinh = res.data.du_lieu;
+                    const nguoiThanList = DanhSachHoSoGiaDinh.filter(h => h.quan_he_chu_tai_khoan !== 'BAN_THAN');
+                    
+                    let options = '<option value="MOI">+ Tạo hồ sơ người thân mới (Con cái, Bố/Mẹ...)</option>';
+                    options += nguoiThanList.map(h => {
+                        const qh = h.quan_he_chu_tai_khoan === 'CON' ? 'Con cái' : 
+                                  (h.quan_he_chu_tai_khoan === 'CHA_ME' ? 'Bố/Mẹ' : 
+                                  (h.quan_he_chu_tai_khoan === 'VO_CHONG' ? 'Vợ/Chồng' : 'Người thân'));
+                        return `<option value="${h.id}">${h.ho_ten} (${qh}) - NS: ${h.ngay_sinh || 'Chưa rõ'}</option>`;
+                    }).join('');
+                    selectEl.innerHTML = options;
+                }
+            } catch (e) {
+                console.log('Chưa có hồ sơ người thân');
+            }
+        }
+
+        function chonHoSoGiaDinhDropdown(val) {
+            const formMoi = document.getElementById('form-nguoi-than-moi');
+            if (val === 'MOI') {
+                if (formMoi) formMoi.classList.remove('hidden');
+                document.getElementById('modal-dl-ho-ten').value = '';
+                document.getElementById('modal-dl-nhom-mau').value = '';
+                document.getElementById('modal-dl-tien-su-di-ung').value = '';
+                document.getElementById('modal-dl-tien-su-benh').value = '';
+            } else {
+                if (formMoi) formMoi.classList.add('hidden');
+                const hoSo = DanhSachHoSoGiaDinh.find(h => h.id == val);
+                if (hoSo) {
+                    document.getElementById('modal-dl-ho-ten').value = hoSo.ho_ten || '';
+                    if (hoSo.so_dien_thoai) document.getElementById('modal-dl-sdt').value = hoSo.so_dien_thoai;
+                    if (hoSo.nhom_mau) document.getElementById('modal-dl-nhom-mau').value = hoSo.nhom_mau;
+                    if (hoSo.tien_su_di_ung) document.getElementById('modal-dl-tien-su-di-ung').value = hoSo.tien_su_di_ung;
+                    if (hoSo.tien_su_benh) document.getElementById('modal-dl-tien-su-benh').value = hoSo.tien_su_benh;
+                }
+            }
+        }
+
+        // 2. TRA CỨU SLOT KHÁM THỜI GIAN THỰC (REALTIME SLOT AVAILABILITY)
+        async function taiSlotsKhaDungDatLich() {
+            const bacSiId = document.getElementById('modal-dl-bac-si')?.value;
+            const ngayKham = document.getElementById('modal-dl-ngay')?.value;
+            const sangContainer = document.getElementById('modal-dl-slots-sang');
+            const chieuContainer = document.getElementById('modal-dl-slots-chieu');
+            const countLabel = document.getElementById('modal-dl-slots-count');
+
+            if (!bacSiId || !ngayKham || !sangContainer || !chieuContainer) return;
+
+            if (countLabel) countLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...';
+
+            try {
+                const res = await goiApi('GET', `/api/v1/lich-hen/slots-kha-dung?bac_si_id=${bacSiId}&ngay_kham=${ngayKham}`);
+                if (res.ok && res.data && res.data.du_lieu) {
+                    const data = res.data.du_lieu;
+                    const slots = data.slots || [];
+
+                    if (countLabel) {
+                        countLabel.textContent = `${data.so_slot_kha_dung}/${data.tong_so_slot} ca còn trống`;
+                        countLabel.className = data.so_slot_kha_dung > 0 ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
+                    }
+
+                    const sangSlots = slots.filter(s => s.buoi === 'SANG');
+                    const chieuSlots = slots.filter(s => s.buoi === 'CHIEU');
+
+                    let selectedSet = false;
+
+                    const renderSlotItem = (s) => {
+                        const isAvail = s.kha_dung;
+                        const isSelect = isAvail && !selectedSet;
+                        if (isSelect) {
+                            selectedSet = true;
+                            AppState.slotDaChon = { batDau: s.bat_dau, ketThuc: s.ket_thuc };
+                        }
+
+                        if (isAvail) {
+                            const activeClass = isSelect ? 'selected bg-medical-600 text-white font-bold ring-2 ring-medical-500' : 'bg-white hover:bg-sky-50 text-slate-800 border-slate-200 hover:border-sky-400';
+                            return `
+                                <button type="button" class="slot-btn py-2 px-1 rounded-xl border text-[11px] font-mono transition text-center shadow-xs ${activeClass}" onclick="chonSlot(this, '${s.bat_dau.substring(0, 5)}', '${s.ket_thuc.substring(0, 5)}')">
+                                    <div class="font-extrabold">${s.bat_dau.substring(0, 5)}</div>
+                                    <div class="text-[9px] opacity-75 font-sans">Trống</div>
+                                </button>
+                            `;
+                        } else {
+                            const badge = s.trang_thai === 'DA_DAT' ? 'Đã kín' : 'Qua giờ';
+                            return `
+                                <button type="button" disabled class="py-2 px-1 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-[11px] font-mono text-center cursor-not-allowed opacity-60">
+                                    <div class="font-bold line-through">${s.bat_dau.substring(0, 5)}</div>
+                                    <div class="text-[9px] font-sans text-slate-400">${badge}</div>
+                                </button>
+                            `;
+                        }
+                    };
+
+                    sangContainer.innerHTML = sangSlots.map(renderSlotItem).join('');
+                    chieuContainer.innerHTML = chieuSlots.map(renderSlotItem).join('');
+                }
+            } catch (e) {
+                console.log('Lỗi tải slots', e);
+            }
+        }
+
+        // 3. TOA THUỐC ĐIỆN TỬ & KẾT LUẬN KHÁM BỆNH
+        function themDongThuoc(ten = '', hamLuong = '', soLuong = '', cachDung = '') {
+            const tbody = document.getElementById('tbody-ke-toa-thuoc');
+            if (!tbody) return;
+
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-100';
+            tr.innerHTML = `
+                <td class="p-2">
+                    <input type="text" class="kt-ten-thuoc w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Tên thuốc..." value="${ten}">
+                </td>
+                <td class="p-2">
+                    <input type="text" class="kt-ham-luong w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="500mg, 1g..." value="${hamLuong}">
+                </td>
+                <td class="p-2">
+                    <input type="text" class="kt-so-luong w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="10 viên..." value="${soLuong}">
+                </td>
+                <td class="p-2">
+                    <input type="text" class="kt-cach-dung w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Sáng 1v, tối 1v sau ăn..." value="${cachDung}">
+                </td>
+                <td class="p-2 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()" class="text-rose-500 hover:text-rose-700 text-sm">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function moModalKeToa(lichHenId) {
+            const lh = AppState.danhSachLichHen.find(l => l.id == lichHenId);
+            if (!lh) return;
+
+            document.getElementById('modal-kt-id').value = lh.id;
+            document.getElementById('modal-kt-ma-ca').textContent = lh.ma_lich_hen || `#${lh.id}`;
+            document.getElementById('modal-kt-ten-bn').textContent = lh.benh_nhan ? lh.benh_nhan.ho_ten : (lh.ho_ten_benh_nhan || 'Bệnh nhân');
+            document.getElementById('modal-kt-ly-do').textContent = lh.ly_do_kham || 'Khám tổng quát';
+
+            document.getElementById('modal-kt-chuan-doan').value = lh.chuan_doan || '';
+            document.getElementById('modal-kt-loi-khuyen').value = lh.loi_khuyen || '';
+            document.getElementById('modal-kt-ngay-tai-kham').value = lh.ngay_tai_kham || '';
+
+            const tbody = document.getElementById('tbody-ke-toa-thuoc');
+            tbody.innerHTML = '';
+
+            const toaThuocHienTai = lh.toa_thuoc;
+            if (Array.isArray(toaThuocHienTai) && toaThuocHienTai.length > 0) {
+                toaThuocHienTai.forEach(t => themDongThuoc(t.ten_thuoc, t.ham_luong, t.so_luong, t.cach_dung));
+            } else {
+                // Thêm sẵn 2 dòng mẫu tiện dụng
+                themDongThuoc('Augmentin (Amoxicillin/Clavulanate)', '1000mg', '14 viên', 'Sáng 1v, tối 1v sau ăn no');
+                themDongThuoc('Paracetamol', '500mg', '10 viên', 'Uống 1 viên khi sốt trên 38.5 độ C');
+            }
+
+            moModal('modal-ke-toa-thuoc');
+        }
+
+        async function xacNhanKeToaThuoc() {
+            const id = document.getElementById('modal-kt-id').value;
+            const chuanDoan = document.getElementById('modal-kt-chuan-doan').value.trim();
+            const loiKhuyen = document.getElementById('modal-kt-loi-khuyen').value.trim();
+            const ngayTaiKham = document.getElementById('modal-kt-ngay-tai-kham').value;
+            const hoanThanhNgay = document.getElementById('modal-kt-hoan-thanh-ngay').checked;
+
+            if (!chuanDoan) {
+                showToast('warning', 'Thiếu thông tin', 'Vui lòng nhập chẩn đoán bệnh y khoa.');
+                return;
+            }
+
+            // Thu thập toa thuốc
+            const danhSachThuoc = [];
+            document.querySelectorAll('#tbody-ke-toa-thuoc tr').forEach(tr => {
+                const ten = tr.querySelector('.kt-ten-thuoc')?.value.trim();
+                const hamLuong = tr.querySelector('.kt-ham-luong')?.value.trim();
+                const soLuong = tr.querySelector('.kt-so-luong')?.value.trim();
+                const cachDung = tr.querySelector('.kt-cach-dung')?.value.trim();
+                if (ten) {
+                    danhSachThuoc.push({ ten_thuoc: ten, ham_luong: hamLuong, so_luong: soLuong, cach_dung: cachDung });
+                }
+            });
+
+            const payload = {
+                chuan_doan: chuanDoan,
+                loi_khuyen: loiKhuyen,
+                toa_thuoc: danhSachThuoc,
+                ngay_tai_kham: ngayTaiKham || null,
+                chuyen_hoan_thanh: hoanThanhNgay,
+            };
+
+            const res = await goiApi('PUT', `/api/v1/lich-hen/${id}/ket-luan-kham`, payload);
+            if (res.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã Lưu Toa Thuốc!',
+                    text: 'Kết luận chẩn đoán và đơn thuốc đã được cập nhật thành công vào hồ sơ bệnh án.',
+                    confirmButtonColor: '#7c3aed'
+                });
+                dongModal('modal-ke-toa-thuoc');
+                await taiDanhSachLichHen();
+            } else {
+                showToast('error', 'Thất bại', res.data.thong_diep || 'Không thể lưu đơn thuốc.');
+            }
+        }
+
+        // 4. XEM TOA THUỐC VÀ IN PHIẾU KHÁM (BỆNH NHÂN XEM)
+        function xemToaThuocVaKetLuan(lichHenId) {
+            const lh = AppState.danhSachLichHen.find(l => l.id == lichHenId);
+            if (!lh) return;
+
+            const bs = AppState.danhSachBacSi.find(b => b.id == lh.bac_si_id);
+            const tenBs = bs ? bs.ho_ten : (`BS. Phụ Trách #${lh.bac_si_id}`);
+            const bn = lh.benh_nhan || {};
+            const tenBn = bn.ho_ten || (lh.ho_ten_benh_nhan || 'Bệnh nhân');
+
+            document.getElementById('view-toa-ma-ca').textContent = lh.ma_lich_hen || `LK#${lh.id}`;
+            document.getElementById('view-toa-ngay-kham').textContent = `Ngày: ${lh.ngay_kham}`;
+            document.getElementById('view-toa-ten-bn').textContent = tenBn;
+            document.getElementById('view-toa-sdt-bn').textContent = bn.so_dien_thoai || lh.so_dien_thoai || '--';
+            document.getElementById('view-toa-nhom-mau').textContent = bn.nhom_mau ? `Nhóm ${bn.nhom_mau}` : 'Chưa ghi nhận';
+            document.getElementById('view-toa-bac-si').textContent = tenBs;
+            document.getElementById('view-toa-di-ung').textContent = bn.tien_su_di_ung || 'Không ghi nhận tiền sử dị ứng thuốc';
+
+            document.getElementById('view-toa-chuan-doan').textContent = lh.chuan_doan || 'Khám sức khỏe tổng quát định kỳ';
+            document.getElementById('view-toa-loi-khuyen').textContent = lh.loi_khuyen || 'Uống thuốc đúng liều lượng, tái khám khi có dấu hiệu bất thường.';
+            document.getElementById('view-toa-tai-kham').textContent = lh.ngay_tai_kham || 'Tái khám theo hẹn hoặc khi hết thuốc';
+            document.getElementById('view-toa-bs-ten').textContent = tenBs;
+            document.getElementById('view-toa-chu-ky').textContent = tenBs;
+
+            const tbody = document.getElementById('view-toa-tbody-thuoc');
+            let danhSachThuoc = lh.toa_thuoc;
+            if (typeof danhSachThuoc === 'string') {
+                try { danhSachThuoc = JSON.parse(danhSachThuoc); } catch(e) {}
+            }
+
+            if (Array.isArray(danhSachThuoc) && danhSachThuoc.length > 0) {
+                tbody.innerHTML = danhSachThuoc.map((t, idx) => `
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="py-2.5 px-3 text-slate-500 font-mono font-bold text-center">${idx + 1}</td>
+                        <td class="py-2.5 px-3 font-extrabold text-slate-800">${t.ten_thuoc}</td>
+                        <td class="py-2.5 px-2 text-slate-600">${t.ham_luong || '--'}</td>
+                        <td class="py-2.5 px-2 text-center font-bold text-purple-700">${t.so_luong || '--'}</td>
+                        <td class="py-2.5 px-3 text-slate-700 italic">${t.cach_dung || 'Theo chỉ định'}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-400 italic">
+                            Chưa có đơn thuốc kê trong ca khám này. Vui lòng liên hệ bác sĩ phụ trách.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            moModal('modal-xem-toa-thuoc');
+        }
+
+        function inPhieuKhamToaThuoc() {
+            const printContent = document.getElementById('in-phieu-kham-area').innerHTML;
+            const originalContent = document.body.innerHTML;
+
+            const printWindow = window.open('', '', 'height=700,width=900');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Phiếu Khám Bệnh & Toa Thuốc</title>
+                        <script src="https://cdn.tailwindcss.com"></script>
+                        <style>
+                            @media print {
+                                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            }
+                        </style>
+                    </head>
+                    <body class="p-8 bg-white text-slate-800 font-sans text-xs">
+                        ${printContent}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }, 600);
+        }
+
     </script>
-</body>
-</html>

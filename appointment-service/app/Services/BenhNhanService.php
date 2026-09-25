@@ -55,6 +55,7 @@ class BenhNhanService
             'tien_su_benh' => $data['tien_su_benh'] ?? null,
             'nguoi_lien_he_khan_cap' => $data['nguoi_lien_he_khan_cap'] ?? null,
             'sdt_khan_cap' => $data['sdt_khan_cap'] ?? null,
+            'quan_he_chu_tai_khoan' => $data['quan_he_chu_tai_khoan'] ?? 'BAN_THAN',
         ]);
     }
 
@@ -66,4 +67,27 @@ class BenhNhanService
         $benhNhan->update($data);
         return $benhNhan;
     }
+
+    /**
+     * LẤY DANH SÁCH HỒ SƠ GIA ĐÌNH (Bản thân + Người thân con cái, cha mẹ)
+     */
+    public function hoSoGiaDinh(int $taiKhoanId)
+    {
+        return BenhNhan::where('tai_khoan_id', $taiKhoanId)
+            ->withCount('danhSachLichHen')
+            ->orderByRaw("CASE WHEN quan_he_chu_tai_khoan = 'BAN_THAN' THEN 0 ELSE 1 END")
+            ->orderBy('id', 'asc')
+            ->get();
+    }
+
+    /**
+     * TẠO HỒ SƠ NGƯỜI THÂN LIÊN KẾT VỚI TÀI KHOẢN
+     */
+    public function taoHoSoNguoiThan(int $taiKhoanId, array $data): BenhNhan
+    {
+        $data['tai_khoan_id'] = $taiKhoanId;
+        $data['quan_he_chu_tai_khoan'] = $data['quan_he_chu_tai_khoan'] ?? ($data['quan_he'] ?? 'NGUOI_THAN');
+        return $this->taoMoi($data);
+    }
+
 }

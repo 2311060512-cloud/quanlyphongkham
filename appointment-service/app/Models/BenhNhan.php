@@ -23,6 +23,7 @@ class BenhNhan extends Model
         'tien_su_benh',
         'nguoi_lien_he_khan_cap',
         'sdt_khan_cap',
+        'quan_he_chu_tai_khoan',
     ];
 
     public function danhSachLichHen(): HasMany
