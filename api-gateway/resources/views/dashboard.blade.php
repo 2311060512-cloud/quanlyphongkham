@@ -2270,13 +2270,6 @@
                                 <div><i class="fa-solid fa-door-open text-slate-400 w-4"></i> Phòng khám: <strong class="text-slate-700">${bs.phong_kham || 'P201'}</strong></div>
                                 <div><i class="fa-solid fa-phone text-emerald-500 w-4"></i> ${bs.so_dien_thoai || '0901234567'}</div>
                             </div>
-
-                            <div class="mt-3">
-                                <button type="button" onclick="xemNhanhLichTruc(${bs.id}, '${hoTenEsc}')" class="w-full py-1.5 px-2.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-[11px] font-bold border border-sky-200 transition flex items-center justify-center space-x-1.5">
-                                    <i class="fa-solid fa-calendar-check text-sky-600"></i>
-                                    <span>Xem Ca Trực Trong Tuần</span>
-                                </button>
-                            </div>
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
