@@ -101,4 +101,65 @@ class BenhNhanController extends Controller
             'du_lieu' => $benhNhan
         ], 201);
     }
+
+    /**
+     * LẤY DANH SÁCH HỒ SƠ GIA ĐÌNH CỦA TÀI KHOẢN ĐANG ĐĂNG NHẬP
+     */
+    public function hoSoGiaDinh(Request $request): JsonResponse
+    {
+        $taiKhoanId = (int)($request->header('X-User-Id') ?: $request->header('X-Nguoi-Dung-Id') ?: $request->query('tai_khoan_id'));
+        if (!$taiKhoanId) {
+            return response()->json([
+                'thanh_cong' => false,
+                'ma_loi' => 'CHUA_DANG_NHAP',
+                'thong_diep' => 'Vui lòng đăng nhập để xem danh sách hồ sơ gia đình.'
+            ], 401);
+        }
+
+        $danhSach = $this->benhNhanService->hoSoGiaDinh($taiKhoanId);
+
+        return response()->json([
+            'thanh_cong' => true,
+            'tong_so' => $danhSach->count(),
+            'du_lieu' => $danhSach
+        ]);
+    }
+
+    /**
+     * TẠO MỚI HỒ SƠ NGƯỜI THÂN (CON CÁI, BỐ MẸ...)
+     */
+    public function taoHoSoNguoiThan(Request $request): JsonResponse
+    {
+        $taiKhoanId = (int)($request->header('X-User-Id') ?: $request->header('X-Nguoi-Dung-Id') ?: $request->input('tai_khoan_id'));
+        if (!$taiKhoanId) {
+            return response()->json([
+                'thanh_cong' => false,
+                'ma_loi' => 'CHUA_DANG_NHAP',
+                'thong_diep' => 'Vui lòng đăng nhập để tạo hồ sơ người thân.'
+            ], 401);
+        }
+
+        $request->validate([
+            'ho_ten' => 'required|string|max:100',
+            'quan_he_chu_tai_khoan' => 'required|string|in:BAN_THAN,CON,CHA_ME,VO_CHONG,NGUOI_THAN',
+            'so_dien_thoai' => 'nullable|string|max:15',
+            'ngay_sinh' => 'nullable|date',
+            'gioi_tinh' => 'nullable|string|in:NAM,NU,KHAC',
+            'nhom_mau' => 'nullable|string|in:A,B,AB,O',
+        ]);
+
+        $payload = $request->all();
+        if (empty($payload['so_dien_thoai'])) {
+            $payload['so_dien_thoai'] = '09' . str_pad((string)mt_rand(10000000, 99999999), 8, '0');
+        }
+
+        $hoSo = $this->benhNhanService->taoHoSoNguoiThan($taiKhoanId, $payload);
+
+        return response()->json([
+            'thanh_cong' => true,
+            'thong_diep' => 'Tạo hồ sơ người thân thành công.',
+            'du_lieu' => $hoSo
+        ], 201);
+    }
+
 }

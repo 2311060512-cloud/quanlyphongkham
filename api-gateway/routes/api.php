@@ -63,6 +63,9 @@ $dangKyDinhTuyenGateway = function () {
     // ========================================================================
     // 2. DỊCH VỤ 2: BỆNH NHÂN & LỊCH HẸN (Port: 8002)
     // ========================================================================
+        // Tra cứu khung giờ khám khả dụng công khai
+    Route::get('lich-hen/slots-kha-dung', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/lich-hen/slots-kha-dung'));
+
     Route::middleware(['xac_thuc_gateway'])->group(function () {
         Route::prefix('benh-nhan')->group(function () {
             Route::any('{subpath?}', fn(Request $r, $subpath = '') => 

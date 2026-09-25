@@ -380,4 +380,185 @@ class Nguoi2MicroserviceTest extends TestCase
         $this->assertCount(3, $danhSachTep);
         $this->assertContains('/uploads/tep_y_te/xet_nghiem_mau_moi.pdf', $danhSachTep);
     }
+
+    /**
+     * TEST 9: Tra cứu khung giờ khám khả dụng theo thời gian thực (BookingCare & Zocdoc style)
+     */
+    public function test_tra_cuu_slots_kha_dung_theo_thoi_gian_thuc(): void
+    {
+        $ngayKham = Carbon::tomorrow()->addDays(rand(2001, 2500))->toDateString();
+        $bacSiId = 1;
+
+        // 1. Kiểm tra ban đầu chưa có ca khám nào: tất cả 13 ca đều khả dụng
+        $res1 = $this->getJson("/api/v1/lich-hen/slots-kha-dung?bac_si_id={$bacSiId}&ngay_kham={$ngayKham}");
+        $res1->assertStatus(200)
+             ->assertJson([
+                 'thanh_cong' => true,
+                 'du_lieu' => [
+                     'tong_so_slot' => 13,
+                     'so_slot_kha_dung' => 13,
+                 ]
+             ]);
+
+        // 2. Đặt 1 ca khám lúc 08:00 - 08:30
+        $this->withHeaders([
+            'X-User-Id' => '4',
+            'X-User-Role' => 'BENH_NHAN',
+        ])->postJson('/api/v1/lich-hen/dat-lich', [
+            'bac_si_id' => $bacSiId,
+            'ngay_kham' => $ngayKham,
+            'gio_bat_dau' => '08:00:00',
+            'ho_ten' => 'Bệnh Nhân Kiểm Tra Slot',
+            'so_dien_thoai' => '0912345678',
+            'ly_do_kham' => 'Thử nghiệm slot',
+        ])->assertStatus(201);
+
+        // 3. Tra cứu lại: Slot 08:00 phải bị đánh dấu DA_DAT và không khả dụng
+        $res2 = $this->getJson("/api/v1/lich-hen/slots-kha-dung?bac_si_id={$bacSiId}&ngay_kham={$ngayKham}");
+        $res2->assertStatus(200)
+             ->assertJson([
+                 'thanh_cong' => true,
+                 'du_lieu' => [
+                     'so_slot_kha_dung' => 12,
+                 ]
+             ]);
+
+        $slots = $res2->json('du_lieu.slots');
+        $slot8h = collect($slots)->firstWhere('bat_dau', '08:00:00');
+        $this->assertNotNull($slot8h);
+        $this->assertFalse($slot8h['kha_dung']);
+        $this->assertEquals('DA_DAT', $slot8h['trang_thai']);
+    }
+
+    /**
+     * TEST 10: Quản lý hồ sơ gia đình và đặt khám cho người thân (Con cái, Cha mẹ...)
+     */
+    public function test_ho_so_gia_dinh_va_dat_lich_cho_nguoi_than(): void
+    {
+        $userId = '88';
+
+        // 1. Tạo hồ sơ người thân (con gái 5 tuổi)
+        $resTao = $this->withHeaders([
+            'X-User-Id' => $userId,
+            'X-User-Role' => 'BENH_NHAN',
+        ])->postJson('/api/v1/benh-nhan/nguoi-than', [
+            'ho_ten' => 'Bé Nguyễn Mai Anh (Con gái)',
+            'quan_he_chu_tai_khoan' => 'CON',
+            'ngay_sinh' => '2021-06-15',
+            'gioi_tinh' => 'NU',
+            'nhom_mau' => 'O',
+        ]);
+
+        $resTao->assertStatus(201)
+               ->assertJson([
+                   'thanh_cong' => true,
+                   'du_lieu' => [
+                       'ho_ten' => 'Bé Nguyễn Mai Anh (Con gái)',
+                       'quan_he_chu_tai_khoan' => 'CON',
+                   ]
+               ]);
+
+        $conGaiId = $resTao->json('du_lieu.id');
+
+        // 2. Lấy danh sách hồ sơ gia đình của tài khoản này
+        $resGiaDinh = $this->withHeaders([
+            'X-User-Id' => $userId,
+            'X-User-Role' => 'BENH_NHAN',
+        ])->getJson('/api/v1/benh-nhan/ho-so-gia-dinh');
+
+        $resGiaDinh->assertStatus(200)
+                   ->assertJson([
+                       'thanh_cong' => true,
+                   ]);
+
+        $danhSach = $resGiaDinh->json('du_lieu');
+        $this->assertTrue(collect($danhSach)->contains('id', $conGaiId));
+
+        // 3. Đặt lịch khám cho hồ sơ người thân vừa tạo
+        $ngayKham = Carbon::tomorrow()->addDays(rand(2501, 3000))->toDateString();
+        $resDat = $this->withHeaders([
+            'X-User-Id' => $userId,
+            'X-User-Role' => 'BENH_NHAN',
+        ])->postJson('/api/v1/lich-hen/dat-lich', [
+            'bac_si_id' => 1,
+            'benh_nhan_id' => $conGaiId,
+            'ngay_kham' => $ngayKham,
+            'gio_bat_dau' => '09:00:00',
+            'ly_do_kham' => 'Khám nhi: Sốt nhẹ và ho đêm',
+        ]);
+
+        $resDat->assertStatus(201)
+               ->assertJson([
+                   'thanh_cong' => true,
+                   'du_lieu' => [
+                       'benh_nhan_id' => $conGaiId,
+                   ]
+               ]);
+    }
+
+    /**
+     * TEST 11: Bác sĩ kê toa thuốc điện tử và hoàn thành kết luận khám
+     */
+    public function test_bac_si_ke_toa_thuoc_va_ket_luan_kham(): void
+    {
+        $ngayKham = Carbon::tomorrow()->addDays(rand(3001, 3500))->toDateString();
+
+        // 1. Tạo 1 ca khám
+        $resDat = $this->withHeaders([
+            'X-User-Id' => '4',
+            'X-User-Role' => 'BENH_NHAN',
+        ])->postJson('/api/v1/lich-hen/dat-lich', [
+            'bac_si_id' => 1,
+            'ngay_kham' => $ngayKham,
+            'gio_bat_dau' => '14:00:00',
+            'ho_ten' => 'Bệnh Nhân Kê Đơn Thuốc',
+            'so_dien_thoai' => '0933445566',
+            'ly_do_kham' => 'Viêm amidan hốc mủ',
+        ]);
+
+        $resDat->assertStatus(201);
+        $lichHenId = $resDat->json('du_lieu.id');
+
+        // 2. Bác sĩ cập nhật kết luận và toa thuốc điện tử, chuyển HOAN_THANH
+        $toaThuoc = [
+            [
+                'ten_thuoc' => 'Augmentin 1g (Amoxicillin/Clavulanate)',
+                'ham_luong' => '1000mg',
+                'so_luong' => '14 viên',
+                'cach_dung' => 'Uống 1 viên sau ăn sáng, 1 viên sau ăn tối (cách 12 giờ)'
+            ],
+            [
+                'ten_thuoc' => 'Paracetamol 500mg',
+                'ham_luong' => '500mg',
+                'so_luong' => '10 viên',
+                'cach_dung' => 'Uống 1 viên khi sốt trên 38.5 độ C'
+            ]
+        ];
+
+        $resKetLuan = $this->withHeaders([
+            'X-User-Id' => '1',
+            'X-User-Role' => 'BAC_SI',
+        ])->putJson("/api/v1/lich-hen/{$lichHenId}/ket-luan-kham", [
+            'chuan_doan' => 'Viêm họng hạt cấp tính kèm sốt nhẹ',
+            'loi_khuyen' => 'Súc họng nước muối sinh lý ấm, kiêng nước đá, tái khám sau 5 ngày',
+            'toa_thuoc' => $toaThuoc,
+            'ngay_tai_kham' => Carbon::parse($ngayKham)->addDays(5)->toDateString(),
+            'chuyen_hoan_thanh' => true,
+        ]);
+
+        $resKetLuan->assertStatus(200)
+                   ->assertJson([
+                       'thanh_cong' => true,
+                       'du_lieu' => [
+                           'id' => $lichHenId,
+                           'trang_thai' => 'HOAN_THANH',
+                           'chuan_doan' => 'Viêm họng hạt cấp tính kèm sốt nhẹ',
+                       ]
+                   ]);
+
+        $duLieuToa = $resKetLuan->json('du_lieu.toa_thuoc');
+        $this->assertCount(2, $duLieuToa);
+        $this->assertEquals('Augmentin 1g (Amoxicillin/Clavulanate)', $duLieuToa[0]['ten_thuoc']);
+    }
+
 }

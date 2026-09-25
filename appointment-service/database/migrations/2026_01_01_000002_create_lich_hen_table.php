@@ -24,7 +24,9 @@ return new class extends Migration
             $table->text('ly_do_huy')->nullable();
             $table->integer('so_lan_doi_lich')->default(0);
             $table->text('ly_do_doi_lich')->nullable();
-            $table->longText('tep_dinh_kem')->nullable(); // JSON chua danh sach tep / anh don thuoc, ket qua xet nghiem
+            $table->longText('tep_dinh_kem')->nullable();
+            $table->json('toa_thuoc')->nullable(); // Danh sach thuoc ke don
+            $table->date('ngay_tai_kham')->nullable(); // Ngay hen tai kham // JSON chua danh sach tep / anh don thuoc, ket qua xet nghiem
             $table->timestamps();
 
             // Index toi uu truy van kiem tra trung lich va bo loc

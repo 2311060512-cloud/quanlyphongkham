@@ -25,11 +25,15 @@ class LichHen extends Model
         'so_lan_doi_lich',
         'ly_do_doi_lich',
         'tep_dinh_kem',
+        'toa_thuoc',
+        'ngay_tai_kham',
     ];
 
     protected $casts = [
         'so_lan_doi_lich' => 'integer',
         'tep_dinh_kem' => 'array',
+        'toa_thuoc' => 'array',
+        'ngay_tai_kham' => 'date:Y-m-d',
     ];
 
     public function benhNhan(): BelongsTo

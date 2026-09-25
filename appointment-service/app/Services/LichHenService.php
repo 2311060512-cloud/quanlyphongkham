@@ -607,4 +607,151 @@ class LichHenService
             ],
         ];
     }
+
+    /**
+     * LẤY DANH SÁCH KHUNG GIỜ KHÁM KHẢ DỤNG THEO THỜI GIAN THỰC (Realtime Slots)
+     * Trả về danh sách ca khám 30 phút trong ngày, đánh dấu slot nào đã kín hoặc đã qua giờ
+     */
+    public function laySlotsKhaDung(int $bacSiId, string $ngayKham, ?int $loaiTruLichHenId = null): array
+    {
+        // 13 ca khám tiêu chuẩn (Sáng 08:00 - 11:30, Chiều 13:30 - 16:30)
+        $caKhamMau = [
+            ['bat_dau' => '08:00:00', 'ket_thuc' => '08:30:00', 'hien_thi' => '08:00 - 08:30', 'buoi' => 'SANG'],
+            ['bat_dau' => '08:30:00', 'ket_thuc' => '09:00:00', 'hien_thi' => '08:30 - 09:00', 'buoi' => 'SANG'],
+            ['bat_dau' => '09:00:00', 'ket_thuc' => '09:30:00', 'hien_thi' => '09:00 - 09:30', 'buoi' => 'SANG'],
+            ['bat_dau' => '09:30:00', 'ket_thuc' => '10:00:00', 'hien_thi' => '09:30 - 10:00', 'buoi' => 'SANG'],
+            ['bat_dau' => '10:00:00', 'ket_thuc' => '10:30:00', 'hien_thi' => '10:00 - 10:30', 'buoi' => 'SANG'],
+            ['bat_dau' => '10:30:00', 'ket_thuc' => '11:00:00', 'hien_thi' => '10:30 - 11:00', 'buoi' => 'SANG'],
+            ['bat_dau' => '11:00:00', 'ket_thuc' => '11:30:00', 'hien_thi' => '11:00 - 11:30', 'buoi' => 'SANG'],
+            ['bat_dau' => '13:30:00', 'ket_thuc' => '14:00:00', 'hien_thi' => '13:30 - 14:00', 'buoi' => 'CHIEU'],
+            ['bat_dau' => '14:00:00', 'ket_thuc' => '14:30:00', 'hien_thi' => '14:00 - 14:30', 'buoi' => 'CHIEU'],
+            ['bat_dau' => '14:30:00', 'ket_thuc' => '15:00:00', 'hien_thi' => '14:30 - 15:00', 'buoi' => 'CHIEU'],
+            ['bat_dau' => '15:00:00', 'ket_thuc' => '15:30:00', 'hien_thi' => '15:00 - 15:30', 'buoi' => 'CHIEU'],
+            ['bat_dau' => '15:30:00', 'ket_thuc' => '16:00:00', 'hien_thi' => '15:30 - 16:00', 'buoi' => 'CHIEU'],
+            ['bat_dau' => '16:00:00', 'ket_thuc' => '16:30:00', 'hien_thi' => '16:00 - 16:30', 'buoi' => 'CHIEU'],
+        ];
+
+        // Lấy toàn bộ ca khám đã có trong ngày của bác sĩ (loại trừ các ca đã hủy)
+        $query = LichHen::where('bac_si_id', $bacSiId)
+            ->where('ngay_kham', $ngayKham)
+            ->where('trang_thai', '!=', 'DA_HUY');
+
+        if ($loaiTruLichHenId) {
+            $query->where('id', '!=', $loaiTruLichHenId);
+        }
+
+        $lichKhamDaCo = $query->get(['id', 'gio_bat_dau', 'gio_ket_thuc', 'trang_thai']);
+
+        $homNay = Carbon::today()->toDateString();
+        $gioHienTai = Carbon::now('Asia/Ho_Chi_Minh')->format('H:i:s');
+        $laHomNay = ($ngayKham === $homNay);
+        $laQuaKhu = ($ngayKham < $homNay);
+
+        $ketQua = [];
+        $soSlotKhaDung = 0;
+
+        foreach ($caKhamMau as $slot) {
+            $batDau = $slot['bat_dau'];
+            $ketThuc = $slot['ket_thuc'];
+            $trangThaiSlot = 'CON_TRONG';
+            $khaDung = true;
+            $lyDo = 'Có thể đặt hẹn';
+
+            if ($laQuaKhu) {
+                $trangThaiSlot = 'QUA_GIO';
+                $khaDung = false;
+                $lyDo = 'Ngày khám trong quá khứ';
+            } elseif ($laHomNay && $batDau <= $gioHienTai) {
+                $trangThaiSlot = 'QUA_GIO';
+                $khaDung = false;
+                $lyDo = 'Đã qua khung giờ khám';
+            } else {
+                // Kiểm tra xem có trùng với ca nào đã có không
+                $trung = $lichKhamDaCo->first(function ($item) use ($batDau, $ketThuc) {
+                    return ($item->gio_bat_dau < $ketThuc && $item->gio_ket_thuc > $batDau);
+                });
+
+                if ($trung) {
+                    $trangThaiSlot = 'DA_DAT';
+                    $khaDung = false;
+                    $lyDo = 'Bác sĩ đã có ca khám (Đã kín chỗ)';
+                }
+            }
+
+            if ($khaDung) {
+                $soSlotKhaDung++;
+            }
+
+            $ketQua[] = [
+                'bat_dau' => $batDau,
+                'ket_thuc' => $ketThuc,
+                'hien_thi' => $slot['hien_thi'],
+                'buoi' => $slot['buoi'],
+                'kha_dung' => $khaDung,
+                'trang_thai' => $trangThaiSlot,
+                'ly_do' => $lyDo,
+            ];
+        }
+
+        return [
+            'ngay_kham' => $ngayKham,
+            'bac_si_id' => $bacSiId,
+            'tong_so_slot' => count($caKhamMau),
+            'so_slot_kha_dung' => $soSlotKhaDung,
+            'slots' => $ketQua,
+        ];
+    }
+
+    /**
+     * BÁC SĨ CẬP NHẬT KẾT LUẬN KHÁM, LỜI DẶN VÀ TOA THUỐC ĐIỆN TỬ
+     */
+    public function capNhatKetLuanKham(int $id, array $data, ?int $nguoiThucHienId = null, ?string $vaiTro = null): array
+    {
+        $lichHen = LichHen::with('benhNhan')->find($id);
+        if (!$lichHen) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'KHONG_TIM_THAY_LICH_HEN',
+                'thong_diep' => 'Không tìm thấy lịch hẹn.',
+                'status' => 404,
+            ];
+        }
+
+        $chuanDoan = $data['chuan_doan'] ?? ($data['chan_doan'] ?? $lichHen->chuan_doan);
+        $loiKhuyen = $data['loi_khuyen'] ?? ($data['loi_dan_bac_si'] ?? $lichHen->loi_khuyen);
+        $toaThuoc = $data['toa_thuoc'] ?? $lichHen->toa_thuoc;
+        $ngayTaiKham = $data['ngay_tai_kham'] ?? $lichHen->ngay_tai_kham;
+        $ghiChu = $data['ghi_chu_bac_si'] ?? $lichHen->ghi_chu_bac_si;
+
+        // Nếu gửi toa thuốc dạng chuỗi JSON thì decode
+        if (is_string($toaThuoc)) {
+            $decoded = json_decode($toaThuoc, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $toaThuoc = $decoded;
+            }
+        }
+
+        $capNhat = [
+            'chuan_doan' => $chuanDoan,
+            'loi_khuyen' => $loiKhuyen,
+            'toa_thuoc' => $toaThuoc,
+            'ngay_tai_kham' => $ngayTaiKham,
+            'ghi_chu_bac_si' => $ghiChu,
+        ];
+
+        // Tùy chọn chuyển trạng thái sang HOAN_THANH
+        if (!empty($data['chuyen_hoan_thanh']) || !empty($data['hoan_thanh'])) {
+            $capNhat['trang_thai'] = 'HOAN_THANH';
+        }
+
+        $lichHen->update($capNhat);
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => 'Cập nhật kết luận khám và toa thuốc điện tử thành công.',
+            'du_lieu' => $lichHen->fresh(['benhNhan']),
+            'status' => 200,
+        ];
+    }
+
 }
