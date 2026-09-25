@@ -167,4 +167,33 @@ class BacSiService
             'du_lieu' => $bacSiMoi
         ];
     }
+
+    public function xoa(int $id): array
+    {
+        $bacSi = $this->bacSiRepo->timTheoId($id);
+        if (!$bacSi) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'BAC_SI_KHONG_TON_TAI',
+                'thong_diep' => 'Không tìm thấy bác sĩ cần xóa.'
+            ];
+        }
+
+        $hoTen = $bacSi->ho_ten;
+        $taiKhoan = $bacSi->taiKhoan;
+
+        // Xóa bản ghi bác sĩ
+        $this->bacSiRepo->xoa($id);
+
+        // Xóa tài khoản bác sĩ nếu có
+        if ($taiKhoan) {
+            $taiKhoan->tokens()->delete();
+            $taiKhoan->delete();
+        }
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => "Đã xóa bác sĩ [{$hoTen}] và tài khoản liên kết thành công."
+        ];
+    }
 }

@@ -39,15 +39,20 @@ class HoaDonService
         $tenBacSi = 'Bac si kham';
         $danhSachDichVuCLS = [];
 
+        $canhBao = [];
+
         // 1. Goi Service 02 lay lich hen
         try {
             $respLichHen = Http::timeout(3)->get("{$urlLichHen}/api/lich-hen/{$lichHenId}");
             if ($respLichHen->successful() && isset($respLichHen['du_lieu'])) {
                 $lh = $respLichHen['du_lieu'];
-                $benhNhanId = $lh['benh_nhan_id'];
-                $bacSiId = $lh['bac_si_id'];
+                $benhNhanId = $lh['benh_nhan_id'] ?? 1;
+                $bacSiId = $lh['bac_si_id'] ?? null;
+            } else {
+                $canhBao[] = 'Khong the ket noi Service 02 de lay lich hen.';
             }
         } catch (\Exception $e) {
+            $canhBao[] = 'Khong the ket noi Service 02: ' . $e->getMessage();
             Log::warning("Khong the ket noi Service 02 de lay lich hen: " . $e->getMessage());
         }
 
@@ -62,9 +67,12 @@ class HoaDonService
                 if ($respBacSi->successful() && isset($respBacSi['du_lieu'])) {
                     $bs = $respBacSi['du_lieu'];
                     $tienKham = (float)($bs['gia_kham'] ?? 200000.00);
-                    $tenBacSi = $bs['tai_khoan']['ho_ten'] ?? 'Bac si kham';
+                    $tenBacSi = $bs['tai_khoan']['ho_ten'] ?? ($bs['ho_ten'] ?? 'Bac si kham');
+                } else {
+                    $canhBao[] = 'Khong the ket noi Service 01 de lay gia kham bac si.';
                 }
             } catch (\Exception $e) {
+                $canhBao[] = 'Khong the ket noi Service 01: ' . $e->getMessage();
                 Log::warning("Khong the ket noi Service 01 de lay gia kham: " . $e->getMessage());
             }
         }
@@ -74,15 +82,18 @@ class HoaDonService
             $respYTe = Http::timeout(3)->get("{$urlYTe}/api/dich-vu/lich-hen/{$lichHenId}");
             if ($respYTe->successful() && isset($respYTe['du_lieu'])) {
                 $danhSachDichVuCLS = $respYTe['du_lieu'];
+            } else {
+                $canhBao[] = 'Khong the ket noi Service 03 de lay danh sach can lam sang.';
             }
         } catch (\Exception $e) {
+            $canhBao[] = 'Khong the ket noi Service 03: ' . $e->getMessage();
             Log::warning("Khong the ket noi Service 03 de lay danh sach can lam sang: " . $e->getMessage());
         }
 
         // 4. Tinh toan tong tien
         $tienDichVu = 0;
         foreach ($danhSachDichVuCLS as $cls) {
-            $thanhTien = ((float)$cls['don_gia']) * ((int)($cls['so_luong'] ?? 1));
+            $thanhTien = ((float)($cls['don_gia'] ?? 0)) * ((int)($cls['so_luong'] ?? 1));
             $tienDichVu += $thanhTien;
         }
 
@@ -122,14 +133,14 @@ class HoaDonService
 
             // Chi tiet cac dich vu CLS
             foreach ($danhSachDichVuCLS as $cls) {
-                $tenDichVu = $cls['dich_vu']['ten_dich_vu'] ?? 'Dich vu can lam sang';
+                $tenDichVu = $cls['dich_vu']['ten_dich_vu'] ?? ($cls['ten_dich_vu'] ?? 'Dich vu can lam sang');
                 $soLuong = (int)($cls['so_luong'] ?? 1);
-                $donGia = (float)$cls['don_gia'];
+                $donGia = (float)($cls['don_gia'] ?? 0);
                 $thanhTien = $soLuong * $donGia;
 
                 ChiTietHoaDon::create([
                     'hoa_don_id' => $hd->id,
-                    'loai_khoan_thu' => 'DICH_VU_CLS',
+                    'loai_khoan_thu' => 'CAN_LAM_SANG',
                     'ten_khoan_thu' => $tenDichVu,
                     'so_luong' => $soLuong,
                     'don_gia' => $donGia,
@@ -140,10 +151,15 @@ class HoaDonService
             return $hd;
         });
 
+        $duLieu = $hoaDon->load('chiTiet')->toArray();
+        if (!empty($canhBao)) {
+            $duLieu['canh_bao'] = $canhBao;
+        }
+
         return [
             'thanh_cong' => true,
             'thong_diep' => 'Tong hop va tao hoa don tu dong thanh cong.',
-            'du_lieu' => $hoaDon->load('chiTiet')
+            'du_lieu' => $duLieu
         ];
     }
 
@@ -160,7 +176,8 @@ class HoaDonService
         if ($hoaDon->trang_thai === 'DA_THANH_TOAN') {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Hoa don nay da duoc thanh toan truoc do.'
+                'thong_diep' => 'Hoa don nay da duoc thanh toan truoc do.',
+                'ma_loi' => 'HOA_DON_DA_THANH_TOAN'
             ];
         }
 

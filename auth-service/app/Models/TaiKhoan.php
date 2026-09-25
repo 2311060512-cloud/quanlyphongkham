@@ -17,7 +17,11 @@ class TaiKhoan extends Model
         'email',
         'mat_khau',
         'ho_ten',
+        'avatar',
         'so_dien_thoai',
+        'ngay_sinh',
+        'gioi_tinh',
+        'dia_chi',
         'vai_tro_id',
         'trang_thai',
     ];

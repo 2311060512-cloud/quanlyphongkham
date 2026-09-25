@@ -100,4 +100,32 @@ class TaiKhoanController extends Controller
 
         return $this->thanhCongResponse(null, $ketQua['thong_diep']);
     }
+
+    /**
+     * DELETE /api/v1/tai-khoan/{id}
+     * Xóa tài khoản người dùng (Chỉ Admin)
+     */
+    public function xoa(Request $request, int $id): JsonResponse
+    {
+        $vaiTro = $request->header('X-Vai-Tro') ?? $request->header('X-User-Role');
+        if ($vaiTro && $vaiTro !== 'ADMIN') {
+            return $this->thatBaiResponse(
+                'Chỉ Quản trị viên (ADMIN) mới có quyền xóa tài khoản người dùng.',
+                'KHONG_CO_QUYEN',
+                403
+            );
+        }
+
+        $ketQua = $this->taiKhoanService->xoa($id);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse(
+                $ketQua['thong_diep'],
+                $ketQua['ma_loi'],
+                400
+            );
+        }
+
+        return $this->thanhCongResponse(null, $ketQua['thong_diep']);
+    }
 }

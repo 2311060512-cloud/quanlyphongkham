@@ -24,6 +24,31 @@ class HoaDon extends Model
         'ghi_chu',
     ];
 
+    protected $casts = [
+        'tien_kham' => 'float',
+        'tien_dich_vu' => 'float',
+        'tong_tien' => 'float',
+        'giam_gia' => 'float',
+        'thuc_thu' => 'float',
+        'ngay_thanh_toan' => 'datetime',
+    ];
+
+    /**
+     * Tu dong sinh ma hoa don dang HD0001, HD0002... khi tao moi
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($hoaDon) {
+            if (empty($hoaDon->ma_hoa_don)) {
+                $maxId = static::max('id') ?? 0;
+                $nextNumber = $maxId + 1;
+                $hoaDon->ma_hoa_don = 'HD' . str_pad((string)$nextNumber, 4, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
     public function chiTiet(): HasMany
     {
         return $this->hasMany(ChiTietHoaDon::class, 'hoa_don_id');

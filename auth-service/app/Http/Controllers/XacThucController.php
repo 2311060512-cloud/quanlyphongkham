@@ -155,4 +155,91 @@ class XacThucController extends Controller
 
         return $this->thanhCongResponse(null, $ketQua['thong_diep']);
     }
+
+    /**
+     * PUT /api/v1/xac-thuc/ho-so
+     * Cập nhật thông tin hồ sơ cá nhân
+     */
+    public function capNhatHoSo(Request $request): JsonResponse
+    {
+        $userId = $request->header('X-Nguoi-Dung-Id') ?? $request->header('X-User-Id');
+        if (!$userId) {
+            $authHeader = $request->header('Authorization');
+            if ($authHeader) {
+                $user = $this->xacThucService->layThongTin($authHeader);
+                $userId = $user['id'] ?? null;
+            }
+        }
+        if (!$userId && $request->has('user_id')) {
+            $userId = $request->input('user_id');
+        }
+
+        if (!$userId) {
+            return $this->thatBaiResponse(
+                'Không xác định được danh tính người dùng.',
+                'CHUA_XAC_THUC',
+                401
+            );
+        }
+
+        $duLieu = $request->all();
+        $ketQua = $this->xacThucService->capNhatHoSo((int)$userId, $duLieu);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
+    }
+
+    /**
+     * POST /api/v1/xac-thuc/avatar
+     * Upload / Cập nhật Avatar (hỗ trợ base64 image hoặc file upload)
+     */
+    public function capNhatAvatar(Request $request): JsonResponse
+    {
+        $userId = $request->header('X-Nguoi-Dung-Id') ?? $request->header('X-User-Id');
+        if (!$userId) {
+            $authHeader = $request->header('Authorization');
+            if ($authHeader) {
+                $user = $this->xacThucService->layThongTin($authHeader);
+                $userId = $user['id'] ?? null;
+            }
+        }
+        if (!$userId && $request->has('user_id')) {
+            $userId = $request->input('user_id');
+        }
+
+        if (!$userId) {
+            return $this->thatBaiResponse(
+                'Không xác định được danh tính người dùng.',
+                'CHUA_XAC_THUC',
+                401
+            );
+        }
+
+        $avatarData = '';
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $mimeType = $file->getMimeType();
+            $base64 = base64_encode(file_get_contents($file->getRealPath()));
+            $avatarData = "data:{$mimeType};base64,{$base64}";
+        } elseif ($request->filled('avatar')) {
+            $avatarData = $request->input('avatar');
+        } else {
+            return $this->thatBaiResponse(
+                'Vui lòng cung cấp dữ liệu ảnh đại diện.',
+                'THIEU_DU_LIEU_ANH',
+                422
+            );
+        }
+
+        $ketQua = $this->xacThucService->capNhatAvatar((int)$userId, $avatarData);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
+    }
 }

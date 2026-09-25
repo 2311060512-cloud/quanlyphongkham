@@ -43,4 +43,27 @@ class ChuyenKhoaController extends Controller
 
         return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep'], 201);
     }
+
+    public function capNhat(Request $request, int $id): JsonResponse
+    {
+        $duLieu = $request->all();
+        $ketQua = $this->chuyenKhoaService->capNhat($id, $duLieu);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
+    }
+
+    public function xoa(int $id): JsonResponse
+    {
+        $ketQua = $this->chuyenKhoaService->xoa($id);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+
+        return $this->thanhCongResponse(null, $ketQua['thong_diep']);
+    }
 }

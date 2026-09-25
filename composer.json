@@ -1,0 +1,22 @@
+{
+    "name": "phongkham/microservices",
+    "type": "project",
+    "description": "Shared vendor for phongkham microservices",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^12.0",
+        "laravel/sanctum": "*"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require-dev": {
+        "nunomaduro/collision": "^8.9",
+        "phpunit/phpunit": "^11.5"
+    }
+}

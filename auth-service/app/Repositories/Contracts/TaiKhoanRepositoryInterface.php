@@ -13,4 +13,5 @@ interface TaiKhoanRepositoryInterface
     public function capNhat(int $id, array $duLieu): ?TaiKhoan;
     public function doiTrangThai(int $id, string $trangThai): bool;
     public function doiMatKhau(int $id, string $matKhauMoi): bool;
+    public function xoa(int $id): bool;
 }

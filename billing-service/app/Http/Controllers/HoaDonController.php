@@ -70,6 +70,9 @@ class HoaDonController extends Controller
         $ketQua = $this->hoaDonService->thanhToan($id, $request->phuong_thuc_thanh_toan, $request->ghi_chu);
 
         if (!$ketQua['thanh_cong']) {
+            if (($ketQua['ma_loi'] ?? '') === 'HOA_DON_DA_THANH_TOAN') {
+                return response()->json($ketQua, 409);
+            }
             return response()->json($ketQua, 400);
         }
 

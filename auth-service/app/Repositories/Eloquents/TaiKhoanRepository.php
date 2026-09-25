@@ -60,4 +60,10 @@ class TaiKhoanRepository implements TaiKhoanRepositoryInterface
         }
         return false;
     }
+
+    public function xoa(int $id): bool
+    {
+        $tk = TaiKhoan::find($id);
+        return $tk ? (bool)$tk->delete() : false;
+    }
 }
