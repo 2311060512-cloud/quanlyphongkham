@@ -101,7 +101,7 @@ class LichHenService
                     'tai_khoan_id' => $taiKhoanId ?? ($data['tai_khoan_id'] ?? null),
                     'ma_benh_nhan' => $maBn,
                     'ho_ten' => $hoTen,
-                    'so_dien_thoai' => $sdt ?: '0900000000',
+                    'so_dien_thoai' => $sdt ?: ($data['so_dien_thoai'] ?? ''),
                     'so_cccd' => $data['so_cccd'] ?? null,
                     'ngay_sinh' => $data['ngay_sinh'] ?? null,
                     'gioi_tinh' => $data['gioi_tinh'] ?? 'NAM',

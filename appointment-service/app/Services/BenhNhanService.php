@@ -64,7 +64,14 @@ class BenhNhanService
         $benhNhan = BenhNhan::find($id);
         if (!$benhNhan) return null;
 
-        $benhNhan->update($data);
+        $allowed = [
+            'ho_ten', 'so_dien_thoai', 'so_cccd', 'ngay_sinh', 'gioi_tinh',
+            'dia_chi', 'nhom_mau', 'tien_su_di_ung', 'tien_su_benh',
+            'nguoi_lien_he_khan_cap', 'sdt_khan_cap', 'quan_he_chu_tai_khoan'
+        ];
+        $updateData = array_intersect_key($data, array_flip($allowed));
+
+        $benhNhan->update($updateData);
         return $benhNhan;
     }
 
