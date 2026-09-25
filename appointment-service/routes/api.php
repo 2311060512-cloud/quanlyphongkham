@@ -18,6 +18,7 @@ $dinhTuyenDichVu = function () {
         Route::get('/', [BenhNhanController::class, 'danhSach']);
         Route::post('/', [BenhNhanController::class, 'taoMoi']);
         Route::get('{id}', [BenhNhanController::class, 'chiTiet'])->whereNumber('id');
+        Route::put('{id}', [BenhNhanController::class, 'capNhat'])->whereNumber('id');
     });
 
     Route::prefix('lich-hen')->group(function () {
