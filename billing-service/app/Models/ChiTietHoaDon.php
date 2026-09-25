@@ -18,6 +18,12 @@ class ChiTietHoaDon extends Model
         'thanh_tien',
     ];
 
+    protected $casts = [
+        'so_luong' => 'integer',
+        'don_gia' => 'float',
+        'thanh_tien' => 'float',
+    ];
+
     public function hoaDon(): BelongsTo
     {
         return $this->belongsTo(HoaDon::class, 'hoa_don_id');
