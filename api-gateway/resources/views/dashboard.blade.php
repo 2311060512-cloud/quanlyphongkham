@@ -2363,6 +2363,9 @@
                 return;
             }
 
+            // Fix #2: Reset selected slot state when modal opens
+            AppState.slotDaChon = null;
+
             // Reset tệp đính kèm
             AppState.tepYTeUploads = [];
             const fileInput = document.getElementById('modal-dl-files');
@@ -2370,7 +2373,7 @@
             const preview = document.getElementById('modal-dl-file-preview');
             if (preview) preview.innerHTML = '';
 
-            // Chặn chọn ngày quá khứ
+            // Fix #7: Chặn chọn ngày quá khứ & Reset ngày khám mặc định
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('modal-dl-ngay');
             if (dateInput) {
@@ -2379,6 +2382,10 @@
                     dateInput.value = today;
                 }
             }
+
+            // Reset lý do khám
+            const lyDoInput = document.getElementById('modal-dl-ly-do');
+            if (lyDoInput) lyDoInput.value = '';
 
             if (AppState.currentUser) {
                 if (document.getElementById('modal-dl-ho-ten')) {
@@ -2540,14 +2547,25 @@
         }
 
         async function xacNhanDatLich() {
-            const bacSiId = document.getElementById('modal-dl-bac-si').value;
-            const hoTen = document.getElementById('modal-dl-ho-ten').value;
-            const sdt = document.getElementById('modal-dl-sdt').value;
-            const ngayKham = document.getElementById('modal-dl-ngay').value;
-            const lyDo = document.getElementById('modal-dl-ly-do').value;
+            const bacSiId = document.getElementById('modal-dl-bac-si')?.value;
+            const hoTen = document.getElementById('modal-dl-ho-ten')?.value;
+            const sdt = document.getElementById('modal-dl-sdt')?.value;
+            const ngayKham = document.getElementById('modal-dl-ngay')?.value;
+            const lyDo = document.getElementById('modal-dl-ly-do')?.value;
 
             if (!hoTen || !ngayKham) {
                 showToast('error', 'Thiếu thông tin', 'Vui lòng nhập họ tên bệnh nhân và ngày khám.');
+                return;
+            }
+
+            if (!bacSiId) {
+                showToast('error', 'Chưa chọn bác sĩ', 'Vui lòng chọn bác sĩ khám bệnh.');
+                return;
+            }
+
+            // Fix #3: Kiểm tra bắt buộc đã chọn slot khám còn trống
+            if (!AppState.slotDaChon || !AppState.slotDaChon.batDau) {
+                showToast('error', 'Chưa chọn khung giờ', 'Vui lòng chọn một khung giờ khám còn trống.');
                 return;
             }
 
@@ -2739,7 +2757,7 @@
         }
 
         async function taiDanhSachLichHen() {
-            const res = await goiApi('GET', '/api/v1/lich-hen');
+            const res = await goiApi('GET', '/api/v1/lich-hen?per_page=50');
             if (res.ok && res.data && res.data.du_lieu) {
                 AppState.danhSachLichHen = res.data.du_lieu;
                 renderLichHenBenhNhan(AppState.danhSachLichHen);
@@ -2759,16 +2777,17 @@
             let displayList = list;
             if (u && u.vai_tro === 'BENH_NHAN') {
                 displayList = list.filter(lh => {
-                    return (lh.benh_nhan_id == u.id) || 
-                           (lh.benh_nhan && lh.benh_nhan.tai_khoan_id == u.id) ||
+                    return (lh.benh_nhan && lh.benh_nhan.tai_khoan_id == u.id) ||
+                           (lh.tai_khoan_id == u.id) ||
+                           (lh.benh_nhan_id == u.id) ||
                            (lh.ho_ten_benh_nhan && lh.ho_ten_benh_nhan.toLowerCase() === (u.ho_ten || '').toLowerCase()) ||
-                           (lh.so_dien_thoai && lh.so_dien_thoai === u.so_dien_thoai);
+                           (lh.so_dien_thoai && u.so_dien_thoai && lh.so_dien_thoai === u.so_dien_thoai);
                 });
-                if (displayList.length === 0) displayList = list;
+                // Fix #1: Strictly filter without showing all appointments when list is empty
             }
 
             if (!displayList || displayList.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Bạn chưa có lịch hẹn nào. Hãy đặt lịch khám mới!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400 font-medium"><i class="fa-regular fa-calendar-xmark mr-1.5 text-slate-400"></i> Bạn chưa có lịch hẹn nào. Hãy đặt lịch khám mới!</td></tr>';
                 return;
             }
 
@@ -2780,7 +2799,8 @@
                 const tenBn = lh.benh_nhan ? (lh.benh_nhan.ho_ten || '') : (lh.ho_ten_benh_nhan || (`Bệnh nhân #${lh.benh_nhan_id}`));
                 const sdtBn = lh.benh_nhan ? (lh.benh_nhan.so_dien_thoai || '') : (lh.so_dien_thoai || '');
 
-                const canManage = (['CHO_KHAM', 'CHO_XAC_NHAN', 'DA_XAC_NHAN', 'DA_DAT'].includes(lh.trang_thai) || !lh.trang_thai);
+                // Fix #5: Only valid appointment statuses can be rescheduled/cancelled by patient
+                const canManage = ['CHO_XAC_NHAN', 'DA_XAC_NHAN'].includes(lh.trang_thai);
                 
                 let actionBtns = [];
                 if (canManage) {

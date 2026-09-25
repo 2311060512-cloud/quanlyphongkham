@@ -577,13 +577,14 @@ class Nguoi2MicroserviceTest extends TestCase
         $resTao->assertStatus(201);
         $bnId = $resTao->json('du_lieu.id');
 
-        // 2. Cập nhật thông tin dị ứng, bệnh nền, số CCCD
+        // 2. Cập nhật thông tin dị ứng, bệnh nền, số CCCD kèm kiểm tra whitelist bảo vệ (Fix #4)
         $resCapNhat = $this->putJson("/api/v1/benh-nhan/{$bnId}", [
             'ho_ten' => 'Bệnh Nhân Test EHR (Đã Cập Nhật)',
             'nhom_mau' => 'A',
             'tien_su_di_ung' => 'Dị ứng Penicillin và hải sản',
             'tien_su_benh' => 'Tăng huyết áp vô căn',
             'so_cccd' => '079201000123',
+            'ma_benh_nhan' => 'HACKED_MA_BN', // Should be filtered out by whitelist
         ]);
 
         $resCapNhat->assertStatus(200)
@@ -601,6 +602,7 @@ class Nguoi2MicroserviceTest extends TestCase
         $resDetail = $this->getJson("/api/v1/benh-nhan/{$bnId}");
         $resDetail->assertStatus(200);
         $this->assertEquals('Dị ứng Penicillin và hải sản', $resDetail->json('du_lieu.tien_su_di_ung'));
+        $this->assertNotEquals('HACKED_MA_BN', $resDetail->json('du_lieu.ma_benh_nhan'));
     }
 
 }
