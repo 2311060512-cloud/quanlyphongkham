@@ -31,6 +31,18 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
    - **Hồ sơ bệnh án điện tử (EHR Timeline Modal)**: Dòng thời gian trực quan ghi lại toàn bộ các lần khám của bệnh nhân từ trước đến nay, chi tiết từng toa thuốc điện tử (`toa_thuoc`), hướng dẫn dùng thuốc, lời dặn bác sĩ và ngày hẹn tái khám.
    - **Tiện ích y tế cao cấp**: Chức năng **In Phiếu Tóm Tắt Bệnh Án Điện Tử (Print/PDF Preview)** chuẩn phòng khám; Bộ lọc thông minh đa chiều (Bác sĩ, Khung giờ Sáng/Chiều, Trạng thái ca khám, Tìm kiếm tức thì theo Tên/SĐT/CCCD/Bệnh án).
    - **API Cập nhật hồ sơ bệnh nhân**: Bổ sung `PUT /api/v1/benh-nhan/{id}` cho phép chỉnh sửa nhóm máu, tiền sử dị ứng, tiền sử bệnh nền và liên hệ khẩn cấp.
+
+8. **Quy Trình Đặt Lịch Liên Hoàn 2 Bước (Chuyên Khoa -> Bác Sĩ):**
+   - **Tách bạch 2 bước chọn lựa**: Thay vì chọn bác sĩ trong danh sách hỗn hợp, form đặt lịch chia rõ ràng: **Bước 1: Chọn Chuyên khoa** -> **Bước 2: Lọc danh sách Bác sĩ thuộc chuyên khoa đó**.
+   - **Đồng bộ tự động**: Tự động cập nhật phòng khám, bảng giá niêm yết và tải lại toàn bộ khung giờ (slots) khả dụng theo thời gian thực tương ứng với bác sĩ được chọn.
+
+9. **Quy Chế Phiên Khám Cam Kết & Tiếp Nhận Ưu Tiên (Giải Tỏa Trễ Domino):**
+   - **Vấn đề thực tế**: Khi một ca khám kéo dài hơn dự kiến (do bệnh lý phức tạp, cần đo điện tim hoặc hội chẩn kỹ), ca khám kế tiếp có thể bị xê dịch thời gian (hiệu ứng domino delay).
+   - **Giải pháp giải tỏa tâm lý & cam kết y tế**:
+     - **Cam kết hoàn thành trong ca**: Khẳng định rõ ràng bệnh nhân đặt lịch **Ca Sáng (08:00 - 11:30)** chắc chắn được hoàn tất khám 100% trong buổi Sáng; đặt lịch **Ca Chiều (13:30 - 16:30)** chắc chắn được khám xong trong buổi Chiều.
+     - **Số thứ tự tiếp nhận dự kiến (Queue STT)**: Cấp số thứ tự trong phiên (vd: `STT #02 - Ca Sáng`) để người bệnh biết vị trí lượt khám của mình trong buổi.
+     - **Minh bạch khung giờ tiếp nhận**: Nêu rõ khung giờ 30 phút là *giờ có mặt ưu tiên tiếp nhận* để đo sinh hiệu và lấy số vào phòng, giờ vào khám thực tế dao động linh hoạt ±10-15 phút để đảm bảo chất lượng y khoa.
+
 6. **Kiểm thử tự động 100%:**
    - Bộ test `Nguoi2MicroserviceTest.php` vượt qua **12/12 kịch bản nghiệp vụ** (58 assertions).
 
