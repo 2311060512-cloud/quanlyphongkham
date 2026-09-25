@@ -4419,25 +4419,13 @@
 
         function inPhieuKhamToaThuoc() {
             const printContent = document.getElementById('in-phieu-kham-area').innerHTML;
-            const originalContent = document.body.innerHTML;
-
             const printWindow = window.open('', '', 'height=700,width=900');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Phiếu Khám Bệnh & Toa Thuốc</title>
-                        <script src="https://cdn.tailwindcss.com"></script>
-                        <style>
-                            @media print {
-                                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            }
-                        </style>
-                    </head>
-                    <body class="p-8 bg-white text-slate-800 font-sans text-xs">
-                        ${printContent}
-                    </body>
-                </html>
-            `);
+            printWindow.document.write('<!DOCTYPE html><html><head><title>Phiếu Khám Bệnh & Toa Thuốc</title>');
+            printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">');
+            printWindow.document.write('<style>@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>');
+            printWindow.document.write('</head><body class="p-8 bg-white text-slate-800 font-sans text-xs">');
+            printWindow.document.write(printContent);
+            printWindow.document.write('</body></html>');
             printWindow.document.close();
             setTimeout(() => {
                 printWindow.focus();

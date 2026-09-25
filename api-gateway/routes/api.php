@@ -107,6 +107,10 @@ $dangKyDinhTuyenGateway = function () {
         Route::prefix('benh-nhan')->group(function () {
             // Bệnh nhân xem hồ sơ cá nhân của mình
             Route::get('ho-so-cua-toi', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan/ho-so-cua-toi'));
+            // Danh sách hồ sơ thành viên gia đình
+            Route::get('ho-so-gia-dinh', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan/ho-so-gia-dinh'));
+            // Thêm hồ sơ người thân gia đình
+            Route::post('nguoi-than', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan/nguoi-than'));
             // Chi tiết hồ sơ bệnh nhân
             Route::get('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/benh-nhan/{$id}"))->whereNumber('id');
             // Xem danh sách toàn bộ bệnh nhân: Chỉ ADMIN và BAC_SI
@@ -122,6 +126,9 @@ $dangKyDinhTuyenGateway = function () {
             // Đặt lịch khám: BENH_NHAN hoặc ADMIN
             Route::post('dat-lich', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/lich-hen/dat-lich'))
                 ->middleware('phan_quyen:ADMIN,BENH_NHAN');
+            // Bác sĩ kết luận chẩn đoán & kê đơn thuốc
+            Route::put('{id}/ket-luan-kham', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/ket-luan-kham"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
             // Tiếp nhận / Bắt đầu khám: BAC_SI hoặc ADMIN
             Route::put('{id}/bat-dau-kham', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/bat-dau-kham"))
                 ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
