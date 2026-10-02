@@ -146,6 +146,12 @@ class BenhNhanController extends Controller
             'ngay_sinh' => 'nullable|date',
             'gioi_tinh' => 'nullable|string|in:NAM,NU,KHAC',
             'nhom_mau' => 'nullable|string|in:A,B,AB,O',
+            'so_cccd' => 'nullable|string|max:20',
+            'dia_chi' => 'nullable|string|max:255',
+            'tien_su_di_ung' => 'nullable|string',
+            'tien_su_benh' => 'nullable|string',
+            'nguoi_lien_he_khan_cap' => 'nullable|string|max:100',
+            'sdt_khan_cap' => 'nullable|string|max:15',
         ]);
 
         $payload = $request->all();

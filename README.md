@@ -97,9 +97,10 @@ quanlyphongkham_microservices/
 - **Quản lý Danh mục Chuyên khoa & Bác sĩ (CRUD hoàn chỉnh):**
   - Thêm, Sửa, Xóa chuyên khoa phòng khám (Nội, Nhi, Răng Hàm Mặt, Mắt, Tai Mũi Họng...).
   - Thêm, Sửa, Xóa bác sĩ chuyên khoa; thiết lập phòng khám và giá khám ban đầu (`gia_kham`).
-- **Quản lý Lịch trực / Ca làm việc của Bác sĩ (Doctor Shifts):**
-  - Quản lý ca trực cố định theo các ngày trong tuần (Thứ Hai đến Chủ Nhật): Ca Sáng (07:30 - 11:30), Ca Chiều (13:30 - 17:00), Ca Tối, Cả Ngày.
-  - Thiết lập phòng khám và số lượng bệnh nhân khám tối đa trên mỗi ca.
+- **Quản lý Lịch trực / Ca làm việc của Bác sĩ (Doctor Shifts & Admin Approval):**
+  - **Quy tắc 1 ca/ngày:** Mỗi bác sĩ chỉ được đăng ký tối đa **1 ca trực trong 1 ngày** (Thứ Hai đến Chủ Nhật). Có 4 loại ca trực: **Ca Sáng** (07:30 - 11:30), **Ca Chiều** (13:30 - 17:00), **Ca Tối** (17:30 - 20:30), **Cả Ngày** (07:30 - 17:00).
+  - **Quy trình Phê duyệt bắt buộc bởi Admin:** Khi bác sĩ đăng ký mới hoặc đổi ca làm việc, ca trực sẽ ở trạng thái `CHO_DUYET` (Chờ Admin duyệt). Chỉ khi Quản trị viên (Admin) phê duyệt (`PUT /api/v1/bac-si/lich-truc/{id}/duyet`), ca trực mới chuyển sang `HOAT_DONG` và chính thức có hiệu lực.
+  - **Liên kết Đặt lịch hẹn:** Bệnh nhân chỉ có thể tra cứu và đặt lịch khám theo các ca trực **đã được Admin phê duyệt** (`HOAT_DONG`). Ca đang chờ duyệt hoặc bị từ chối sẽ tự động bị ẩn khỏi khung giờ khả dụng.
   - Cung cấp API kiểm tra lịch trực theo ngày `GET /api/v1/bac-si/{id}/kiem-tra-truc?ngay=YYYY-MM-DD` để liên kết chặt chẽ với phân hệ Đặt lịch hẹn tại API Gateway.
 - **Điểm cung cấp liên dịch vụ:** Cung cấp API `GET /api/v1/bac-si/{id}` trả về `gia_kham` để `billing-service` tự động kéo đơn giá khám vào hóa đơn viện phí.
 

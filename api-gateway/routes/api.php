@@ -55,6 +55,10 @@ $dangKyDinhTuyenGateway = function () {
             ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN,BAC_SI']);
         Route::put('lich-truc/{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/lich-truc/{$id}"))
             ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN,BAC_SI']);
+        Route::put('lich-truc/{id}/duyet', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/lich-truc/{$id}/duyet"))
+            ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN']);
+        Route::put('lich-truc/{id}/tu-choi', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/lich-truc/{$id}/tu-choi"))
+            ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN']);
         Route::delete('lich-truc/{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/lich-truc/{$id}"))
             ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN,BAC_SI']);
 
@@ -77,6 +81,10 @@ $dangKyDinhTuyenGateway = function () {
             ->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN,BAC_SI']);
         Route::put('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/lich-truc/{$id}"))
             ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN,BAC_SI']);
+        Route::put('{id}/duyet', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/lich-truc/{$id}/duyet"))
+            ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN']);
+        Route::put('{id}/tu-choi', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/lich-truc/{$id}/tu-choi"))
+            ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN']);
         Route::delete('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/lich-truc/{$id}"))
             ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN,BAC_SI']);
     });
@@ -116,6 +124,8 @@ $dangKyDinhTuyenGateway = function () {
             // Xem danh sách toàn bộ bệnh nhân: Chỉ ADMIN và BAC_SI
             Route::get('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan'))
                 ->middleware('phan_quyen:ADMIN,BAC_SI');
+            // Cập nhật thông tin bệnh nhân
+            Route::put('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/benh-nhan/{$id}"))->whereNumber('id');
             // Tạo mới hồ sơ bệnh nhân
             Route::post('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan'));
         });

@@ -50,6 +50,8 @@ $dinhTuyenMicroservice1 = function () {
         Route::get('{id}/lich-truc', [LichTrucController::class, 'layTheoBacSi'])->whereNumber('id');
         Route::post('{id}/lich-truc', [LichTrucController::class, 'themMoi'])->whereNumber('id');
         Route::put('lich-truc/{id}', [LichTrucController::class, 'capNhat'])->whereNumber('id');
+        Route::put('lich-truc/{id}/duyet', [LichTrucController::class, 'duyet'])->whereNumber('id');
+        Route::put('lich-truc/{id}/tu-choi', [LichTrucController::class, 'tuChoi'])->whereNumber('id');
         Route::delete('lich-truc/{id}', [LichTrucController::class, 'xoa'])->whereNumber('id');
         Route::get('{id}/kiem-tra-truc', [LichTrucController::class, 'kiemTraTruc'])->whereNumber('id');
 
@@ -66,6 +68,8 @@ $dinhTuyenMicroservice1 = function () {
         Route::get('/', [LichTrucController::class, 'danhSach']);
         Route::post('/', [LichTrucController::class, 'themMoi']);
         Route::put('{id}', [LichTrucController::class, 'capNhat'])->whereNumber('id');
+        Route::put('{id}/duyet', [LichTrucController::class, 'duyet'])->whereNumber('id');
+        Route::put('{id}/tu-choi', [LichTrucController::class, 'tuChoi'])->whereNumber('id');
         Route::delete('{id}', [LichTrucController::class, 'xoa'])->whereNumber('id');
     });
 };

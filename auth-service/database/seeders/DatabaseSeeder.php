@@ -120,5 +120,43 @@ class DatabaseSeeder extends Seeder
             'mat_khau' => Hash::make('123456'),
             'trang_thai' => 'HOAT_DONG',
         ]);
+
+        // 6. Seed Lịch trực bác sĩ chuẩn: Mỗi ngày tối đa 1 ca trực, có ca Đã duyệt và ca Chờ duyệt
+        $bsTuanModel = BacSi::where('tai_khoan_id', $tkBsTuan->id)->first();
+        $bsLanModel = BacSi::where('tai_khoan_id', $tkBsLan->id)->first();
+
+        if ($bsTuanModel) {
+            $shiftsTuan = [
+                ['ngay_trong_tuan' => 2, 'thu' => 'THU_HAI', 'ca_truc' => 'CA_SANG', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '11:30', 'phong_kham' => 'P201', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 3, 'thu' => 'THU_BA', 'ca_truc' => 'CA_CHIEU', 'gio_bat_dau' => '13:30', 'gio_ket_thuc' => '17:00', 'phong_kham' => 'P201', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 4, 'thu' => 'THU_TU', 'ca_truc' => 'CA_NGAY', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '17:00', 'phong_kham' => 'P201', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 5, 'thu' => 'THU_NAM', 'ca_truc' => 'CA_TOI', 'gio_bat_dau' => '17:30', 'gio_ket_thuc' => '20:30', 'phong_kham' => 'P201', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 6, 'thu' => 'THU_SAU', 'ca_truc' => 'CA_SANG', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '11:30', 'phong_kham' => 'P201', 'trang_thai' => 'CHO_DUYET'],
+                ['ngay_trong_tuan' => 7, 'thu' => 'THU_BAY', 'ca_truc' => 'CA_CHIEU', 'gio_bat_dau' => '13:30', 'gio_ket_thuc' => '17:00', 'phong_kham' => 'P201', 'trang_thai' => 'HOAT_DONG'],
+            ];
+            foreach ($shiftsTuan as $st) {
+                \App\Models\LichTrucBacSi::updateOrCreate(
+                    ['bac_si_id' => $bsTuanModel->id, 'ngay_trong_tuan' => $st['ngay_trong_tuan']],
+                    $st
+                );
+            }
+        }
+
+        if ($bsLanModel) {
+            $shiftsLan = [
+                ['ngay_trong_tuan' => 2, 'thu' => 'THU_HAI', 'ca_truc' => 'CA_CHIEU', 'gio_bat_dau' => '13:30', 'gio_ket_thuc' => '17:00', 'phong_kham' => 'P105', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 3, 'thu' => 'THU_BA', 'ca_truc' => 'CA_SANG', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '11:30', 'phong_kham' => 'P105', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 4, 'thu' => 'THU_TU', 'ca_truc' => 'CA_SANG', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '11:30', 'phong_kham' => 'P105', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 5, 'thu' => 'THU_NAM', 'ca_truc' => 'CA_CHIEU', 'gio_bat_dau' => '13:30', 'gio_ket_thuc' => '17:00', 'phong_kham' => 'P105', 'trang_thai' => 'CHO_DUYET'],
+                ['ngay_trong_tuan' => 6, 'thu' => 'THU_SAU', 'ca_truc' => 'CA_NGAY', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '17:00', 'phong_kham' => 'P105', 'trang_thai' => 'HOAT_DONG'],
+                ['ngay_trong_tuan' => 7, 'thu' => 'THU_BAY', 'ca_truc' => 'CA_SANG', 'gio_bat_dau' => '07:30', 'gio_ket_thuc' => '11:30', 'phong_kham' => 'P105', 'trang_thai' => 'HOAT_DONG'],
+            ];
+            foreach ($shiftsLan as $sl) {
+                \App\Models\LichTrucBacSi::updateOrCreate(
+                    ['bac_si_id' => $bsLanModel->id, 'ngay_trong_tuan' => $sl['ngay_trong_tuan']],
+                    $sl
+                );
+            }
+        }
     }
 }

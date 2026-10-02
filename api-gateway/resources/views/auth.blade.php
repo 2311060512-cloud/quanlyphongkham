@@ -82,7 +82,6 @@
                     </div>
                     <div>
                         <span class="font-extrabold text-xl tracking-tight text-white block leading-none">Phòng Khám Đa Khoa</span>
-                        <span class="text-[11px] text-sky-200 tracking-wider font-medium uppercase mt-0.5 block">Hệ Thống Microservices 2026</span>
                     </div>
                 </a>
 

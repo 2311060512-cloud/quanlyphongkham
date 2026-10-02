@@ -21,9 +21,13 @@ class LichTrucController extends Controller
     /**
      * GET /api/v1/bac-si/{id}/lich-truc
      */
-    public function layTheoBacSi(int $id): JsonResponse
+    public function layTheoBacSi(Request $request, int $id): JsonResponse
     {
-        $ketQua = $this->lichTrucService->layTheoBacSi($id);
+        $boLoc = [
+            'trang_thai' => $request->query('trang_thai')
+        ];
+
+        $ketQua = $this->lichTrucService->layTheoBacSi($id, $boLoc);
 
         if (!$ketQua['thanh_cong']) {
             return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 404);
@@ -33,7 +37,7 @@ class LichTrucController extends Controller
     }
 
     /**
-     * GET /api/v1/bac-si/lich-truc
+     * GET /api/v1/bac-si/lich-truc hoặc GET /api/v1/lich-truc
      */
     public function danhSach(Request $request): JsonResponse
     {
@@ -50,10 +54,15 @@ class LichTrucController extends Controller
     }
 
     /**
-     * POST /api/v1/bac-si/{id}/lich-truc
+     * POST /api/v1/bac-si/{id}/lich-truc hoặc POST /api/v1/lich-truc
      */
-    public function themMoi(Request $request, int $id): JsonResponse
+    public function themMoi(Request $request, ?int $id = null): JsonResponse
     {
+        $bacSiId = $id ?: (int)$request->input('bac_si_id');
+        if (!$bacSiId) {
+            return $this->thatBaiResponse('Vui lòng cung cấp mã ID bác sĩ (bac_si_id).', 'THIEU_BAC_SI_ID', 422);
+        }
+
         $duLieu = $request->validate([
             'ngay_trong_tuan' => 'required|integer|min:2|max:8',
             'ca_truc' => 'required|string|in:CA_SANG,CA_CHIEU,CA_TOI,CA_NGAY',
@@ -63,7 +72,10 @@ class LichTrucController extends Controller
             'phong_kham' => 'nullable|string',
         ]);
 
-        $ketQua = $this->lichTrucService->themMoi($id, $duLieu);
+        $vaiTro = $request->header('X-User-Role') ?: $request->header('X-Vai-Tro');
+        $duLieu['vai_tro_nguoi_gui'] = $vaiTro;
+
+        $ketQua = $this->lichTrucService->themMoi($bacSiId, $duLieu);
 
         if (!$ketQua['thanh_cong']) {
             return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
@@ -73,11 +85,14 @@ class LichTrucController extends Controller
     }
 
     /**
-     * PUT /api/v1/bac-si/lich-truc/{id}
+     * PUT /api/v1/bac-si/lich-truc/{id} hoặc PUT /api/v1/lich-truc/{id}
      */
     public function capNhat(Request $request, int $id): JsonResponse
     {
         $duLieu = $request->all();
+        $vaiTro = $request->header('X-User-Role') ?: $request->header('X-Vai-Tro');
+        $duLieu['vai_tro_nguoi_gui'] = $vaiTro;
+
         $ketQua = $this->lichTrucService->capNhat($id, $duLieu);
 
         if (!$ketQua['thanh_cong']) {
@@ -88,7 +103,36 @@ class LichTrucController extends Controller
     }
 
     /**
-     * DELETE /api/v1/bac-si/lich-truc/{id}
+     * PUT /api/v1/bac-si/lich-truc/{id}/duyet (Chỉ ADMIN)
+     */
+    public function duyet(int $id): JsonResponse
+    {
+        $ketQua = $this->lichTrucService->duyet($id);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
+    }
+
+    /**
+     * PUT /api/v1/bac-si/lich-truc/{id}/tu-choi (Chỉ ADMIN)
+     */
+    public function tuChoi(Request $request, int $id): JsonResponse
+    {
+        $lyDo = $request->input('ly_do');
+        $ketQua = $this->lichTrucService->tuChoi($id, $lyDo);
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
+    }
+
+    /**
+     * DELETE /api/v1/bac-si/lich-truc/{id} hoặc DELETE /api/v1/lich-truc/{id}
      */
     public function xoa(int $id): JsonResponse
     {

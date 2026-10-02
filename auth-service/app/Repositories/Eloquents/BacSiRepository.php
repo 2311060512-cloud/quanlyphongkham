@@ -10,7 +10,7 @@ class BacSiRepository implements BacSiRepositoryInterface
 {
     public function danhSach(array $boLoc = []): Collection
     {
-        $query = BacSi::with(['chuyenKhoa', 'taiKhoan']);
+        $query = BacSi::with(['chuyenKhoa', 'taiKhoan', 'lichTruc']);
 
         if (!empty($boLoc['chuyen_khoa_id'])) {
             $query->where('chuyen_khoa_id', $boLoc['chuyen_khoa_id']);
