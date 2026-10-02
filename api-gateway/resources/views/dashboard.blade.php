@@ -3719,6 +3719,7 @@
                     dongModal('modal-dat-lich');
                     await taiDanhSachLichHen();
                     if (typeof taiDanhSachBenhNhan === 'function') await taiDanhSachBenhNhan();
+                    if (typeof taiHoSoGiaDinhVaThanhVien === 'function') await taiHoSoGiaDinhVaThanhVien();
                     chuyenTab('tab-benh-nhan-lich');
                 } else if (res.status === 409) {
                     Swal.fire({
