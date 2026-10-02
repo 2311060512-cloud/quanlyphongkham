@@ -204,12 +204,16 @@ $dangKyDinhTuyenGateway = function () {
         Route::post('tao-tu-dong', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', 'v1/hoa-don/tao-tu-dong'))
             ->middleware('phan_quyen:ADMIN,BAC_SI');
 
-        // Xem danh sách toàn bộ hóa đơn: Bắt buộc quyền ADMIN
+        // Xem danh sách hóa đơn (Admin xem tất cả, Bệnh nhân xem hóa đơn của mình)
         Route::get('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', 'v1/hoa-don'))
-            ->middleware('phan_quyen:ADMIN');
+            ->middleware('phan_quyen:ADMIN,BENH_NHAN');
 
         // Thanh toán hóa đơn (Bệnh nhân hoặc Admin)
         Route::put('{id}/thanh-toan', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', "v1/hoa-don/{$id}/thanh-toan"));
+
+        // Hoàn tiền hóa đơn: Chỉ ADMIN
+        Route::put('{id}/hoan-tien', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', "v1/hoa-don/{$id}/hoan-tien"))
+            ->whereNumber('id')->middleware('phan_quyen:ADMIN');
 
         // Chi tiết hóa đơn
         Route::get('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', "v1/hoa-don/{$id}"))->whereNumber('id');
