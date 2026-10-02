@@ -813,16 +813,22 @@
                         </div>
                     </div>
 
-                    <!-- Subtotal & Save Button -->
-                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <!-- Subtotal & Action Buttons -->
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 gap-3">
                         <div>
                             <span class="text-[11px] font-bold text-slate-500 uppercase">TỔNG PHÍ CẬN LÂM SÀNG:</span>
                             <div id="subtotal-cls" class="text-xl font-extrabold text-emerald-600">0 đ</div>
                         </div>
-                        <button onclick="luuChiDinhCanLamSang()" class="px-5 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-medical-600/25 transition flex items-center space-x-2">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>Lưu Chỉ Định & Gửi Thu Ngân</span>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="inHoaDonKhamBenhCaHienTai()" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md shadow-sky-600/20 transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí khám bệnh">
+                                <i class="fa-solid fa-print"></i>
+                                <span>In Hóa Đơn Khám</span>
+                            </button>
+                            <button type="button" onclick="luuChiDinhCanLamSang()" class="px-5 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-medical-600/25 transition flex items-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Lưu Chỉ Định & Gửi Thu Ngân</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2119,12 +2125,18 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                <button onclick="dongModal('modal-chi-tiet-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
-                <button id="btn-xac-nhan-thanh-toan" onclick="xacNhanThanhToanHoaDonHienTai()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
-                    <i class="fa-solid fa-check"></i>
-                    <span>Xác Nhận Thu Tiền</span>
+            <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between">
+                <button type="button" onclick="inHoaDonTuChiTietModal()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí">
+                    <i class="fa-solid fa-print"></i>
+                    <span>In Hóa Đơn Này</span>
                 </button>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="dongModal('modal-chi-tiet-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+                    <button id="btn-xac-nhan-thanh-toan" onclick="xacNhanThanhToanHoaDonHienTai()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Xác Nhận Thu Tiền</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -4338,7 +4350,12 @@
                     ${diUng}
                     ${benhNen}
                     ${nguoiThan}
-                    ${tepBtn}
+                    <div class="pt-2 flex flex-wrap items-center gap-2">
+                        ${tepBtn}
+                        <button type="button" onclick="inHoaDonKhamBenhCaHienTai()" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition hover:scale-102">
+                            <i class="fa-solid fa-file-invoice-dollar text-sky-600"></i> Xem / In Hóa Đơn Khám
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -5238,6 +5255,7 @@
 
             if (res.ok && res.data && res.data.du_lieu) {
                 const hd = res.data.du_lieu;
+                AppState.hoaDonDangXem = hd;
                 document.getElementById('modal-cthd-title').textContent = `Chi Tiết Hóa Đơn #${hd.ma_hoa_don || hd.id}`;
                 document.getElementById('modal-cthd-benh-nhan').textContent = hd.ten_benh_nhan || 'Lê Văn Cường';
                 document.getElementById('modal-cthd-ngay').textContent = hd.created_at ? hd.created_at.substring(0, 10) : 'Hôm nay';
@@ -5267,7 +5285,8 @@
                                 <td class="py-2 px-3 text-right font-bold text-slate-900">${Number(it.thanh_tien || 0).toLocaleString('vi-VN')} đ</td>
                             </tr>
                         `;
-                    });
+                    }
+                    );
                 }
 
                 itemsTbody.innerHTML = rowsHtml;
@@ -5328,6 +5347,415 @@
                 const tong = Number(dt.tong_doanh_thu || 0).toLocaleString('vi-VN') + ' đ';
                 const statDt = document.getElementById('stat-tong-doanh-thu');
                 if (statDt) statDt.textContent = tong;
+            }
+        }
+
+        // =============================================================
+        // PHÂN HỆ IN HÓA ĐƠN VIỆN PHÍ & PHIẾU THU KHÁM BỆNH (IN ẤN CHUYÊN NGHIỆP)
+        // =============================================================
+        function docSoThanhChu(so) {
+            if (isNaN(so) || so === null || so === undefined) return '';
+            so = Math.round(Math.abs(Number(so)));
+            if (so === 0) return 'Không đồng chẵn';
+
+            const chuSo = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const donVi = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+
+            function docBlock3(b, coHangTruoc) {
+                let tram = Math.floor(b / 100);
+                let chuc = Math.floor((b % 100) / 10);
+                let donvi = b % 10;
+                let str = '';
+
+                if (tram > 0 || coHangTruoc) {
+                    str += chuSo[tram] + ' trăm ';
+                }
+
+                if (chuc > 1) {
+                    str += chuSo[chuc] + ' mươi ';
+                    if (donvi === 1) str += 'mốt ';
+                    else if (donvi === 5) str += 'lăm ';
+                    else if (donvi > 0) str += chuSo[donvi] + ' ';
+                } else if (chuc === 1) {
+                    str += 'mười ';
+                    if (donvi === 5) str += 'lăm ';
+                    else if (donvi > 0) str += chuSo[donvi] + ' ';
+                } else {
+                    if (donvi > 0) {
+                        if (tram > 0 || coHangTruoc) str += 'lẻ ' + chuSo[donvi] + ' ';
+                        else str += chuSo[donvi] + ' ';
+                    }
+                }
+                return str.trim();
+            }
+
+            let groups = [];
+            let temp = so;
+            while (temp > 0) {
+                groups.push(temp % 1000);
+                temp = Math.floor(temp / 1000);
+            }
+
+            let result = '';
+            for (let i = groups.length - 1; i >= 0; i--) {
+                let grp = groups[i];
+                if (grp > 0) {
+                    let doc = docBlock3(grp, i < groups.length - 1);
+                    result += doc + ' ' + donVi[i] + ' ';
+                }
+            }
+
+            result = result.trim();
+            if (!result) return 'Không đồng chẵn';
+            return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng chẵn.';
+        }
+
+        async function inHoaDonKhamBenhCaHienTai() {
+            if (!AppState.caKhamDangChon) {
+                showToast('error', 'Chưa chọn ca khám', 'Vui lòng bấm "Tiếp Nhận" 1 ca khám từ danh sách chờ bên trái trước khi in hóa đơn.');
+                return;
+            }
+
+            const caKham = AppState.caKhamDangChon;
+            showToast('info', 'Đang tải hóa đơn...', 'Hệ thống đang chuẩn bị bản in hóa đơn viện phí...');
+
+            let hd = null;
+
+            // 1. Thử gọi API tạo/đồng bộ tự động từ Service 04
+            try {
+                const resTao = await goiApi('POST', '/api/v1/hoa-don/tao-tu-dong', {
+                    lich_hen_id: Number(caKham.id),
+                    giam_gia: 0,
+                    ghi_chu: 'Hóa đơn khám bệnh'
+                });
+                if (resTao.ok && resTao.data && resTao.data.du_lieu) {
+                    hd = resTao.data.du_lieu;
+                }
+            } catch (e) {
+                console.warn('Lỗi gọi tao-tu-dong:', e);
+            }
+
+            // 2. Nếu chưa có, tìm trong danh sách hoặc gọi GET danh sách
+            if (!hd) {
+                if (AppState.danhSachHoaDon && AppState.danhSachHoaDon.length > 0) {
+                    hd = AppState.danhSachHoaDon.find(h => h.lich_hen_id == caKham.id);
+                }
+            }
+
+            if (!hd) {
+                const resList = await goiApi('GET', '/api/v1/hoa-don');
+                if (resList.ok && resList.data && resList.data.du_lieu) {
+                    AppState.danhSachHoaDon = resList.data.du_lieu;
+                    hd = AppState.danhSachHoaDon.find(h => h.lich_hen_id == caKham.id);
+                }
+            }
+
+            // 3. Fallback: Nếu hệ thống chưa lưu hóa đơn, tổng hợp trực tiếp từ form khám hiện tại
+            if (!hd) {
+                const bsObj = (AppState.danhSachBacSi || []).find(b => b.id == caKham.bac_si_id) || AppState.currentUser?.bac_si || {};
+                const giaKham = Number(bsObj.gia_kham || 200000);
+
+                const checkedDichVu = Array.from(document.querySelectorAll('.cb-dich-vu-cls:checked')).map(c => {
+                    const dvId = Number(c.value);
+                    const dvObj = (AppState.danhSachDichVu || []).find(d => d.id == dvId) || {};
+                    return {
+                        ten_khoan_thu: dvObj.ten_dich_vu || 'Dịch vụ cận lâm sàng',
+                        loai_khoan_thu: 'CAN_LAM_SANG',
+                        so_luong: 1,
+                        don_gia: Number(dvObj.don_gia || 0),
+                        thanh_tien: Number(dvObj.don_gia || 0)
+                    };
+                });
+
+                const tienCLS = checkedDichVu.reduce((s, it) => s + it.thanh_tien, 0);
+
+                hd = {
+                    ma_hoa_don: `HD-KB-${String(caKham.id).padStart(4, '0')}`,
+                    lich_hen_id: caKham.id,
+                    created_at: new Date().toISOString(),
+                    trang_thai: 'CHUA_THANH_TOAN',
+                    tien_kham: giaKham,
+                    tien_dich_vu: tienCLS,
+                    tong_tien: giaKham + tienCLS,
+                    giam_gia: 0,
+                    thuc_thu: giaKham + tienCLS,
+                    phuong_thuc_thanh_toan: 'TIEN_MAT',
+                    chi_tiet: [
+                        {
+                            ten_khoan_thu: `Công khám chuyên khoa (${bsObj.ho_ten || 'Bác sĩ phụ trách'})`,
+                            loai_khoan_thu: 'TIEN_KHAM',
+                            so_luong: 1,
+                            don_gia: giaKham,
+                            thanh_tien: giaKham
+                        },
+                        ...checkedDichVu
+                    ]
+                };
+            }
+
+            thucHienInHoaDon(hd, caKham);
+        }
+
+        function inHoaDonTuChiTietModal() {
+            if (!AppState.hoaDonDangXem) {
+                showToast('error', 'Lỗi', 'Không tìm thấy dữ liệu hóa đơn đang xem.');
+                return;
+            }
+            thucHienInHoaDon(AppState.hoaDonDangXem, null);
+        }
+
+        function thucHienInHoaDon(hd, caKhamInput) {
+            if (!hd) return;
+
+            let caKham = caKhamInput;
+            if (!caKham && hd.lich_hen_id) {
+                caKham = (AppState.danhSachLichHen || []).find(l => l.id == hd.lich_hen_id);
+            }
+            if (!caKham && AppState.caKhamDangChon && AppState.caKhamDangChon.id == hd.lich_hen_id) {
+                caKham = AppState.caKhamDangChon;
+            }
+
+            const bn = caKham?.benh_nhan || {};
+            const tenBn = hd.ten_benh_nhan || bn.ho_ten || caKham?.ho_ten_benh_nhan || 'Lê Văn Cường';
+            const sdtBn = bn.so_dien_thoai || caKham?.so_dien_thoai || '--';
+            const diaChiBn = bn.dia_chi || 'TP. Hồ Chí Minh';
+            const gioiTinh = bn.gioi_tinh === 'NU' ? 'Nữ' : (bn.gioi_tinh === 'NAM' ? 'Nam' : 'Khác');
+            let dobStr = '--';
+            if (bn.ngay_sinh) {
+                const birthYear = new Date(bn.ngay_sinh).getFullYear();
+                const age = new Date().getFullYear() - birthYear;
+                dobStr = `${bn.ngay_sinh.split('-').reverse().join('/')} (${age} tuổi)`;
+            }
+
+            let tenBacSi = 'BS. CKII Nguyễn Anh Tuấn';
+            let tenKhoa = 'Khoa Khám Bệnh Đa Khoa';
+            if (caKham) {
+                const bsObj = (AppState.danhSachBacSi || []).find(b => b.id == caKham.bac_si_id) || AppState.currentUser?.bac_si;
+                if (bsObj) {
+                    tenBacSi = bsObj.ho_ten || tenBacSi;
+                    if (bsObj.chuyen_khoa) {
+                        tenKhoa = bsObj.chuyen_khoa.ten_khoa || bsObj.chuyen_khoa.ten_chuyen_khoa || tenKhoa;
+                    }
+                }
+            }
+            const chanDoan = (document.getElementById('input-chan-doan')?.value || '').trim() || caKham?.ly_do_kham || 'Khám nội tổng quát & Cận lâm sàng';
+
+            const items = hd.chi_tiet || hd.chi_tiet_hoa_don || [];
+            let itemsRows = '';
+            let stt = 1;
+
+            if (items.length > 0) {
+                items.forEach(it => {
+                    const tenKhoan = it.ten_khoan_thu || it.ten_khoan_muc || 'Dịch vụ y tế';
+                    const loai = (it.loai_khoan_thu === 'TIEN_KHAM' || it.loai_khoan_thu === 'KHAM_BENH') ? 'Khám chuyên khoa' : 'Cận lâm sàng';
+                    const sl = Number(it.so_luong || 1);
+                    const donGia = Number(it.don_gia || 0);
+                    const thanhTien = Number(it.thanh_tien || (sl * donGia));
+                    itemsRows += `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 8px; text-align: center;">${stt++}</td>
+                            <td style="padding: 8px; font-weight: 600;">${tenKhoan}</td>
+                            <td style="padding: 8px; color: #64748b; font-size: 11px;">${loai}</td>
+                            <td style="padding: 8px; text-align: center;">${sl}</td>
+                            <td style="padding: 8px; text-align: right;">${donGia.toLocaleString('vi-VN')} đ</td>
+                            <td style="padding: 8px; text-align: right; font-weight: 700;">${thanhTien.toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                const tk = Number(hd.tien_kham || 200000);
+                itemsRows += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 8px; text-align: center;">1</td>
+                        <td style="padding: 8px; font-weight: 600;">Công khám chuyên khoa (${tenBacSi})</td>
+                        <td style="padding: 8px; color: #64748b; font-size: 11px;">Khám chuyên khoa</td>
+                        <td style="padding: 8px; text-align: center;">1</td>
+                        <td style="padding: 8px; text-align: right;">${tk.toLocaleString('vi-VN')} đ</td>
+                        <td style="padding: 8px; text-align: right; font-weight: 700;">${tk.toLocaleString('vi-VN')} đ</td>
+                    </tr>
+                `;
+                if (Number(hd.tien_dich_vu) > 0) {
+                    const td = Number(hd.tien_dich_vu);
+                    itemsRows += `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 8px; text-align: center;">2</td>
+                            <td style="padding: 8px; font-weight: 600;">Các dịch vụ xét nghiệm & Cận lâm sàng</td>
+                            <td style="padding: 8px; color: #64748b; font-size: 11px;">Cận lâm sàng</td>
+                            <td style="padding: 8px; text-align: center;">1</td>
+                            <td style="padding: 8px; text-align: right;">${td.toLocaleString('vi-VN')} đ</td>
+                            <td style="padding: 8px; text-align: right; font-weight: 700;">${td.toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            const tienKham = Number(hd.tien_kham || 0);
+            const tienCLS = Number(hd.tien_dich_vu || 0);
+            const tongTien = Number(hd.tong_tien || (tienKham + tienCLS));
+            const giamGia = Number(hd.giam_gia || 0);
+            const thucThu = Number(hd.thuc_thu || Math.max(0, tongTien - giamGia));
+            const soTienChu = docSoThanhChu(thucThu);
+
+            const isPaid = (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID');
+            const statusBadge = isPaid 
+                ? '<span style="display:inline-block; padding: 4px 12px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 9999px; font-weight: 800; font-size: 11px;">ĐÃ THANH TOÁN ĐỦ</span>'
+                : '<span style="display:inline-block; padding: 4px 12px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 9999px; font-weight: 800; font-size: 11px;">CHỜ THU NGÂN THANH TOÁN</span>';
+
+            const ngayIn = new Date().toLocaleString('vi-VN');
+            const maHdStr = hd.ma_hoa_don || `HD-${String(hd.id || '8').padStart(6, '0')}`;
+
+            const printHtml = `
+                <!DOCTYPE html>
+                <html lang="vi">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Hóa Đơn Viện Phí #${maHdStr} - ${tenBn}</title>
+                    <style>
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        body { font-family: "Segoe UI", Roboto, Arial, sans-serif; font-size: 12px; color: #1e293b; background: #fff; padding: 25px; line-height: 1.45; }
+                        .header-table { width: 100%; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 15px; }
+                        .title-section { text-align: center; margin: 15px 0 20px 0; }
+                        .title-section h1 { font-size: 18px; font-weight: 900; text-transform: uppercase; color: #0f172a; letter-spacing: 0.5px; }
+                        .title-section p { font-size: 11px; color: #64748b; font-style: italic; margin-top: 3px; }
+                        .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+                        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+                        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                        .items-table th { background: #f1f5f9; padding: 8px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; border-bottom: 2px solid #cbd5e1; }
+                        .summary-box { float: right; width: 340px; margin-bottom: 20px; }
+                        .summary-table { width: 100%; border-collapse: collapse; }
+                        .summary-table td { padding: 4px 8px; }
+                        .sign-section { clear: both; width: 100%; margin-top: 30px; display: table; }
+                        .sign-col { display: table-cell; width: 33.33%; text-align: center; vertical-align: top; }
+                        .sign-title { font-weight: 800; font-size: 12px; text-transform: uppercase; color: #334155; }
+                        .sign-sub { font-size: 10px; color: #64748b; font-style: italic; margin-top: 2px; }
+                        .sign-space { height: 75px; }
+                        .sign-name { font-weight: 700; font-size: 12px; color: #0f172a; }
+                        .footer-note { clear: both; margin-top: 40px; padding-top: 10px; border-top: 1px dashed #cbd5e1; text-align: center; font-size: 10px; color: #64748b; }
+                        @media print {
+                            body { padding: 15px; }
+                            .no-print { display: none !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <table class="header-table">
+                        <tr>
+                            <td style="width: 60%; vertical-align: top;">
+                                <div style="font-size: 15px; font-weight: 900; color: #0284c7; text-transform: uppercase; letter-spacing: 0.5px;">PHÒNG KHÁM ĐA KHOA QUỐC TẾ DV</div>
+                                <div style="font-size: 11px; color: #475569; margin-top: 3px;">Địa chỉ: 123 Đường Y Học, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</div>
+                                <div style="font-size: 11px; color: #475569;">Hotline cấp cứu: <strong>1900 8888</strong> | Bàn trực: (028) 3822 9999</div>
+                                <div style="font-size: 11px; color: #475569;">Website: www.phongkhamdv.vn | Email: lienhe@phongkhamdv.vn</div>
+                            </td>
+                            <td style="width: 40%; text-align: right; vertical-align: top;">
+                                <div style="font-size: 11px; font-weight: 700; color: #334155;">MÃ HÓA ĐƠN: <span style="font-family: monospace; font-size: 13px; color: #0284c7;">${maHdStr}</span></div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Mã ca khám: <strong>#${caKham?.id || '--'}</strong></div>
+                                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">Ngày lập: ${ngayIn}</div>
+                                <div style="margin-top: 6px;">${statusBadge}</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="title-section">
+                        <h1>HÓA ĐƠN VIỆN PHÍ & PHIẾU THU KHÁM BỆNH</h1>
+                        <p>(Bản thể hiện hóa đơn điện tử liên dịch vụ - Kèm phiếu chỉ định cận lâm sàng)</p>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-grid">
+                            <div><strong>Họ và tên người bệnh:</strong> <span style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase;">${tenBn}</span></div>
+                            <div><strong>Giới tính / Tuổi:</strong> ${gioiTinh} | ${dobStr}</div>
+                            <div><strong>Số điện thoại:</strong> ${sdtBn}</div>
+                            <div><strong>Địa chỉ:</strong> ${diaChiBn}</div>
+                            <div><strong>Bác sĩ phụ trách:</strong> ${tenBacSi} (${tenKhoa})</div>
+                            <div><strong>Phương thức thanh toán:</strong> ${hd.phuong_thuc_thanh_toan || 'TIEN_MAT'}</div>
+                            <div style="grid-column: span 2;"><strong>Chẩn đoán lâm sàng:</strong> <em>${chanDoan}</em></div>
+                        </div>
+                    </div>
+
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;">STT</th>
+                                <th style="width: 45%;">Hạng Mục Dịch Vụ / Khám Chữa Bệnh</th>
+                                <th style="width: 20%;">Phân Loại</th>
+                                <th style="width: 8%; text-align: center;">SL</th>
+                                <th style="width: 11%; text-align: right;">Đơn Giá</th>
+                                <th style="width: 11%; text-align: right;">Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsRows}
+                        </tbody>
+                    </table>
+
+                    <div class="summary-box">
+                        <table class="summary-table">
+                            <tr>
+                                <td style="color: #64748b;">Tiền công khám bác sĩ:</td>
+                                <td style="text-align: right; font-weight: 600;">${tienKham.toLocaleString('vi-VN')} đ</td>
+                            </tr>
+                            <tr>
+                                <td style="color: #64748b;">Tổng chi phí cận lâm sàng:</td>
+                                <td style="text-align: right; font-weight: 600;">${tienCLS.toLocaleString('vi-VN')} đ</td>
+                            </tr>
+                            ${giamGia > 0 ? `
+                            <tr>
+                                <td style="color: #059669;">Miễn giảm / Ưu đãi BHYT:</td>
+                                <td style="text-align: right; font-weight: 600; color: #059669;">-${giamGia.toLocaleString('vi-VN')} đ</td>
+                            </tr>
+                            ` : ''}
+                            <tr style="border-top: 1px solid #cbd5e1; border-bottom: 2px solid #0284c7;">
+                                <td style="font-weight: 800; font-size: 13px; color: #0f172a; padding: 6px 8px;">TỔNG THỰC THU:</td>
+                                <td style="text-align: right; font-weight: 900; font-size: 15px; color: #0284c7; padding: 6px 8px;">${thucThu.toLocaleString('vi-VN')} đ</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="clear: both; margin-top: 8px; font-size: 11px; font-style: italic;">
+                        <strong>Số tiền viết bằng chữ:</strong> <span style="font-weight: 700; color: #0f172a;">${soTienChu}</span>
+                    </div>
+
+                    <div class="sign-section">
+                        <div class="sign-col">
+                            <div class="sign-title">Bệnh Nhân / Thân Nhân</div>
+                            <div class="sign-sub">(Ký & ghi rõ họ tên)</div>
+                            <div class="sign-space"></div>
+                            <div class="sign-name">${tenBn}</div>
+                        </div>
+                        <div class="sign-col">
+                            <div class="sign-title">Bác Sĩ Khám Bệnh</div>
+                            <div class="sign-sub">(Ký, đóng dấu chức danh)</div>
+                            <div class="sign-space"></div>
+                            <div class="sign-name">${tenBacSi}</div>
+                        </div>
+                        <div class="sign-col">
+                            <div class="sign-title">Người Thu Tiền / Thu Ngân</div>
+                            <div class="sign-sub">(Ký & đóng dấu biên lai)</div>
+                            <div class="sign-space"></div>
+                            <div class="sign-name">Bộ Phận Thu Ngân DV</div>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        <p>Cảm ơn Quý khách đã tin tưởng khám chữa bệnh tại Phòng Khám Đa Khoa DV.</p>
+                        <p>Quý khách vui lòng lưu giữ hóa đơn để tái khám, lấy kết quả xét nghiệm hoặc thanh toán với công ty bảo hiểm.</p>
+                        <p style="margin-top: 3px; font-family: monospace;">Mã tra cứu biên lai điện tử: <strong>PKDV-${hd.id || '8'}-${Date.now().toString().slice(-4)}</strong></p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const printWindow = window.open('', '', 'height=800,width=950');
+            if (printWindow) {
+                printWindow.document.write(printHtml);
+                printWindow.document.close();
+                setTimeout(() => {
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            } else {
+                showToast('error', 'Trình duyệt chặn Pop-up', 'Vui lòng cho phép Pop-up để mở cửa sổ in hóa đơn.');
             }
         }
 
