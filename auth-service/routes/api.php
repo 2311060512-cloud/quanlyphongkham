@@ -45,6 +45,12 @@ $dinhTuyenMicroservice1 = function () {
         // Alias tương thích ngược cho bac-si/chuyen-khoa
         Route::get('chuyen-khoa', [ChuyenKhoaController::class, 'danhSach']);
         Route::post('chuyen-khoa', [ChuyenKhoaController::class, 'themMoi']);
+        Route::put('chuyen-khoa/{id}', [ChuyenKhoaController::class, 'capNhat'])->whereNumber('id');
+        Route::delete('chuyen-khoa/{id}', [ChuyenKhoaController::class, 'xoa'])->whereNumber('id');
+
+        // Bảng giá khám bệnh
+        Route::get('bang-gia-kham', [BacSiController::class, 'bangGiaKham']);
+        Route::put('{id}/gia-kham', [BacSiController::class, 'capNhatGiaKham'])->whereNumber('id');
 
         // Lịch trực bác sĩ
         Route::get('{id}/lich-truc', [LichTrucController::class, 'layTheoBacSi'])->whereNumber('id');
@@ -62,6 +68,9 @@ $dinhTuyenMicroservice1 = function () {
         Route::put('{id}', [BacSiController::class, 'capNhat'])->whereNumber('id');
         Route::delete('{id}', [BacSiController::class, 'xoa'])->whereNumber('id');
     });
+
+    // Alias công khai trực tiếp cho Bảng giá khám
+    Route::get('bang-gia-kham', [BacSiController::class, 'bangGiaKham']);
 
     // Lịch trực chung
     Route::prefix('lich-truc')->group(function () {

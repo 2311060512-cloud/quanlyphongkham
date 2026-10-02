@@ -119,4 +119,44 @@ class BacSiController extends Controller
 
         return $this->thanhCongResponse(null, $ketQua['thong_diep']);
     }
+
+    /**
+     * GET /api/v1/bac-si/bang-gia-kham
+     * Lấy danh sách bảng giá khám bệnh tổng hợp
+     */
+    public function bangGiaKham(Request $request): JsonResponse
+    {
+        $boLoc = [
+            'chuyen_khoa_id' => $request->query('chuyen_khoa_id'),
+            'tu_khoa' => $request->query('tu_khoa') ?? $request->query('ten'),
+            'trang_thai' => $request->query('trang_thai'),
+        ];
+
+        $ketQua = $this->bacSiService->bangGiaKham($boLoc);
+
+        return response()->json($ketQua);
+    }
+
+    /**
+     * PUT /api/v1/bac-si/{id}/gia-kham
+     * Cập nhật nhanh đơn giá khám của bác sĩ (Admin)
+     */
+    public function capNhatGiaKham(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'gia_kham' => 'required|numeric|min:0'
+        ]);
+
+        $ketQua = $this->bacSiService->capNhatGiaKham($id, (float)$request->input('gia_kham'));
+
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse(
+                $ketQua['thong_diep'],
+                $ketQua['ma_loi'],
+                404
+            );
+        }
+
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep']);
+    }
 }

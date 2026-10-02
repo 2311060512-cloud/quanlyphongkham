@@ -44,8 +44,13 @@ $dangKyDinhTuyenGateway = function () {
             ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN']);
     });
 
+    Route::get('bang-gia-kham', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', 'v1/bac-si/bang-gia-kham'));
+
     Route::prefix('bac-si')->group(function () {
         Route::get('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', 'v1/bac-si'));
+        Route::get('bang-gia-kham', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', 'v1/bac-si/bang-gia-kham'));
+        Route::put('{id}/gia-kham', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/{$id}/gia-kham"))
+            ->whereNumber('id')->middleware(['xac_thuc_gateway', 'phan_quyen:ADMIN']);
         Route::get('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/{$id}"))->whereNumber('id');
         Route::get('{id}/lich-truc', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/{$id}/lich-truc"))->whereNumber('id');
         Route::get('{id}/kiem-tra-truc', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'xac_thuc', "v1/bac-si/{$id}/kiem-tra-truc"))->whereNumber('id');

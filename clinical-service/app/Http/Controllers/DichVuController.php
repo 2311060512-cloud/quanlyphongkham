@@ -58,7 +58,36 @@ class DichVuController extends Controller
 
     public function chiDinh(Request $request): JsonResponse
     {
-        $request->validate([
+        $data = $request->all();
+
+        // Tự động suy luận benh_nhan_id và bac_si_id nếu client chưa truyền lên
+        $lichHenId = $data['lich_hen_id'] ?? null;
+        if ($lichHenId && (empty($data['benh_nhan_id']) || empty($data['bac_si_id']))) {
+            try {
+                $urlLichHen = config('services.dich_vu_lich_hen', env('DICH_VU_LICH_HEN_URL', 'http://127.0.0.1:8002'));
+                $resp = \Illuminate\Support\Facades\Http::timeout(3)->get("{$urlLichHen}/api/lich-hen/{$lichHenId}");
+                if ($resp->successful() && isset($resp['du_lieu'])) {
+                    $lh = $resp['du_lieu'];
+                    if (empty($data['benh_nhan_id'])) {
+                        $data['benh_nhan_id'] = $lh['benh_nhan_id'] ?? 1;
+                    }
+                    if (empty($data['bac_si_id'])) {
+                        $data['bac_si_id'] = $lh['bac_si_id'] ?? 1;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Tiếp tục với fallback
+            }
+        }
+
+        if (empty($data['benh_nhan_id'])) {
+            $data['benh_nhan_id'] = 1;
+        }
+        if (empty($data['bac_si_id'])) {
+            $data['bac_si_id'] = (int)($request->header('X-User-Id') ?: 1);
+        }
+
+        $validator = \Illuminate\Support\Facades\Validator::make($data, [
             'lich_hen_id' => 'required|integer',
             'benh_nhan_id' => 'required|integer',
             'bac_si_id' => 'required|integer',
@@ -66,7 +95,15 @@ class DichVuController extends Controller
             'danh_sach_dich_vu_id.*' => 'integer|exists:dich_vu,id',
         ]);
 
-        $ketQua = $this->dichVuService->chiDinhDichVu($request->all());
+        if ($validator->fails()) {
+            return response()->json([
+                'thanh_cong' => false,
+                'thong_diep' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $ketQua = $this->dichVuService->chiDinhDichVu($data);
 
         if (!$ketQua['thanh_cong']) {
             return response()->json($ketQua, 422);
