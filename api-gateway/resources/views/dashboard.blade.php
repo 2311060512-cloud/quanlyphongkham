@@ -2522,7 +2522,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mối Quan Hệ Với Bạn: <span class="text-rose-500">*</span></label>
-                            <select id="modal-nt-quanhe" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-bold">
+                            <select id="modal-nt-quanhe" required onchange="capNhatNhanModalNguoiThan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-bold">
                                 <option value="CON">Con cái (Trẻ em / Hậu bối)</option>
                                 <option value="CHA_ME">Bố / Mẹ (Phụ mẫu)</option>
                                 <option value="VO_CHONG">Vợ / Chồng</option>
@@ -2530,7 +2530,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và Tên Người Thân: <span class="text-rose-500">*</span></label>
+                            <label id="lbl-modal-nt-hoten" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và Tên Người Thân: <span class="text-rose-500">*</span></label>
                             <input type="text" id="modal-nt-hoten" required placeholder="Ví dụ: Nguyễn Gia Bảo" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                     </div>
@@ -2562,7 +2562,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số Điện Thoại:</label>
+                            <label id="lbl-modal-nt-sdt" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số Điện Thoại:</label>
                             <input type="tel" id="modal-nt-sdt" placeholder="Để trống nếu là trẻ em" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium font-mono">
                         </div>
                         <div>
@@ -7694,6 +7694,37 @@
             container.innerHTML = html;
         }
 
+        function capNhatNhanModalNguoiThan() {
+            const qh = document.getElementById('modal-nt-quanhe')?.value || 'CON';
+            const lbl = document.getElementById('lbl-modal-nt-hoten');
+            const inp = document.getElementById('modal-nt-hoten');
+            const lblSdt = document.getElementById('lbl-modal-nt-sdt');
+            const inpSdt = document.getElementById('modal-nt-sdt');
+            if (!lbl || !inp) return;
+
+            if (qh === 'CON') {
+                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-child text-sky-600"></i> Họ Tên Bé / Con Cái: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Bé Bo, Nguyễn Gia Hân...';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[10px] text-slate-400 font-normal lowercase">(không bắt buộc đối với trẻ em)</span>';
+                if (inpSdt) inpSdt.placeholder = 'Để trống nếu là trẻ em';
+            } else if (qh === 'CHA_ME') {
+                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ Tên Bố / Mẹ: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Nguyễn Văn Nam, Trần Thị Mai...';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[10px] text-slate-400 font-normal lowercase">(hoặc SĐT người giám hộ)</span>';
+                if (inpSdt) inpSdt.placeholder = 'Nhập SĐT của bố/mẹ...';
+            } else if (qh === 'VO_CHONG') {
+                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-heart text-rose-600"></i> Họ Tên Vợ / Chồng: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Lê Thị Hoa...';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại:';
+                if (inpSdt) inpSdt.placeholder = 'Nhập số điện thoại...';
+            } else {
+                lbl.innerHTML = 'Họ và Tên Người Thân: <span class="text-rose-500">*</span>';
+                inp.placeholder = 'Ví dụ: Nguyễn Gia Bảo';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại:';
+                if (inpSdt) inpSdt.placeholder = 'Để trống nếu là trẻ em';
+            }
+        }
+
         function moModalThemNguoiThan(hoSoId = null) {
             const form = document.getElementById('form-them-sua-nguoi-than');
             if (form) form.reset();
@@ -7706,8 +7737,8 @@
                 if (hoSo) {
                     if (titleEl) titleEl.textContent = 'Cập Nhật Hồ Sơ Thành Viên';
                     if (idInput) idInput.value = hoSo.id;
-                    document.getElementById('modal-nt-hoten').value = hoSo.ho_ten || '';
                     document.getElementById('modal-nt-quanhe').value = hoSo.quan_he_chu_tai_khoan || 'CON';
+                    document.getElementById('modal-nt-hoten').value = hoSo.ho_ten || '';
                     document.getElementById('modal-nt-ngaysinh').value = hoSo.ngay_sinh || '';
                     document.getElementById('modal-nt-gioitinh').value = hoSo.gioi_tinh || 'NAM';
                     document.getElementById('modal-nt-nhommau').value = hoSo.nhom_mau || '';
@@ -7722,8 +7753,10 @@
             } else {
                 if (titleEl) titleEl.textContent = 'Thêm Hồ Sơ Người Thân Mới';
                 if (idInput) idInput.value = '';
+                document.getElementById('modal-nt-quanhe').value = 'CON';
             }
 
+            capNhatNhanModalNguoiThan();
             moModal('modal-them-sua-nguoi-than');
         }
 
@@ -7737,13 +7770,15 @@
                 return;
             }
 
+            const rawSdt = document.getElementById('modal-nt-sdt')?.value.trim();
+
             const payload = {
                 ho_ten: hoTen,
                 quan_he_chu_tai_khoan: quanHe,
                 ngay_sinh: document.getElementById('modal-nt-ngaysinh')?.value || null,
                 gioi_tinh: document.getElementById('modal-nt-gioitinh')?.value || 'NAM',
                 nhom_mau: document.getElementById('modal-nt-nhommau')?.value || null,
-                so_dien_thoai: document.getElementById('modal-nt-sdt')?.value.trim() || null,
+                so_dien_thoai: rawSdt ? rawSdt : null,
                 so_cccd: document.getElementById('modal-nt-cccd')?.value.trim() || null,
                 dia_chi: document.getElementById('modal-nt-diachi')?.value.trim() || null,
                 tien_su_di_ung: document.getElementById('modal-nt-diung')?.value.trim() || null,

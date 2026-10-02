@@ -71,6 +71,22 @@ class BenhNhanService
         ];
         $updateData = array_intersect_key($data, array_flip($allowed));
 
+        // Xử lý an toàn cho số điện thoại (tránh lỗi NOT NULL trong DB khi sửa hồ sơ trẻ em để trống SĐT)
+        if (array_key_exists('so_dien_thoai', $updateData)) {
+            $val = trim((string)$updateData['so_dien_thoai']);
+            if (empty($val)) {
+                if (!empty($benhNhan->so_dien_thoai)) {
+                    unset($updateData['so_dien_thoai']); // Giữ nguyên SĐT hiện có của hồ sơ
+                } elseif (!empty($updateData['sdt_khan_cap'])) {
+                    $updateData['so_dien_thoai'] = $updateData['sdt_khan_cap']; // Dùng SĐT khẩn cấp nếu có
+                } else {
+                    unset($updateData['so_dien_thoai']);
+                }
+            } else {
+                $updateData['so_dien_thoai'] = $val;
+            }
+        }
+
         $benhNhan->update($updateData);
         return $benhNhan;
     }

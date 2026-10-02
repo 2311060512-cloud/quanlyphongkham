@@ -603,6 +603,18 @@ class Nguoi2MicroserviceTest extends TestCase
         $resDetail->assertStatus(200);
         $this->assertEquals('Dị ứng Penicillin và hải sản', $resDetail->json('du_lieu.tien_su_di_ung'));
         $this->assertNotEquals('HACKED_MA_BN', $resDetail->json('du_lieu.ma_benh_nhan'));
+
+        // 4. Kiểm tra cập nhật khi để trống SĐT (trường hợp hồ sơ trẻ em)
+        $resChildEdit = $this->putJson("/api/v1/benh-nhan/{$bnId}", [
+            'ho_ten' => 'Bé Con Test',
+            'so_dien_thoai' => null,
+            'quan_he_chu_tai_khoan' => 'CON',
+        ]);
+        $resChildEdit->assertStatus(200);
+        $this->assertEquals('Bé Con Test', $resChildEdit->json('du_lieu.ho_ten'));
+        $this->assertEquals('CON', $resChildEdit->json('du_lieu.quan_he_chu_tai_khoan'));
+        // SĐT cũ được bảo toàn không bị null hoá
+        $this->assertEquals('0988776655', $resChildEdit->json('du_lieu.so_dien_thoai'));
     }
 
 }
