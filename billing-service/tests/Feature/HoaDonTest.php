@@ -230,4 +230,53 @@ class HoaDonTest extends TestCase
                          'ma_loi'     => 'HOA_DON_DA_HOAN_TIEN',
                      ]);
     }
+
+    /**
+     * CASE 5: Thống kê doanh thu, tỷ lệ thanh toán và cơ cấu nguồn thu
+     */
+    public function test_thong_ke_doanh_thu_va_co_cau_nguon_thu(): void
+    {
+        HoaDon::create([
+            'ma_hoa_don'             => 'HD-STAT-PAID',
+            'lich_hen_id'            => 8881,
+            'benh_nhan_id'           => 1,
+            'tien_kham'              => 200000.00,
+            'tien_dich_vu'           => 150000.00,
+            'tong_tien'              => 350000.00,
+            'giam_gia'               => 50000.00,
+            'thuc_thu'               => 300000.00,
+            'phuong_thuc_thanh_toan' => 'CHUYEN_KHOAN',
+            'trang_thai'             => 'DA_THANH_TOAN',
+            'ngay_thanh_toan'        => now(),
+        ]);
+
+        HoaDon::create([
+            'ma_hoa_don'             => 'HD-STAT-UNPAID',
+            'lich_hen_id'            => 8882,
+            'benh_nhan_id'           => 2,
+            'tien_kham'              => 250000.00,
+            'tien_dich_vu'           => 0.00,
+            'tong_tien'              => 250000.00,
+            'giam_gia'               => 0.00,
+            'thuc_thu'               => 250000.00,
+            'phuong_thuc_thanh_toan' => 'TIEN_MAT',
+            'trang_thai'             => 'CHUA_THANH_TOAN',
+        ]);
+
+        $response = $this->getJson('/api/v1/hoa-don/thong-ke');
+
+        $response->assertStatus(200)
+                 ->assertJson([
+                     'thanh_cong' => true,
+                 ]);
+
+        $duLieu = $response->json('du_lieu');
+        $this->assertArrayHasKey('tong_doanh_thu', $duLieu);
+        $this->assertArrayHasKey('so_luong_da_thanh_toan', $duLieu);
+        $this->assertArrayHasKey('so_luong_chua_thanh_toan', $duLieu);
+        $this->assertArrayHasKey('co_cau_nguon_thu', $duLieu);
+        $this->assertGreaterThanOrEqual(300000.00, (float)$duLieu['tong_doanh_thu']);
+        $this->assertGreaterThanOrEqual(1, (int)$duLieu['so_luong_da_thanh_toan']);
+        $this->assertGreaterThanOrEqual(1, (int)$duLieu['so_luong_chua_thanh_toan']);
+    }
 }

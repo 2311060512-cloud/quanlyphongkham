@@ -82,8 +82,9 @@ Phân hệ 04 là **trung tâm quyết toán tài chính và viện phí**, ch�
    - Giả lập cổng thanh toán trực tuyến VNPAY và MoMo.
 3. **In Biên Lai Viện Phí Chuẩn Y Tế:**
    - Hỗ trợ in mẫu biên lai thu tiền chi tiết từng hạng mục (công khám, xét nghiệm, siêu âm, giảm giá, thực thu và chữ ký kế toán/thu ngân).
-4. **Bộ Lọc Thu Ngân Cho Quản Trị Viên:**
+4. **Bộ Lọc & Tìm Kiếm Thu Ngân Cho Quản Trị Viên:**
    - Thu ngân lọc hóa đơn theo: *Tất cả*, *Chờ thu*, *Đã thu*, *Đã hoàn tiền*.
+   - Hộp tìm kiếm tức thời theo mã hóa đơn, họ tên bệnh nhân, mã lịch hẹn.
    - Khả năng hoàn tiền viện phí kèm lý do ghi nhận kế toán.
 
 ---
@@ -121,10 +122,11 @@ sequenceDiagram
 ---
 
 ## 🎯 VI. KIỂM THỬ TÍCH HỢP & FEATURE TESTS
-1. **Kiểm thử tự động hóa `HoaDonTest.php`:**
+1. **Kiểm thử tự động hóa `HoaDonTest.php` (5/5 PASSED):**
    - `test_tao_hoa_don_thanh_cong_khi_ca_3_service_hoat_dong_tot`: **PASSED**
    - `test_tao_hoa_don_khi_clinical_service_loi_500`: **PASSED (Cơ chế chịu lỗi)**
    - `test_thanh_toan_hai_lan_tra_ve_409_conflict`: **PASSED (Chống thanh toán trùng)**
    - `test_hoan_tien_va_chan_thanh_toan_khi_da_hoan_tien`: **PASSED (Chống xung đột hoàn tiền)**
+   - `test_thong_ke_doanh_thu_va_co_cau_nguon_thu`: **PASSED (Phân tích cơ cấu nguồn thu & tỷ lệ nợ viện phí)**
 2. **Kiểm thử tích hợp toàn diện qua `kiem-tra-he-thong.php`:**
    - Đạt **100%** toàn bộ 11 tiêu chí kỹ thuật và nghiệp vụ liên dịch vụ.

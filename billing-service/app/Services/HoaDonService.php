@@ -319,6 +319,12 @@ class HoaDonService
         $tongDoanhThu = HoaDon::where('trang_thai', 'DA_THANH_TOAN')->sum('thuc_thu');
         $soHoaDonDaThanhToan = HoaDon::where('trang_thai', 'DA_THANH_TOAN')->count();
         $soHoaDonChuaThanhToan = HoaDon::where('trang_thai', 'CHUA_THANH_TOAN')->count();
+        $soHoaDonDaHoanTien = HoaDon::where('trang_thai', 'DA_HOAN_TIEN')->count();
+        $tongTienHoanTra = HoaDon::where('trang_thai', 'DA_HOAN_TIEN')->sum('thuc_thu');
+
+        $tongTienKham = HoaDon::where('trang_thai', 'DA_THANH_TOAN')->sum('tien_kham');
+        $tongTienCLS = HoaDon::where('trang_thai', 'DA_THANH_TOAN')->sum('tien_dich_vu');
+        $tongGiamGia = HoaDon::where('trang_thai', 'DA_THANH_TOAN')->sum('giam_gia');
 
         $theoPhuongThuc = HoaDon::where('trang_thai', 'DA_THANH_TOAN')
             ->select('phuong_thuc_thanh_toan', DB::raw('SUM(thuc_thu) as tong_tien'), DB::raw('COUNT(*) as so_luong'))
@@ -329,6 +335,13 @@ class HoaDonService
             'tong_doanh_thu' => (float)$tongDoanhThu,
             'so_luong_da_thanh_toan' => $soHoaDonDaThanhToan,
             'so_luong_chua_thanh_toan' => $soHoaDonChuaThanhToan,
+            'so_luong_da_hoan_tien' => $soHoaDonDaHoanTien,
+            'tong_tien_hoan_tra' => (float)$tongTienHoanTra,
+            'co_cau_nguon_thu' => [
+                'tien_kham' => (float)$tongTienKham,
+                'tien_dich_vu' => (float)$tongTienCLS,
+                'giam_gia' => (float)$tongGiamGia,
+            ],
             'theo_phuong_thuc' => $theoPhuongThuc,
         ];
     }

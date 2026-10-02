@@ -1288,11 +1288,15 @@
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
-                            <span>Danh Sách Hóa Đơn & Thu Viện Phí Tự Động</span>
+                            <span>Quản Lý Hóa Đơn & Thu Viện Phí</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Tổng hợp chi phí khám + cận lâm sàng tự động (Service 04)</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Theo dõi quyết toán viện phí khám bệnh và dịch vụ cận lâm sàng (Service 04)</p>
                     </div>
                     <div class="flex items-center space-x-2 flex-wrap gap-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="input-tim-kiem-hoa-don" oninput="timKiemHoaDonAdmin(this.value)" placeholder="Tìm mã HĐ, tên bệnh nhân..." class="pl-8 pr-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-52 text-slate-800 font-medium">
+                        </div>
                         <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
                             <button type="button" onclick="locHoaDonAdmin('ALL', this)" class="btn-filter-hd-admin active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất Cả</button>
                             <button type="button" onclick="locHoaDonAdmin('CHUA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ Thu</button>
@@ -1310,11 +1314,11 @@
                         <thead>
                             <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
                                 <th class="py-3.5 px-4">Mã Hóa Đơn</th>
-                                <th class="py-3.5 px-4">Lịch Hẹn ID</th>
                                 <th class="py-3.5 px-4">Bệnh Nhân</th>
+                                <th class="py-3.5 px-4">Lịch Khám</th>
                                 <th class="py-3.5 px-4">Tiền Khám</th>
-                                <th class="py-3.5 px-4">Tiền CLS</th>
-                                <th class="py-3.5 px-4">Tổng Tiền</th>
+                                <th class="py-3.5 px-4">Cận Lâm Sàng</th>
+                                <th class="py-3.5 px-4">Giảm Trừ</th>
                                 <th class="py-3.5 px-4">Thực Thu</th>
                                 <th class="py-3.5 px-4">Trạng Thái</th>
                                 <th class="py-3.5 px-4 text-center">Thao Tác</th>
@@ -5322,6 +5326,12 @@
             }
         }
 
+        let tuKhoaTimKiemHoaDon = '';
+        function timKiemHoaDonAdmin(keyword) {
+            tuKhoaTimKiemHoaDon = (keyword || '').toLowerCase().trim();
+            renderHoaDonTable(AppState.danhSachHoaDon, boLocHoaDonAdminHienTai);
+        }
+
         function locHoaDonAdmin(trangThai, btn) {
             boLocHoaDonAdminHienTai = trangThai;
             document.querySelectorAll('.btn-filter-hd-admin').forEach(b => {
@@ -5342,8 +5352,17 @@
                 filteredList = filteredList.filter(hd => hd.trang_thai === filter);
             }
 
+            if (tuKhoaTimKiemHoaDon) {
+                filteredList = filteredList.filter(hd => {
+                    const tenBn = timTenBenhNhanTheoId(hd.benh_nhan_id, hd.lich_hen_id).toLowerCase();
+                    const maHd = (hd.ma_hoa_don || ('HD-' + hd.id)).toLowerCase();
+                    const idLh = String(hd.lich_hen_id || '');
+                    return maHd.includes(tuKhoaTimKiemHoaDon) || tenBn.includes(tuKhoaTimKiemHoaDon) || idLh.includes(tuKhoaTimKiemHoaDon);
+                });
+            }
+
             if (filteredList.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Không có hóa đơn nào phù hợp bộ lọc.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Không có hóa đơn nào phù hợp bộ lọc hoặc từ khóa tìm kiếm.</td></tr>';
                 return;
             }
 
