@@ -196,4 +196,88 @@ class BacSiService
             'thong_diep' => "Đã xóa bác sĩ [{$hoTen}] và tài khoản liên kết thành công."
         ];
     }
+
+    /**
+     * Lấy danh sách bảng giá khám bệnh chi tiết theo bác sĩ & chuyên khoa
+     */
+    public function bangGiaKham(array $boLoc = []): array
+    {
+        $danhSach = $this->bacSiRepo->danhSach($boLoc);
+
+        $bangGia = $danhSach->map(function ($bs) {
+            $giaKham = (float)($bs->gia_kham ?? 200000);
+
+            // Xác định phân khúc giá / hạng khám theo học vị & giá khám
+            $phanKhuc = 'Khám Tiêu Chuẩn';
+            $hocVi = $bs->hoc_vi ?? '';
+            if (stripos($hocVi, 'Giáo sư') !== false || stripos($hocVi, 'GS') !== false) {
+                $phanKhuc = 'Khám Giáo Sư / Chuyên Gia Đầu Ngành';
+            } elseif (stripos($hocVi, 'Phó Giáo sư') !== false || stripos($hocVi, 'PGS') !== false) {
+                $phanKhuc = 'Khám Phó Giáo Sư';
+            } elseif (stripos($hocVi, 'Tiến sĩ') !== false || stripos($hocVi, 'TS') !== false || stripos($hocVi, 'CKII') !== false || stripos($hocVi, 'Chuyên khoa 2') !== false || stripos($hocVi, 'Chuyên khoa II') !== false) {
+                $phanKhuc = 'Khám Chuyên Gia / CKII';
+            } elseif (stripos($hocVi, 'Thạc sĩ') !== false || stripos($hocVi, 'ThS') !== false || stripos($hocVi, 'CKI') !== false || stripos($hocVi, 'Chuyên khoa 1') !== false || stripos($hocVi, 'Chuyên khoa I') !== false) {
+                $phanKhuc = 'Khám Thạc Sĩ / CKI';
+            } elseif ($giaKham >= 400000) {
+                $phanKhuc = 'Khám Dịch Vụ VIP';
+            } elseif ($giaKham >= 250000) {
+                $phanKhuc = 'Khám Chuyên Khoa Yêu Cầu';
+            }
+
+            return [
+                'bac_si_id' => $bs->id,
+                'ma_bac_si' => $bs->ma_bac_si,
+                'ho_ten' => $bs->ho_ten,
+                'avatar' => $bs->avatar ?? ($bs->taiKhoan ? $bs->taiKhoan->avatar : null),
+                'hoc_vi' => $bs->hoc_vi ?: 'Bác sĩ Đa khoa',
+                'chuyen_khoa_id' => $bs->chuyen_khoa_id,
+                'ten_chuyen_khoa' => $bs->chuyenKhoa ? ($bs->chuyenKhoa->ten_khoa ?? $bs->chuyenKhoa->ten_chuyen_khoa) : 'Đa Khoa',
+                'ma_chuyen_khoa' => $bs->chuyenKhoa ? ($bs->chuyenKhoa->ma_khoa ?? $bs->chuyenKhoa->ma_chuyen_khoa) : 'DA_KHOA',
+                'phong_kham' => $bs->phong_kham ?: 'Phòng khám đa khoa',
+                'gia_kham' => $giaKham,
+                'formatted_gia_kham' => number_format($giaKham, 0, ',', '.') . ' VNĐ',
+                'phan_khuc' => $phanKhuc,
+                'kinh_nghiem' => $bs->kinh_nghiem,
+                'trang_thai' => $bs->trang_thai,
+            ];
+        });
+
+        $giaList = $bangGia->pluck('gia_kham');
+        $thongKe = [
+            'tong_so_bac_si' => $bangGia->count(),
+            'gia_thap_nhat' => $giaList->count() > 0 ? $giaList->min() : 0,
+            'gia_cao_nhat' => $giaList->count() > 0 ? $giaList->max() : 0,
+            'gia_trung_binh' => $giaList->count() > 0 ? round($giaList->avg(), 0) : 0,
+        ];
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => 'Lấy bảng giá khám bệnh thành công.',
+            'thong_ke' => $thongKe,
+            'du_lieu' => $bangGia
+        ];
+    }
+
+    /**
+     * Cập nhật nhanh đơn giá khám của bác sĩ
+     */
+    public function capNhatGiaKham(int $id, float $giaKham): array
+    {
+        $bacSi = $this->bacSiRepo->timTheoId($id);
+        if (!$bacSi) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'BAC_SI_KHONG_TON_TAI',
+                'thong_diep' => 'Không tìm thấy bác sĩ cần cập nhật giá khám.'
+            ];
+        }
+
+        $bacSiMoi = $this->bacSiRepo->capNhat($id, ['gia_kham' => $giaKham]);
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => "Đã cập nhật giá khám của bác sĩ {$bacSi->ho_ten} thành " . number_format($giaKham, 0, ',', '.') . " VNĐ.",
+            'du_lieu' => $bacSiMoi
+        ];
+    }
 }

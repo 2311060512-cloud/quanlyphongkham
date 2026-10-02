@@ -95,8 +95,12 @@ quanlyphongkham_microservices/
   - Đối với Bác sĩ: Cập nhật Học vị, Phòng khám, Số năm kinh nghiệm công tác; dữ liệu được đồng bộ tức thời giữa bảng `tai_khoan` và `bac_si`.
   - Tải lên ảnh đại diện (Upload Avatar) định dạng Base64 Data URL, hiển thị đồng bộ trên thẻ bác sĩ, thanh điều hướng và thông tin hồ sơ.
 - **Quản lý Danh mục Chuyên khoa & Bác sĩ (CRUD hoàn chỉnh):**
-  - Thêm, Sửa, Xóa chuyên khoa phòng khám (Nội, Nhi, Răng Hàm Mặt, Mắt, Tai Mũi Họng...).
+  - Thêm, Sửa, Xóa chuyên khoa phòng khám (Nội, Nhi, Răng Hàm Mặt, Mắt, Tai Mũi Họng...): Hỗ trợ cập nhật đầy đủ mã khoa, tên khoa, trạng thái hoạt động và mô tả chức năng.
   - Thêm, Sửa, Xóa bác sĩ chuyên khoa; thiết lập phòng khám và giá khám ban đầu (`gia_kham`).
+- **Quản lý Bảng Giá Khám Bệnh Niêm Yết (Consultation Price List):**
+  - Cung cấp API `GET /api/v1/bac-si/bang-gia-kham`: Tự động tổng hợp biểu phí khám bệnh của toàn bộ bác sĩ theo chuyên khoa, học vị (Giáo sư, Tiến sĩ, CKII, CKI, ThS, Bác sĩ Đa khoa) và phân khúc dịch vụ (Khám Tiêu Chuẩn, Khám Chuyên Gia, Khám Dịch Vụ VIP); trả về số liệu thống kê: giá thấp nhất, giá cao nhất, giá bình quân.
+  - Cung cấp API `PUT /api/v1/bac-si/{id}/gia-kham` (Yêu cầu quyền `ADMIN`): Cho phép Quản trị viên cập nhật, điều chỉnh đơn giá khám bệnh của từng bác sĩ nhanh chóng.
+  - Xây dựng giao diện **"Bảng Giá Khám Bệnh"** (`tab-bang-gia-kham`) trên Dashboard: Cho phép người bệnh tra cứu biểu phí minh bạch, lọc theo chuyên khoa, phân khúc giá, từ khóa và đặt lịch trực tiếp; hỗ trợ Quản trị viên chỉnh sửa giá khám tại chỗ và in ấn biểu phí chuẩn y tế.
 - **Quản lý Lịch trực / Ca làm việc của Bác sĩ (Doctor Shifts & Admin Approval):**
   - **Quy tắc 1 ca/ngày:** Mỗi bác sĩ chỉ được đăng ký tối đa **1 ca trực trong 1 ngày** (Thứ Hai đến Chủ Nhật). Có 4 loại ca trực: **Ca Sáng** (07:30 - 11:30), **Ca Chiều** (13:30 - 17:00), **Ca Tối** (17:30 - 20:30), **Cả Ngày** (07:30 - 17:00).
   - **Quy trình Phê duyệt bắt buộc bởi Admin:** Khi bác sĩ đăng ký mới hoặc đổi ca làm việc, ca trực sẽ ở trạng thái `CHO_DUYET` (Chờ Admin duyệt). Chỉ khi Quản trị viên (Admin) phê duyệt (`PUT /api/v1/bac-si/lich-truc/{id}/duyet`), ca trực mới chuyển sang `HOAT_DONG` và chính thức có hiệu lực.
