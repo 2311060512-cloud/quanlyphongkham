@@ -1302,10 +1302,6 @@
                         <button onclick="taiDanhSachHoaDon(true)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition" title="Làm mới">
                             <i class="fa-solid fa-arrows-rotate"></i>
                         </button>
-                        <button onclick="moModalTaoHoaDonTuDong()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
-                            <i class="fa-solid fa-bolt"></i>
-                            <span>Tạo Hóa Đơn Tự Động</span>
-                        </button>
                     </div>
                 </div>
 
@@ -2128,51 +2124,6 @@
         </div>
     </div>
 
-    <!-- MODAL 2: TẠO HÓA ĐƠN TỰ ĐỘNG (ADMIN) -->
-    <div class="modal-backdrop" id="modal-tao-hoa-don">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-lg w-full overflow-hidden">
-            <form id="form-tao-hoa-don" onsubmit="event.preventDefault(); xacNhanTaoHoaDonTuDong();" autocomplete="off">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-bolt text-amber-500"></i>
-                        <span>Tự Động Tổng Hợp Hóa Đơn Liên Dịch Vụ</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-tao-hoa-don')" class="text-slate-400 hover:text-slate-600 text-base">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="p-6 space-y-4 text-xs">
-                    <p class="text-slate-500">
-                        Service 04 sẽ tự động liên lạc sang Service 01 (tiền khám) và Service 03 (tất cả cận lâm sàng bác sĩ đã chỉ định) để lập hóa đơn viện phí:
-                    </p>
-
-                    <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Chọn Lịch Hẹn Cần Tính Phí:</label>
-                        <select id="modal-hd-lich-hen-id" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
-                            <!-- Dynamic -->
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giảm giá / Ưu đãi (VND):</label>
-                        <input type="number" id="modal-hd-giam-gia" value="0" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ghi chú hóa đơn:</label>
-                        <input type="text" id="modal-hd-ghi-chu" value="Thanh toán viện phí khám bệnh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
-                    </div>
-                </div>
-                <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-tao-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-calculator"></i>
-                        <span>Tự Động Tính & Tạo Hóa Đơn</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- MODAL 3: CHI TIẾT & THANH TOÁN HÓA ĐƠN (ADMIN) -->
     <div class="modal-backdrop" id="modal-chi-tiet-hoa-don">
@@ -5547,52 +5498,6 @@
             }).join('');
         }
 
-        function moModalTaoHoaDonTuDong() {
-            if (!AppState.currentUser || (AppState.currentUser.vai_tro !== 'ADMIN' && AppState.currentUser.vai_tro !== 'BAC_SI')) {
-                showToast('error', 'Từ chối', 'Bạn không có quyền lập hóa đơn viện phí.');
-                return;
-            }
-            const selectEl = document.getElementById('modal-hd-lich-hen-id');
-            selectEl.innerHTML = AppState.danhSachLichHen.map(l => {
-                const bnName = l.benh_nhan ? l.benh_nhan.ho_ten : (l.ho_ten_benh_nhan || 'Bệnh nhân');
-                return `<option value="${l.id}">Ca #${l.id} - ${bnName} (${l.ngay_kham})</option>`;
-            }).join('');
-
-            moModal('modal-tao-hoa-don');
-        }
-
-        async function xacNhanTaoHoaDonTuDong() {
-            const lichHenId = document.getElementById('modal-hd-lich-hen-id').value;
-            const giamGia = document.getElementById('modal-hd-giam-gia').value || 0;
-            const ghiChu = document.getElementById('modal-hd-ghi-chu').value;
-
-            if (!lichHenId) {
-                showToast('error', 'Lỗi', 'Vui lòng chọn 1 lịch hẹn.');
-                return;
-            }
-
-            const payload = {
-                lich_hen_id: Number(lichHenId),
-                giam_gia: Number(giamGia),
-                ghi_chu: ghiChu
-            };
-
-            const res = await goiApi('POST', '/api/v1/hoa-don/tao-tu-dong', payload);
-
-            if (res.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Tổng hợp hóa đơn thành công!',
-                    text: 'Hóa đơn đã được lập tự động từ Service 01 và Service 03.',
-                    confirmButtonColor: '#0284c7'
-                });
-                dongModal('modal-tao-hoa-don');
-                await taiDanhSachHoaDon();
-                await taiBaoCaoDoanhThu();
-            } else {
-                showToast('error', 'Lỗi', res.data.thong_diep || 'Không thể tạo hóa đơn.');
-            }
-        }
 
         async function xemChiTietHoaDon(hoaDonId) {
             AppState.hoaDonDangXemId = hoaDonId;
