@@ -224,10 +224,6 @@
                         <i class="fa-solid fa-user-doctor text-sm text-blue-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
                         <span>Bác Sĩ & Chuyên Khoa</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-bang-gia-kham" onclick="chuyenTab('tab-bang-gia-kham', this)">
-                        <i class="fa-solid fa-hand-holding-dollar text-sm text-amber-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Biểu Phí & Bảng Giá Khám</span>
-                    </button>
                     <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-tai-khoan" onclick="chuyenTab('tab-admin-tai-khoan', this)">
                         <i class="fa-solid fa-users-gear text-sm text-indigo-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
                         <span>Quản Trị Tài Khoản</span>
