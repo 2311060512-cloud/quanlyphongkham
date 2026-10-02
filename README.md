@@ -59,8 +59,9 @@ quanlyphongkham_microservices/
 ├── stop-he-thong.bat / .ps1       - Dừng toàn bộ tiến trình lắng nghe trên port 8000-8004
 ├── kiem-tra-he-thong.php          - Bộ test tích hợp tự động End-to-End toàn diện (CLI)
 ├── ARCHITECTURE.md                - Bản vẽ thiết kế kiến trúc kỹ thuật chi tiết
-├── NGUOI_2_BENH_NHAN_LICH_HEN.md  - Báo cáo phân hệ 02 chi tiết
-├── NGUOI_3_DICH_VU_Y_TE_CAN_LAM_SANG.md - Báo cáo phân hệ 03 chi tiết
+├── NGUOI_2_BENH_NHAN_LICH_HEN.md  - Báo cáo phân hệ 02 chi tiết (Bệnh nhân & Lịch hẹn)
+├── NGUOI_3_DICH_VU_Y_TE_CAN_LAM_SANG.md - Báo cáo phân hệ 03 chi tiết (Dịch vụ Y tế & CLS)
+├── NGUOI_4_HOA_DON_THANH_TOAN.md  - Báo cáo phân hệ 04 chi tiết (Hóa đơn & Viện phí)
 └── quanlyphongkham_microservices.postman_collection.json - Bộ API Postman kiểm thử đầy đủ
 ```
 
@@ -115,25 +116,30 @@ quanlyphongkham_microservices/
 > **Phụ trách:** 👤 Việt Anh | **Database:** `db_benh_nhan_lich_hen`
 
 #### 🎯 Chức năng thành viên cần xây dựng & duy trì:
-- **Quản lý Hồ sơ Bệnh nhân (Bệnh án điện tử ban đầu):**
+- **Quản lý Hồ sơ Bệnh nhân & Hồ sơ Gia Đình (Family Multi-Patient Intake):**
   - Tự động sinh mã y tế `BNxxxx` độc nhất.
+  - Hỗ trợ 1 tài khoản đăng nhập quản lý hồ sơ khám cho cả gia đình thông qua trường `quan_he_chu_tai_khoan` (`BAN_THAN`, `CON`, `CHA_ME`, `VO_CHONG`, `NGUOI_THAN`).
+  - Cung cấp API `GET /api/v1/benh-nhan/ho-so-gia-dinh` và `POST /api/v1/benh-nhan/nguoi-than` giúp đặt lịch nhanh cho người thân chỉ với 1 click.
   - Lưu trữ thông tin cá nhân: Họ tên, ngày sinh, giới tính, CCCD/CMND, số điện thoại, địa chỉ cư trú.
   - Quản lý tiền sử y tế: Nhóm máu (`A`, `B`, `AB`, `O`), tiền sử dị ứng thuốc, bệnh lý mãn tính, thông tin người liên hệ khẩn cấp.
-- **Quy trình Đặt lịch khám thông minh:**
-  - Bệnh nhân lựa chọn bác sĩ, ngày hẹn và khung giờ khám (theo slot 30 phút).
-  - Tự động liên kết hoặc khởi tạo mới hồ sơ bệnh nhân nếu là lượt khám đầu.
+- **Khung giờ khám thông minh theo thời gian thực (Realtime Slot Engine):**
+  - Tự động chia ca khám 30 phút thành 2 ca: **Sáng (08:00 - 11:30)** và **Chiều (13:30 - 16:30)**.
+  - Cung cấp API `GET /api/v1/lich-hen/slots-kha-dung?bac_si_id=...&ngay=...`: Tự động phân tích lịch đã đặt và giờ hiện tại để đánh dấu slot khả dụng (`kha_dung: true`), slot đã kín (`da_dat: true`) hoặc slot đã qua giờ (`da_qua_gio: true`).
 - **Thuật toán cốt lõi Chống trùng lịch Bác sĩ (Conflict Prevention):**
-  - Kiểm tra giao thoa thời gian ca khám: chặn tuyệt đối 2 bệnh nhân đặt cùng 1 bác sĩ trong cùng 1 khung giờ.
+  - Kiểm tra giao thoa thời gian ca khám: chặn tuyệt đối 2 bệnh nhân đặt cùng 1 bác sĩ trong cùng 1 khung giờ (slot 30 phút).
   - Bắt buộc trả về HTTP Status `409 Conflict` kèm mã lỗi `TRUNG_LICH_KHAM` khi phát hiện trùng slot.
   - Chặn đặt lịch vào các ngày trong quá khứ (`HTTP 422`).
 - **Nghiệp vụ Dời lịch & Hủy ca khám:**
-  - Dời lịch sang khung giờ mới, tự động kiểm tra slot trống và đếm số lần dời lịch.
-  - Chính sách hủy ca khám nghiêm ngặt: Chặn hủy ca khám khi thời gian diễn ra còn dưới 2 tiếng (`KHONG_THE_HUY_SAT_GIO`).
+  - Dời lịch sang khung giờ mới, tự động kiểm tra slot trống và đếm số lần dời lịch (`so_lan_doi_lich`).
+  - Chính sách hủy ca khám nghiêm ngặt: Chặn hủy ca khám khi thời gian diễn ra còn dưới 2 tiếng (`KHONG_THE_HUY_SAT_GIO`, `HTTP 422`).
+- **Kết luận Chẩn đoán & Toa thuốc điện tử (E-Prescription & Clinical Summary):**
+  - Bác sĩ cập nhật kết luận ca khám qua API `PUT /api/v1/lich-hen/{id}/ket-luan-kham`: Ghi nhận chẩn đoán (`chuan_doan`), lời khuyên dặn dò (`loi_khuyen`), danh mục đơn thuốc (`toa_thuoc` dạng mảng thuốc/liều lượng/cách dùng) và ngày hẹn tái khám (`ngay_tai_kham`).
+  - Hỗ trợ xem và in Phiếu Khám & Toa Thuốc Điện Tử chuẩn Bộ Y tế trực tiếp từ cổng Web Dashboard.
 - **Điểm cung cấp liên dịch vụ:** Cung cấp API `GET /api/v1/lich-hen/{id}` trả về `benh_nhan_id`, `bac_si_id`, `ngay_kham` cho `billing-service` tổng hợp hóa đơn.
 
 #### 🗄️ Cấu trúc dữ liệu (Models/Tables):
-- `BenhNhan` (`benh_nhan`): `id`, `ma_benh_nhan`, `tai_khoan_id`, `ho_ten`, `ngay_sinh`, `gioi_tinh`, `so_dien_thoai`, `email`, `dia_chi`, `so_cccd`, `nhom_mau`, `tien_su_di_ung`, `tien_su_benh`, `nguoi_lien_he_khan_cap`, `sdt_khan_cap`
-- `LichHen` (`lich_hen`): `id`, `ma_lich_hen`, `benh_nhan_id`, `bac_si_id`, `ngay_kham`, `gio_bat_dau`, `gio_ket_thuc`, `ly_do_kham`, `trang_thai`, `ghi_chu_bac_si`, `so_lan_doi_lich`
+- `BenhNhan` (`benh_nhan`): `id`, `tai_khoan_id`, `quan_he_chu_tai_khoan`, `ma_benh_nhan`, `ho_ten`, `ngay_sinh`, `gioi_tinh`, `so_dien_thoai`, `email`, `dia_chi`, `so_cccd`, `nhom_mau`, `tien_su_di_ung`, `tien_su_benh`, `nguoi_lien_he_khan_cap`, `sdt_khan_cap`
+- `LichHen` (`lich_hen`): `id`, `ma_lich_hen`, `benh_nhan_id`, `bac_si_id`, `ngay_kham`, `gio_bat_dau`, `gio_ket_thuc`, `ly_do_kham`, `trang_thai`, `ghi_chu_bac_si`, `so_lan_doi_lich`, `chuan_doan`, `loi_khuyen`, `toa_thuoc`, `ngay_tai_kham`, `tep_dinh_kem`
 
 ---
 
@@ -172,6 +178,10 @@ quanlyphongkham_microservices/
     3. Gọi `clinical-service` ➔ Lấy toàn bộ danh sách dịch vụ cận lâm sàng đã dùng: `sum(don_gia * so_luong)`.
   - Tự động lập Hóa đơn tổng hợp và từng dòng Chi tiết hóa đơn:
     $$\text{Thực thu} = \text{Tiền khám} + \text{Tiền cận lâm sàng} - \text{Giảm giá}$$
+- **Xử lý Xung đột Giao dịch & Chống thanh toán trùng lặp (Payment Conflict Prevention):**
+  - Chặn tuyệt đối việc thanh toán lại hóa đơn đã hoàn tất thanh toán (`HTTP 409 Conflict` kèm mã lỗi `HOA_DON_DA_THANH_TOAN`).
+  - Chặn thanh toán hóa đơn đã bị hoàn tiền (`HTTP 409 Conflict` kèm mã lỗi `HOA_DON_DA_HOAN_TIEN`).
+  - Đảm bảo tính toàn vẹn và nhất quán của dữ liệu kế toán và tài chính phòng khám.
 - **Quản lý Hóa đơn & Biên lai Viện phí:**
   - Sinh mã hóa đơn chuẩn `HDxxxx`, lưu trữ trạng thái thanh toán (`CHUA_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HOAN_TIEN`).
   - Hỗ trợ in biên lai viện phí chi tiết từng hạng mục cho bệnh nhân.
@@ -181,6 +191,8 @@ quanlyphongkham_microservices/
   - Thống kê doanh thu phòng khám theo ngày, tuần, tháng.
   - Phân tích cơ cấu nguồn thu (tỷ trọng tiền khám bác sĩ so với tiền dịch vụ xét nghiệm/siêu âm).
   - Thống kê tỷ lệ ca khám đã thanh toán / nợ viện phí.
+- **Kiểm thử tự động hóa toàn diện (Automated Feature Tests):**
+  - Tích hợp bộ test `HoaDonTest` bao phủ toàn diện các kịch bản lập hóa đơn liên dịch vụ, thanh toán đa phương thức và xử lý ngoại lệ xung đột.
 
 #### 🗄️ Cấu trúc dữ liệu (Models/Tables):
 - `HoaDon` (`hoa_don`): `id`, `ma_hoa_don`, `lich_hen_id`, `benh_nhan_id`, `tien_kham`, `tien_dich_vu`, `tong_tien`, `giam_gia`, `thuc_thu`, `phuong_thuc_thanh_toan`, `trang_thai`, `ngay_thanh_toan`, `ghi_chu`
