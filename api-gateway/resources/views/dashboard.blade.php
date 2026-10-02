@@ -4357,26 +4357,57 @@
                 return;
             }
 
+            const chanDoan = (document.getElementById('input-chan-doan')?.value || '').trim() || 'Theo dõi lâm sàng';
+
             const payload = {
-                lich_hen_id: AppState.caKhamDangChon.id,
+                lich_hen_id: Number(AppState.caKhamDangChon.id),
+                benh_nhan_id: Number(AppState.caKhamDangChon.benh_nhan_id || AppState.caKhamDangChon.benh_nhan?.id || 1),
+                bac_si_id: Number(AppState.caKhamDangChon.bac_si_id || AppState.currentUser?.bac_si?.id || 1),
                 danh_sach_dich_vu_id: checked,
-                chan_doan_so_bo: document.getElementById('input-chan-doan').value || 'Theo dõi lâm sàng'
+                chan_doan_so_bo: chanDoan
             };
 
             const res = await goiApi('POST', '/api/v1/dich-vu/chi-dinh', payload);
 
             if (res.ok) {
+                // Tự động chuyển chỉ định sang Thu Ngân lập / đồng bộ hóa đơn
+                try {
+                    await goiApi('POST', '/api/v1/hoa-don/tao-tu-dong', {
+                        lich_hen_id: Number(AppState.caKhamDangChon.id),
+                        giam_gia: 0,
+                        ghi_chu: `Chỉ định cận lâm sàng (${chanDoan})`
+                    });
+                } catch (e) {
+                    console.warn('Lỗi tự động gửi sang thu ngân:', e);
+                }
+
+                // Cập nhật trạng thái lịch hẹn sang Đang Khám nếu ca mới tiếp nhận
+                try {
+                    if (AppState.caKhamDangChon.trang_thai !== 'DANG_KHAM' && AppState.caKhamDangChon.trang_thai !== 'DA_HOAN_THANH') {
+                        await goiApi('PUT', `/api/v1/lich-hen/${AppState.caKhamDangChon.id}/trang-thai`, {
+                            trang_thai: 'DANG_KHAM'
+                        });
+                        AppState.caKhamDangChon.trang_thai = 'DANG_KHAM';
+                    }
+                } catch (e) {
+                    console.warn('Lỗi cập nhật trạng thái lịch hẹn:', e);
+                }
+
                 Swal.fire({
                     icon: 'success',
-                    title: 'Lưu chỉ định thành công!',
-                    text: `Đã chỉ định ${checked.length} dịch vụ cho ca #${AppState.caKhamDangChon.id}. Đã chuyển sang Thu Ngân lập hóa đơn.`,
+                    title: 'Lưu & Gửi Thu Ngân thành công!',
+                    text: `Đã lưu ${checked.length} dịch vụ cận lâm sàng cho ca #${AppState.caKhamDangChon.id} và tự động chuyển viện phí sang bàn Thu Ngân.`,
                     confirmButtonColor: '#0284c7'
                 });
                 document.querySelectorAll('.cb-dich-vu-cls').forEach(c => c.checked = false);
                 tinhTongTienCLS();
                 await taiDanhSachLichHen();
+                if (typeof taiDanhSachHoaDon === 'function') {
+                    await taiDanhSachHoaDon();
+                }
             } else {
-                showToast('error', 'Lỗi', res.data.thong_diep || 'Không thể lưu chỉ định.');
+                const errMsg = res.data?.thong_diep || res.data?.message || (res.data?.errors ? Object.values(res.data.errors).flat().join(', ') : 'Không thể lưu chỉ định.');
+                showToast('error', 'Lỗi', errMsg);
             }
         }
 

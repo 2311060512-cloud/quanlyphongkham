@@ -52,10 +52,12 @@ class HoaDonController extends Controller
         $request->validate([
             'lich_hen_id' => 'required|integer',
             'giam_gia' => 'nullable|numeric|min:0',
+            'ghi_chu' => 'nullable|string',
         ]);
 
         $giamGia = (float)($request->input('giam_gia', 0));
-        $ketQua = $this->hoaDonService->taoTuDong((int)$request->lich_hen_id, $giamGia);
+        $ghiChu = $request->input('ghi_chu');
+        $ketQua = $this->hoaDonService->taoTuDong((int)$request->lich_hen_id, $giamGia, $ghiChu);
 
         return response()->json($ketQua, 201);
     }

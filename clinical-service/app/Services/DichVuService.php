@@ -41,9 +41,10 @@ class DichVuService
             ];
         }
 
+        $chanDoan = $data['chan_doan_so_bo'] ?? null;
         $ketQuaTao = [];
 
-        DB::transaction(function () use ($dichVuList, $lichHenId, $benhNhanId, $bacSiId, &$ketQuaTao) {
+        DB::transaction(function () use ($dichVuList, $lichHenId, $benhNhanId, $bacSiId, $chanDoan, &$ketQuaTao) {
             foreach ($dichVuList as $dv) {
                 $item = SuDungDichVu::create([
                     'lich_hen_id' => $lichHenId,
@@ -53,7 +54,7 @@ class DichVuService
                     'so_luong' => 1,
                     'don_gia' => $dv->don_gia,
                     'ket_qua' => null,
-                    'ghi_chu' => null,
+                    'ghi_chu' => $chanDoan,
                     'file_ket_qua' => null,
                     'trang_thai' => 'CHO_THUC_HIEN',
                 ]);
@@ -63,7 +64,7 @@ class DichVuService
 
         return [
             'thanh_cong' => true,
-            'thong_diep' => 'Bac si da ke chi dinh ' . count($ketQuaTao) . ' dich vu thanh cong.',
+            'thong_diep' => 'Bác sĩ đã kê chỉ định ' . count($ketQuaTao) . ' dịch vụ cận lâm sàng thành công.',
             'du_lieu' => $ketQuaTao
         ];
     }

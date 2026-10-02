@@ -17,21 +17,71 @@ class HoaDonService
      * 3. Goi Service 03: Lay danh sach can lam sang da chi dinh
      * 4. Tong hop chi phi va lap hoa don
      */
-    public function taoTuDong(int $lichHenId, float $giamGia = 0): array
+    public function taoTuDong(int $lichHenId, float $giamGia = 0, ?string $ghiChu = null): array
     {
-        // Kiem tra neu hoa don cho lich hen nay da ton tai
-        $hoaDonTonTai = HoaDon::with('chiTiet')->where('lich_hen_id', $lichHenId)->first();
-        if ($hoaDonTonTai) {
-            return [
-                'thanh_cong' => true,
-                'thong_diep' => 'Hoa don cho lich hen nay da duoc tao truoc do.',
-                'du_lieu' => $hoaDonTonTai
-            ];
-        }
-
         $urlLichHen = config('services.dich_vu_lich_hen', 'http://127.0.0.1:8002');
         $urlXacThuc = config('services.dich_vu_xac_thuc', 'http://127.0.0.1:8001');
         $urlYTe = config('services.dich_vu_y_te', 'http://127.0.0.1:8003');
+
+        // Lay danh sach can lam sang da chi dinh tu Service 03
+        $danhSachDichVuCLS = [];
+        try {
+            $respYTe = Http::timeout(3)->get("{$urlYTe}/api/dich-vu/lich-hen/{$lichHenId}");
+            if ($respYTe->successful() && isset($respYTe['du_lieu'])) {
+                $danhSachDichVuCLS = $respYTe['du_lieu'];
+            }
+        } catch (\Exception $e) {
+            Log::warning("Khong the ket noi Service 03 de lay danh sach can lam sang: " . $e->getMessage());
+        }
+
+        // Kiem tra neu hoa don cho lich hen nay da ton tai
+        $hoaDonTonTai = HoaDon::with('chiTiet')->where('lich_hen_id', $lichHenId)->first();
+        if ($hoaDonTonTai) {
+            $existingItemNames = $hoaDonTonTai->chiTiet->pluck('ten_khoan_thu')->toArray();
+            $tienDichVuThem = 0;
+            $itemsThemMoi = [];
+
+            DB::transaction(function () use ($hoaDonTonTai, $danhSachDichVuCLS, $existingItemNames, &$tienDichVuThem, &$itemsThemMoi) {
+                foreach ($danhSachDichVuCLS as $cls) {
+                    $tenDichVu = $cls['dich_vu']['ten_dich_vu'] ?? ($cls['ten_dich_vu'] ?? 'Dịch vụ cận lâm sàng');
+                    if (!in_array($tenDichVu, $existingItemNames)) {
+                        $soLuong = (int)($cls['so_luong'] ?? 1);
+                        $donGia = (float)($cls['don_gia'] ?? 0);
+                        $thanhTien = $soLuong * $donGia;
+                        $tienDichVuThem += $thanhTien;
+
+                        $newItem = ChiTietHoaDon::create([
+                            'hoa_don_id' => $hoaDonTonTai->id,
+                            'loai_khoan_thu' => 'CAN_LAM_SANG',
+                            'ten_khoan_thu' => $tenDichVu,
+                            'so_luong' => $soLuong,
+                            'don_gia' => $donGia,
+                            'thanh_tien' => $thanhTien,
+                        ]);
+                        $itemsThemMoi[] = $newItem;
+                        $existingItemNames[] = $tenDichVu;
+                    }
+                }
+
+                if ($tienDichVuThem > 0) {
+                    $hoaDonTonTai->tien_dich_vu = (float)$hoaDonTonTai->tien_dich_vu + $tienDichVuThem;
+                    $hoaDonTonTai->tong_tien = (float)$hoaDonTonTai->tong_tien + $tienDichVuThem;
+                    $hoaDonTonTai->thuc_thu = max(0, (float)$hoaDonTonTai->tong_tien - (float)$hoaDonTonTai->giam_gia);
+                    $hoaDonTonTai->trang_thai = 'CHUA_THANH_TOAN'; // Chuyen sang cho thanh toan khi co phi phat sinh moi
+                    $hoaDonTonTai->save();
+                }
+            });
+
+            $thongDiep = $tienDichVuThem > 0 
+                ? 'Đã đồng bộ ' . count($itemsThemMoi) . ' chỉ định cận lâm sàng mới vào hóa đơn hiện tại.'
+                : 'Hóa đơn cho ca khám này đã tồn tại và đầy đủ thông tin.';
+
+            return [
+                'thanh_cong' => true,
+                'thong_diep' => $thongDiep,
+                'du_lieu' => $hoaDonTonTai->fresh('chiTiet')
+            ];
+        }
 
         $benhNhanId = null;
         $bacSiId = null;
