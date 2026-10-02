@@ -162,4 +162,36 @@ class BenhNhanController extends Controller
         ], 201);
     }
 
+
+    public function capNhat(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'ho_ten' => 'sometimes|string|max:100',
+            'so_dien_thoai' => 'sometimes|string|max:15',
+            'so_cccd' => 'nullable|string|max:20',
+            'ngay_sinh' => 'nullable|date',
+            'gioi_tinh' => 'nullable|string|in:NAM,NU,KHAC',
+            'dia_chi' => 'nullable|string|max:255',
+            'nhom_mau' => 'nullable|string|in:A,B,AB,O',
+            'tien_su_di_ung' => 'nullable|string',
+            'tien_su_benh' => 'nullable|string',
+            'nguoi_lien_he_khan_cap' => 'nullable|string|max:100',
+            'sdt_khan_cap' => 'nullable|string|max:15',
+        ]);
+
+        $benhNhan = $this->benhNhanService->capNhat($id, $request->all());
+        if (!$benhNhan) {
+            return response()->json([
+                'thanh_cong' => false,
+                'thong_diep' => 'Không tìm thấy hồ sơ bệnh nhân cần cập nhật.'
+            ], 404);
+        }
+
+        return response()->json([
+            'thanh_cong' => true,
+            'thong_diep' => 'Cập nhật thông tin bệnh nhân thành công.',
+            'du_lieu' => $benhNhan
+        ]);
+    }
+
 }

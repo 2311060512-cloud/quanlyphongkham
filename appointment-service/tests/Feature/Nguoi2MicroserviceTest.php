@@ -561,4 +561,48 @@ class Nguoi2MicroserviceTest extends TestCase
         $this->assertEquals('Augmentin 1g (Amoxicillin/Clavulanate)', $duLieuToa[0]['ten_thuoc']);
     }
 
+
+    /**
+     * TEST 12: Cập nhật thông tin hồ sơ bệnh nhân (EHR Baseline & Dị ứng)
+     */
+    public function test_cap_nhat_ho_so_benh_nhan_ehr(): void
+    {
+        // 1. Tạo bệnh nhân
+        $resTao = $this->postJson('/api/v1/benh-nhan', [
+            'ho_ten' => 'Bệnh Nhân Test EHR',
+            'so_dien_thoai' => '0988776655',
+            'gioi_tinh' => 'NAM',
+            'nhom_mau' => 'O',
+        ]);
+        $resTao->assertStatus(201);
+        $bnId = $resTao->json('du_lieu.id');
+
+        // 2. Cập nhật thông tin dị ứng, bệnh nền, số CCCD kèm kiểm tra whitelist bảo vệ (Fix #4)
+        $resCapNhat = $this->putJson("/api/v1/benh-nhan/{$bnId}", [
+            'ho_ten' => 'Bệnh Nhân Test EHR (Đã Cập Nhật)',
+            'nhom_mau' => 'A',
+            'tien_su_di_ung' => 'Dị ứng Penicillin và hải sản',
+            'tien_su_benh' => 'Tăng huyết áp vô căn',
+            'so_cccd' => '079201000123',
+            'ma_benh_nhan' => 'HACKED_MA_BN', // Should be filtered out by whitelist
+        ]);
+
+        $resCapNhat->assertStatus(200)
+                   ->assertJson([
+                       'thanh_cong' => true,
+                       'du_lieu' => [
+                           'id' => $bnId,
+                           'nhom_mau' => 'A',
+                           'tien_su_di_ung' => 'Dị ứng Penicillin và hải sản',
+                           'tien_su_benh' => 'Tăng huyết áp vô căn',
+                       ]
+                   ]);
+
+        // 3. Kiểm tra lại qua chi tiết bệnh nhân
+        $resDetail = $this->getJson("/api/v1/benh-nhan/{$bnId}");
+        $resDetail->assertStatus(200);
+        $this->assertEquals('Dị ứng Penicillin và hải sản', $resDetail->json('du_lieu.tien_su_di_ung'));
+        $this->assertNotEquals('HACKED_MA_BN', $resDetail->json('du_lieu.ma_benh_nhan'));
+    }
+
 }
