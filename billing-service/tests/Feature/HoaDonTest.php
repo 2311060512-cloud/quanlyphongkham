@@ -180,4 +180,54 @@ class HoaDonTest extends TestCase
                  'thanh_cong' => false,
              ]);
     }
+
+    /**
+     * CASE 4: Hoàn tiền hóa đơn đã thanh toán & Chặn thanh toán lại (HTTP 409)
+     */
+    public function test_hoan_tien_va_chan_thanh_toan_khi_da_hoan_tien(): void
+    {
+        $hoaDon = HoaDon::create([
+            'ma_hoa_don'             => 'HD-TEST-REFUND-409',
+            'lich_hen_id'            => 9998,
+            'benh_nhan_id'           => 1,
+            'tien_kham'              => 200000.00,
+            'tien_dich_vu'           => 0.00,
+            'tong_tien'              => 200000.00,
+            'giam_gia'               => 0.00,
+            'thuc_thu'               => 200000.00,
+            'phuong_thuc_thanh_toan' => 'TIEN_MAT',
+            'trang_thai'             => 'DA_THANH_TOAN',
+            'ngay_thanh_toan'        => now(),
+        ]);
+
+        // Thực hiện hoàn tiền
+        $respRefund = $this->putJson("/api/v1/hoa-don/{$hoaDon->id}/hoan-tien", [
+            'ly_do' => 'Bệnh nhân yêu cầu hủy ca khám',
+        ]);
+
+        $respRefund->assertStatus(200)
+                   ->assertJson([
+                       'thanh_cong' => true,
+                       'du_lieu'    => [
+                           'id'         => $hoaDon->id,
+                           'trang_thai' => 'DA_HOAN_TIEN',
+                       ],
+                   ]);
+
+        $this->assertDatabaseHas('hoa_don', [
+            'id'         => $hoaDon->id,
+            'trang_thai' => 'DA_HOAN_TIEN',
+        ]);
+
+        // Cố tình thanh toán lại trên hóa đơn đã hoàn tiền -> phải nhận 409 Conflict
+        $respPayAgain = $this->putJson("/api/v1/hoa-don/{$hoaDon->id}/thanh-toan", [
+            'phuong_thuc_thanh_toan' => 'TIEN_MAT',
+        ]);
+
+        $respPayAgain->assertStatus(409)
+                     ->assertJson([
+                         'thanh_cong' => false,
+                         'ma_loi'     => 'HOA_DON_DA_HOAN_TIEN',
+                     ]);
+    }
 }

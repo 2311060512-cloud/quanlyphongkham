@@ -16,6 +16,7 @@ $dinhTuyenDichVu = function () {
         Route::post('tao-tu-dong', [HoaDonController::class, 'taoTuDong']);
         Route::get('{id}', [HoaDonController::class, 'chiTiet'])->whereNumber('id');
         Route::put('{id}/thanh-toan', [HoaDonController::class, 'thanhToan'])->whereNumber('id');
+        Route::put('{id}/hoan-tien', [HoaDonController::class, 'hoanTien'])->whereNumber('id');
     });
 };
 

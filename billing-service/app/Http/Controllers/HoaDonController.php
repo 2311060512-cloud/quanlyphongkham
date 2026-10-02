@@ -72,7 +72,25 @@ class HoaDonController extends Controller
         $ketQua = $this->hoaDonService->thanhToan($id, $request->phuong_thuc_thanh_toan, $request->ghi_chu);
 
         if (!$ketQua['thanh_cong']) {
-            if (($ketQua['ma_loi'] ?? '') === 'HOA_DON_DA_THANH_TOAN') {
+            if (in_array($ketQua['ma_loi'] ?? '', ['HOA_DON_DA_THANH_TOAN', 'HOA_DON_DA_HOAN_TIEN'])) {
+                return response()->json($ketQua, 409);
+            }
+            return response()->json($ketQua, 400);
+        }
+
+        return response()->json($ketQua, 200);
+    }
+
+    public function hoanTien(int $id, Request $request): JsonResponse
+    {
+        $request->validate([
+            'ly_do' => 'nullable|string|max:500',
+        ]);
+
+        $ketQua = $this->hoaDonService->hoanTien($id, $request->input('ly_do'));
+
+        if (!$ketQua['thanh_cong']) {
+            if (in_array($ketQua['ma_loi'] ?? '', ['HOA_DON_DA_HOAN_TIEN', 'HOA_DON_CHUA_THANH_TOAN'])) {
                 return response()->json($ketQua, 409);
             }
             return response()->json($ketQua, 400);
