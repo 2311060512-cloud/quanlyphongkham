@@ -2813,7 +2813,7 @@
                         </div>
                         <div>
                             <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số phòng khám:</label>
-                            <input type="text" id="modal-sbs-phong-kham" placeholder="P101, P202..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <input type="text" id="modal-sbs-phong" placeholder="P101, P202..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
                         </div>
                     </div>
 
@@ -3206,9 +3206,30 @@
             'BENH_NHAN': 'tab-benh-nhan-lich'
         };
 
+        // HÀM CHUẨN HÓA VAI TRÒ (ĐẢM BẢO LUÔN LÀ STRING 'ADMIN' | 'BAC_SI' | 'BENH_NHAN')
+        function chuanHoaVaiTroCurrentUser() {
+            if (!AppState.currentUser) return 'BENH_NHAN';
+            let role = 'BENH_NHAN';
+            if (typeof AppState.currentUser.vai_tro === 'string') {
+                role = AppState.currentUser.vai_tro;
+            } else if (AppState.currentUser.vai_tro && typeof AppState.currentUser.vai_tro === 'object') {
+                role = AppState.currentUser.vai_tro.ma_vai_tro || AppState.currentUser.vai_tro.ten_vai_tro || 'BENH_NHAN';
+            } else if (AppState.currentUser.vaiTro && typeof AppState.currentUser.vaiTro === 'object') {
+                role = AppState.currentUser.vaiTro.ma_vai_tro || 'BENH_NHAN';
+            } else if (AppState.currentUser.vai_tro_id) {
+                const mapRoles = { 1: 'ADMIN', 2: 'BAC_SI', 3: 'BENH_NHAN' };
+                role = mapRoles[AppState.currentUser.vai_tro_id] || 'BENH_NHAN';
+            }
+            AppState.currentUser.vai_tro = role;
+            try {
+                localStorage.setItem('role', role);
+            } catch (e) {}
+            return role;
+        }
+
         // HÀM ĐIỀU CHỈNH GIAO DIỆN CHUẨN XÁC THEO TỪNG VAI TRÒ
         function capNhatGiaoDienTheoVaiTro() {
-            const role = AppState.currentUser ? AppState.currentUser.vai_tro : (localStorage.getItem('role') || 'BENH_NHAN');
+            const role = chuanHoaVaiTroCurrentUser();
             const hoTen = AppState.currentUser ? (AppState.currentUser.ho_ten || AppState.currentUser.ten_dang_nhap) : 'Người Dùng';
 
             // Cập nhật Header & Sidebar User
@@ -6094,10 +6115,17 @@
             const res = await goiApi('PUT', '/api/v1/xac-thuc/ho-so', payload);
             if (res.ok && res.data) {
                 if (AppState.currentUser) {
+                    const currentRole = chuanHoaVaiTroCurrentUser();
                     Object.assign(AppState.currentUser, payload);
                     if (res.data.du_lieu) {
                         AppState.currentUser = Object.assign({}, AppState.currentUser, res.data.du_lieu);
                     }
+                    if (AppState.currentUser.vai_tro && typeof AppState.currentUser.vai_tro === 'object') {
+                        AppState.currentUser.vai_tro = AppState.currentUser.vai_tro.ma_vai_tro || currentRole;
+                    } else if (!AppState.currentUser.vai_tro) {
+                        AppState.currentUser.vai_tro = currentRole;
+                    }
+                    chuanHoaVaiTroCurrentUser();
                     sessionStorage.setItem('user_info', JSON.stringify(AppState.currentUser));
                     localStorage.setItem('user_info', JSON.stringify(AppState.currentUser));
                 }
@@ -7485,42 +7513,65 @@
 
             // Populate Banner
             const maBn = bn.ma_benh_nhan || `BN-${String(bn.id).padStart(4, '0')}`;
-            document.getElementById('ehr-badge-ma-bn').textContent = maBn;
-            document.getElementById('ehr-patient-avatar').textContent = (bn.ho_ten || 'BN').substring(0, 2).toUpperCase();
-            document.getElementById('ehr-patient-name').textContent = bn.ho_ten || '--';
-            document.getElementById('ehr-patient-gender').textContent = bn.gioi_tinh === 'NU' ? 'Nữ' : (bn.gioi_tinh === 'NAM' ? 'Nam' : 'Khác');
+            const elBadgeMaBn = document.getElementById('ehr-badge-ma-bn');
+            if (elBadgeMaBn) elBadgeMaBn.textContent = maBn;
+
+            const elAvatar = document.getElementById('ehr-patient-avatar');
+            if (elAvatar) elAvatar.textContent = (bn.ho_ten || 'BN').substring(0, 2).toUpperCase();
+
+            const elName = document.getElementById('ehr-patient-name');
+            if (elName) elName.textContent = bn.ho_ten || '--';
+
+            const elGender = document.getElementById('ehr-patient-gender');
+            if (elGender) elGender.textContent = bn.gioi_tinh === 'NU' ? 'Nữ' : (bn.gioi_tinh === 'NAM' ? 'Nam' : 'Khác');
 
             let dobStr = '--';
+            let ageStr = '--';
             if (bn.ngay_sinh) {
                 const birthYear = new Date(bn.ngay_sinh).getFullYear();
                 const age = new Date().getFullYear() - birthYear;
-                dobStr = `${bn.ngay_sinh.split('-').reverse().join('/')} (${age} tuổi)`;
+                dobStr = `${bn.ngay_sinh.split('-').reverse().join('/')}`;
+                ageStr = `${age} tuổi`;
             }
-            document.getElementById('ehr-patient-dob').textContent = dobStr;
-            document.getElementById('ehr-patient-phone').innerHTML = `<i class="fa-solid fa-phone text-slate-400 mr-1"></i>${bn.so_dien_thoai || '--'}`;
+            const elDob = document.getElementById('ehr-patient-dob');
+            if (elDob) elDob.textContent = dobStr;
 
-            document.getElementById('ehr-chip-nhom-mau').textContent = bn.nhom_mau ? `Nhóm Máu: ${bn.nhom_mau}` : 'Nhóm Máu: Chưa rõ';
-            document.getElementById('ehr-chip-quan-he').textContent = bn.quan_he_chu_tai_khoan === 'NGUOI_THAN' ? 'Hồ Sơ Người Thân' : 'Chủ Tài Khoản';
+            const elAge = document.getElementById('ehr-patient-age');
+            if (elAge) elAge.textContent = ageStr;
+
+            const elPhone = document.getElementById('ehr-patient-phone');
+            if (elPhone) elPhone.innerHTML = `<i class="fa-solid fa-phone text-slate-400 mr-1"></i>${bn.so_dien_thoai || '--'}`;
+
+            const elCccd = document.getElementById('ehr-patient-cccd');
+            if (elCccd) elCccd.textContent = bn.so_cccd || bn.cccd || '--';
+
+            const elAddress = document.getElementById('ehr-patient-address');
+            if (elAddress) elAddress.textContent = bn.dia_chi || '--';
+
+            const elBadgeBlood = document.getElementById('ehr-badge-blood');
+            if (elBadgeBlood) {
+                elBadgeBlood.innerHTML = `<i class="fa-solid fa-droplet text-rose-500 mr-1"></i>Nhóm Máu: ${bn.nhom_mau || 'Chưa rõ'}`;
+            }
 
             // Baseline & Emergency
             const elAllergy = document.getElementById('ehr-patient-allergy');
             if (elAllergy) {
-                elAllergy.textContent = bn.tien_su_di_ung ? bn.tien_su_di_ung : 'Không ghi nhận tiền sử dị ứng thuốc';
+                elAllergy.textContent = bn.tien_su_di_ung ? bn.tien_su_di_ung : 'Chưa ghi nhận dị ứng thuốc';
                 elAllergy.className = bn.tien_su_di_ung ? 'font-bold text-rose-600 mt-1' : 'font-semibold text-slate-600 mt-1';
             }
 
             const elHistory = document.getElementById('ehr-patient-history');
             if (elHistory) {
-                elHistory.textContent = bn.tien_su_benh ? bn.tien_su_benh : 'Không có tiền sử bệnh lý nền';
+                elHistory.textContent = bn.tien_su_benh ? bn.tien_su_benh : 'Chưa ghi nhận bệnh nền';
             }
 
-            const elEmergency = document.getElementById('ehr-patient-emergency');
-            if (elEmergency) {
-                if (bn.nguoi_lien_he_khan_cap || bn.sdt_khan_cap) {
-                    elEmergency.textContent = `${bn.nguoi_lien_he_khan_cap || 'Thân nhân'} (${bn.sdt_khan_cap || bn.so_dien_thoai})`;
-                } else {
-                    elEmergency.textContent = 'Chưa thiết lập người liên hệ khẩn cấp';
-                }
+            const elEmergencyContact = document.getElementById('ehr-patient-emergency-contact');
+            if (elEmergencyContact) {
+                elEmergencyContact.textContent = bn.nguoi_lien_he_khan_cap || 'Thân nhân (Chưa cập nhật)';
+            }
+            const elEmergencyPhone = document.getElementById('ehr-patient-emergency-phone');
+            if (elEmergencyPhone) {
+                elEmergencyPhone.textContent = bn.sdt_khan_cap || bn.so_dien_thoai || '--';
             }
 
             // Timeline Items
@@ -7532,7 +7583,10 @@
             );
 
             lichHens.sort((a, b) => new Date(b.ngay_kham + ' ' + (b.gio_bat_dau || '00:00')) - new Date(a.ngay_kham + ' ' + (a.gio_bat_dau || '00:00')));
-            document.getElementById('ehr-timeline-count').textContent = lichHens.length;
+            const elTimelineCount = document.getElementById('ehr-total-visits');
+            if (elTimelineCount) {
+                elTimelineCount.textContent = `${lichHens.length} lượt khám`;
+            }
 
             if (lichHens.length === 0) {
                 timelineContainer.innerHTML = `
@@ -7696,13 +7750,13 @@
             if (!bn) return;
             moModalDatLich();
             // Pre-fill fields
-            const tenBn = document.getElementById('modal-dl-ten-nguoi-than');
+            const tenBn = document.getElementById('modal-dl-ho-ten');
             if (tenBn) tenBn.value = bn.ho_ten || '';
-            const sdtBn = document.getElementById('modal-dl-sdt-nguoi-than');
+            const sdtBn = document.getElementById('modal-dl-sdt');
             if (sdtBn) sdtBn.value = bn.so_dien_thoai || '';
-            const cccdBn = document.getElementById('modal-dl-cccd-nguoi-than');
-            if (cccdBn) cccdBn.value = bn.so_cccd || '';
-            const nsBn = document.getElementById('modal-dl-ngaysinh-nguoi-than');
+            const cccdBn = document.getElementById('modal-dl-cccd');
+            if (cccdBn) cccdBn.value = bn.so_cccd || bn.cccd || '';
+            const nsBn = document.getElementById('modal-dl-ngay-sinh-nt');
             if (nsBn && bn.ngay_sinh) nsBn.value = bn.ngay_sinh;
             chuyenDoiTuongKham('NGUOI_THAN');
         }

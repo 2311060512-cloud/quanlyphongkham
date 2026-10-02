@@ -324,10 +324,28 @@ class XacThucService
         }
 
         $taiKhoanMoi = $this->taiKhoanRepo->timTheoId($userId);
+        $taiKhoanMoi->load('vaiTro', 'bacSi');
+
+        $duLieuTraVe = [
+            'id' => $taiKhoanMoi->id,
+            'ten_dang_nhap' => $taiKhoanMoi->ten_dang_nhap,
+            'email' => $taiKhoanMoi->email,
+            'ho_ten' => $taiKhoanMoi->ho_ten,
+            'so_dien_thoai' => $taiKhoanMoi->so_dien_thoai,
+            'ngay_sinh' => $taiKhoanMoi->ngay_sinh,
+            'gioi_tinh' => $taiKhoanMoi->gioi_tinh,
+            'dia_chi' => $taiKhoanMoi->dia_chi,
+            'avatar' => $taiKhoanMoi->avatar,
+            'trang_thai' => $taiKhoanMoi->trang_thai,
+            'vai_tro' => $taiKhoanMoi->vaiTro ? $taiKhoanMoi->vaiTro->ma_vai_tro : 'BENH_NHAN',
+            'vai_tro_id' => $taiKhoanMoi->vai_tro_id,
+            'bac_si' => $taiKhoanMoi->bacSi,
+        ];
+
         return [
             'thanh_cong' => true,
             'thong_diep' => 'Cập nhật thông tin hồ sơ cá nhân thành công.',
-            'du_lieu' => $taiKhoanMoi->load('vaiTro', 'bacSi')
+            'du_lieu' => $duLieuTraVe
         ];
     }
 
