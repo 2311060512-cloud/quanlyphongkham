@@ -77,18 +77,32 @@ class LichHenService
                 $benhNhan = BenhNhan::find($benhNhanId);
             }
 
-            if (!$benhNhan && $taiKhoanId) {
-                $benhNhan = BenhNhan::where('tai_khoan_id', $taiKhoanId)->first();
+            $quanHe = $data['quan_he_chu_tai_khoan'] ?? ($data['quan_he'] ?? 'BAN_THAN');
+            $hoTen = $data['ho_ten'] ?? ($data['ho_ten_benh_nhan'] ?? ($benhNhan?->ho_ten ?? 'Bệnh nhân mới'));
+
+            // Nếu đặt cho bản thân và chưa có benhNhanId
+            if (!$benhNhan && $taiKhoanId && $quanHe === 'BAN_THAN') {
+                $benhNhan = BenhNhan::where('tai_khoan_id', $taiKhoanId)
+                    ->where('quan_he_chu_tai_khoan', 'BAN_THAN')
+                    ->first();
+                if (!$benhNhan) {
+                    $benhNhan = BenhNhan::where('tai_khoan_id', $taiKhoanId)->first();
+                }
+            }
+
+            // Nếu đặt cho người thân (Con cái, Bố/Mẹ...) mà chưa có benhNhanId: kiểm tra xem người thân này đã có trong gia đình chưa
+            if (!$benhNhan && $taiKhoanId && $quanHe !== 'BAN_THAN') {
+                $benhNhan = BenhNhan::where('tai_khoan_id', $taiKhoanId)
+                    ->where('ho_ten', $hoTen)
+                    ->first();
             }
 
             $sdt = $data['so_dien_thoai'] ?? ($benhNhan?->so_dien_thoai ?? null);
-            if (!$benhNhan && $sdt) {
+            if (!$benhNhan && $sdt && $quanHe === 'BAN_THAN') {
                 $benhNhan = BenhNhan::where('so_dien_thoai', $sdt)->first();
             }
 
             // Tạo mới hoặc cập nhật hồ sơ bệnh nhân mở rộng
-            $hoTen = $data['ho_ten'] ?? ($data['ho_ten_benh_nhan'] ?? ($benhNhan?->ho_ten ?? 'Bệnh nhân mới'));
-
             if (!$benhNhan) {
                 $countBn = BenhNhan::count();
                 $maBn = 'BN' . str_pad($countBn + 1, 4, '0', STR_PAD_LEFT);
@@ -99,6 +113,7 @@ class LichHenService
 
                 $benhNhan = BenhNhan::create([
                     'tai_khoan_id' => $taiKhoanId ?? ($data['tai_khoan_id'] ?? null),
+                    'quan_he_chu_tai_khoan' => $quanHe,
                     'ma_benh_nhan' => $maBn,
                     'ho_ten' => $hoTen,
                     'so_dien_thoai' => $sdt ?: ($data['so_dien_thoai'] ?? ''),

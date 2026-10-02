@@ -173,7 +173,7 @@ class BenhNhanController extends Controller
     {
         $request->validate([
             'ho_ten' => 'sometimes|string|max:100',
-            'so_dien_thoai' => 'sometimes|string|max:15',
+            'so_dien_thoai' => 'nullable|string|max:15',
             'so_cccd' => 'nullable|string|max:20',
             'ngay_sinh' => 'nullable|date',
             'gioi_tinh' => 'nullable|string|in:NAM,NU,KHAC',
@@ -183,6 +183,7 @@ class BenhNhanController extends Controller
             'tien_su_benh' => 'nullable|string',
             'nguoi_lien_he_khan_cap' => 'nullable|string|max:100',
             'sdt_khan_cap' => 'nullable|string|max:15',
+            'quan_he_chu_tai_khoan' => 'nullable|string|in:BAN_THAN,CON,CHA_ME,VO_CHONG,NGUOI_THAN',
         ]);
 
         $benhNhan = $this->benhNhanService->capNhat($id, $request->all());
