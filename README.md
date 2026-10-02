@@ -59,6 +59,7 @@ quanlyphongkham_microservices/
 ├── stop-he-thong.bat / .ps1       - Dừng toàn bộ tiến trình lắng nghe trên port 8000-8004
 ├── kiem-tra-he-thong.php          - Bộ test tích hợp tự động End-to-End toàn diện (CLI)
 ├── ARCHITECTURE.md                - Bản vẽ thiết kế kiến trúc kỹ thuật chi tiết
+├── NGUOI_1_API_GATEWAY_XAC_THUC_BAC_SI.md - Báo cáo phân hệ 01 chi tiết (API Gateway & Dịch vụ Xác thực, Bác sĩ)
 ├── NGUOI_2_BENH_NHAN_LICH_HEN.md  - Báo cáo phân hệ 02 chi tiết (Bệnh nhân & Lịch hẹn)
 ├── NGUOI_3_DICH_VU_Y_TE_CAN_LAM_SANG.md - Báo cáo phân hệ 03 chi tiết (Dịch vụ Y tế & CLS)
 ├── NGUOI_4_HOA_DON_THANH_TOAN.md  - Báo cáo phân hệ 04 chi tiết (Hóa đơn & Viện phí)
