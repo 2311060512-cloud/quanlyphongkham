@@ -231,6 +231,14 @@ class HoaDonService
             ];
         }
 
+        if ($hoaDon->trang_thai === 'DA_HOAN_TIEN') {
+            return [
+                'thanh_cong' => false,
+                'thong_diep' => 'Hoa don nay da duoc hoan tien, khong the thanh toan.',
+                'ma_loi' => 'HOA_DON_DA_HOAN_TIEN'
+            ];
+        }
+
         $hoaDon->update([
             'trang_thai' => 'DA_THANH_TOAN',
             'phuong_thuc_thanh_toan' => $phuongThuc,
@@ -241,6 +249,48 @@ class HoaDonService
         return [
             'thanh_cong' => true,
             'thong_diep' => 'Thanh toan hoa don thanh cong.',
+            'du_lieu' => $hoaDon
+        ];
+    }
+
+    public function hoanTien(int $id, ?string $lyDo = null): array
+    {
+        $hoaDon = HoaDon::with('chiTiet')->find($id);
+        if (!$hoaDon) {
+            return [
+                'thanh_cong' => false,
+                'thong_diep' => 'Khong tim thay hoa don.'
+            ];
+        }
+
+        if ($hoaDon->trang_thai === 'DA_HOAN_TIEN') {
+            return [
+                'thanh_cong' => false,
+                'thong_diep' => 'Hoa don nay da duoc hoan tien truoc do.',
+                'ma_loi' => 'HOA_DON_DA_HOAN_TIEN'
+            ];
+        }
+
+        if ($hoaDon->trang_thai !== 'DA_THANH_TOAN') {
+            return [
+                'thanh_cong' => false,
+                'thong_diep' => 'Chi co the hoan tien cho hoa don da thanh toan.',
+                'ma_loi' => 'HOA_DON_CHUA_THANH_TOAN'
+            ];
+        }
+
+        $ghiChuCu = $hoaDon->ghi_chu;
+        $lyDoText = $lyDo ?: 'Hoan tra vien phi theo quy dinh';
+        $ghiChuMoi = ($ghiChuCu ? $ghiChuCu . ' | ' : '') . "[HOÀN TIỀN: {$lyDoText}]";
+
+        $hoaDon->update([
+            'trang_thai' => 'DA_HOAN_TIEN',
+            'ghi_chu' => $ghiChuMoi,
+        ]);
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => 'Hoan tien hoa don thanh cong.',
             'du_lieu' => $hoaDon
         ];
     }

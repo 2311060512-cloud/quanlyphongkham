@@ -66,16 +66,34 @@ Phân hệ 04 là **trung tâm quyết toán tài chính và viện phí**, ch�
 | `GET` | `/api/hoa-don/{id}` | Lấy chi tiết hóa đơn và từng dòng mục thu chi tiết |
 | `POST` | `/api/hoa-don/tao-tu-dong` | **Tự động tổng hợp hóa đơn liên dịch vụ** theo `lich_hen_id` |
 | `PUT` | `/api/hoa-don/{id}/thanh-toan` | Thực hiện thanh toán (`TIEN_MAT`, `CHUYEN_KHOAN`, `VNPAY`, `MOMO`) |
+| `PUT` | `/api/hoa-don/{id}/hoan-tien` | **Hoàn tiền viện phí** cho ca khám bị hủy / đổi chỉ định (Role ADMIN) |
 | `GET` | `/api/hoa-don/thong-ke` | Báo cáo thống kê tổng doanh thu và tỷ lệ thanh toán |
 
 ---
 
-## 🔗 IV. TÍCH HỢP LIÊN DỊCH VỤ (INTER-SERVICE INTEGRATION)
+## 🎨 IV. GIAO DIỆN & TRẢI NGHIỆM NGƯỜI DÙNG (DASHBOARD)
+
+1. **Cổng Quyết Toán Viện Phí Bệnh Nhân (`tab-benh-nhan-vien-phi`):**
+   - Bệnh nhân tra cứu toàn bộ viện phí cá nhân và người thân trong gia đình.
+   - Thống kê trực quan: Số tiền chờ thanh toán, số tiền đã thanh toán, tổng số hóa đơn.
+   - Nút **"Thanh Toán Ngay"** 1-click cho các ca khám chưa quyết toán.
+2. **Thanh Toán Đa Kênh Tích Hợp VietQR:**
+   - Hỗ trợ thanh toán nhanh qua quét mã VietQR tự động sinh theo số tiền và mã hóa đơn chuẩn.
+   - Giả lập cổng thanh toán trực tuyến VNPAY và MoMo.
+3. **In Biên Lai Viện Phí Chuẩn Y Tế:**
+   - Hỗ trợ in mẫu biên lai thu tiền chi tiết từng hạng mục (công khám, xét nghiệm, siêu âm, giảm giá, thực thu và chữ ký kế toán/thu ngân).
+4. **Bộ Lọc Thu Ngân Cho Quản Trị Viên:**
+   - Thu ngân lọc hóa đơn theo: *Tất cả*, *Chờ thu*, *Đã thu*, *Đã hoàn tiền*.
+   - Khả năng hoàn tiền viện phí kèm lý do ghi nhận kế toán.
+
+---
+
+## 🔗 V. TÍCH HỢP LIÊN DỊCH VỤ (INTER-SERVICE INTEGRATION)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Admin as Thu ngân / Bác sĩ
+    actor Admin as Thu ngân / Bác sĩ / Bệnh nhân
     participant GW as API Gateway (8000)
     participant Bill as billing-service (8004)
     participant Appt as appointment-service (8002)
@@ -102,9 +120,11 @@ sequenceDiagram
 
 ---
 
-## 🎯 V. KIỂM THỬ TÍCH HỢP TOÀN DIỆN
-Toàn bộ quy trình đã được kiểm thử tự động đạt **100%** qua tập lệnh kiểm tra toàn diện `kiem-tra-he-thong.php`:
-- Kết nối Database độc lập: **Thành công**
-- Tự động gọi liên dịch vụ tổng hợp hóa đơn: **Xuất sắc**
-- Thanh toán hóa đơn qua cổng VNPAY: **Thành công**
-- Xuất báo cáo doanh thu: **Chính xác**
+## 🎯 VI. KIỂM THỬ TÍCH HỢP & FEATURE TESTS
+1. **Kiểm thử tự động hóa `HoaDonTest.php`:**
+   - `test_tao_hoa_don_thanh_cong_khi_ca_3_service_hoat_dong_tot`: **PASSED**
+   - `test_tao_hoa_don_khi_clinical_service_loi_500`: **PASSED (Cơ chế chịu lỗi)**
+   - `test_thanh_toan_hai_lan_tra_ve_409_conflict`: **PASSED (Chống thanh toán trùng)**
+   - `test_hoan_tien_va_chan_thanh_toan_khi_da_hoan_tien`: **PASSED (Chống xung đột hoàn tiền)**
+2. **Kiểm thử tích hợp toàn diện qua `kiem-tra-he-thong.php`:**
+   - Đạt **100%** toàn bộ 11 tiêu chí kỹ thuật và nghiệp vụ liên dịch vụ.

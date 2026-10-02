@@ -179,6 +179,10 @@
                         <i class="fa-solid fa-people-roof text-sm text-emerald-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
                         <span>Hồ Sơ Gia Đình</span>
                     </button>
+                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-benh-nhan-vien-phi" onclick="chuyenTab('tab-benh-nhan-vien-phi', this)">
+                        <i class="fa-solid fa-file-invoice-dollar text-sm text-amber-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
+                        <span>Viện Phí Của Tôi</span>
+                    </button>
                     <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-benh-nhan" onclick="chuyenTab('tab-admin-benh-nhan', this)">
                         <i class="fa-solid fa-hospital-user text-sm text-rose-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
                         <span>Quản Lý Bệnh Nhân & EHR</span>
@@ -526,6 +530,108 @@
 
                 <div id="container-the-gia-dinh" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <p class="text-xs text-slate-400 italic">Đang nạp hồ sơ gia đình...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- TAB 1.3: VIỆN PHÍ & THANH TOÁN (DÀNH CHO BỆNH NHÂN & ADMIN)   -->
+        <!-- ============================================================= -->
+        <section id="tab-benh-nhan-vien-phi" class="portal-section space-y-6">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 rounded-3xl p-6 text-white shadow-xl shadow-amber-500/10 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
+                <div class="flex items-center space-x-4 z-10">
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl text-white shadow-inner flex-shrink-0">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-white/20 text-amber-100 border border-white/20">Viện Phí Trực Tuyến</span>
+                            <span class="text-xs text-amber-100 font-semibold">Thanh toán đa kênh nhanh chóng & an toàn</span>
+                        </div>
+                        <h3 class="text-lg font-black text-white mt-1">Tra Cứu & Quyết Toán Hóa Đơn Viện Phí</h3>
+                        <p class="text-xs text-emerald-100/90 mt-0.5">Theo dõi chi tiết viện phí từng ca khám, tiền công khám, cận lâm sàng, bảo hiểm ưu đãi và thanh toán trực tuyến 24/7.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2.5 flex-wrap z-10 flex-shrink-0">
+                    <button onclick="taiDanhSachHoaDon(true)" class="px-4 py-2.5 bg-white text-emerald-700 hover:bg-emerald-50 rounded-2xl text-xs font-extrabold shadow-sm transition hover:scale-105 active:scale-95 flex items-center space-x-2">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Làm Mới</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="bg-white rounded-3xl border border-amber-200/80 p-5 shadow-xs flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-black">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Chờ Thanh Toán</div>
+                        <div id="stat-bn-cho-thu" class="text-lg font-black text-amber-600 mt-0.5">0 đ</div>
+                        <div class="text-[10px] text-slate-500" id="stat-bn-so-cho-thu">0 hóa đơn</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-emerald-200/80 p-5 shadow-xs flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-black">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Đã Thanh Toán</div>
+                        <div id="stat-bn-da-thu" class="text-lg font-black text-emerald-600 mt-0.5">0 đ</div>
+                        <div class="text-[10px] text-slate-500" id="stat-bn-so-da-thu">0 hóa đơn</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-xs flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl font-black">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Số Hóa Đơn</div>
+                        <div id="stat-bn-tong-hd" class="text-lg font-black text-slate-900 mt-0.5">0</div>
+                        <div class="text-[10px] text-slate-500">Tất cả lượt khám</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Invoices -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-file-invoice text-emerald-600"></i>
+                            <span>Lịch Sử Hóa Đơn Viện Phí Của Bạn</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Bao gồm hóa đơn bản thân và người thân trong hồ sơ gia đình</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                        <button type="button" onclick="locHoaDonBenhNhan('ALL', this)" class="btn-filter-hd-bn active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất Cả</button>
+                        <button type="button" onclick="locHoaDonBenhNhan('CHUA_THANH_TOAN', this)" class="btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ Thu</button>
+                        <button type="button" onclick="locHoaDonBenhNhan('DA_THANH_TOAN', this)" class="btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã Thu</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3.5 px-4">Mã Hóa Đơn</th>
+                                <th class="py-3.5 px-4">Bệnh Nhân</th>
+                                <th class="py-3.5 px-4">Lịch Khám</th>
+                                <th class="py-3.5 px-4">Tiền Khám</th>
+                                <th class="py-3.5 px-4">Cận Lâm Sàng</th>
+                                <th class="py-3.5 px-4">Giảm Giá</th>
+                                <th class="py-3.5 px-4">Thực Thu</th>
+                                <th class="py-3.5 px-4">Trạng Thái</th>
+                                <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-hoa-don-benh-nhan" class="divide-y divide-slate-100 text-slate-700">
+                            <tr><td colspan="9" class="text-center py-8 text-slate-400">Đang tải hóa đơn của bạn...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -1186,10 +1292,15 @@
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">Tổng hợp chi phí khám + cận lâm sàng tự động (Service 04)</p>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="moModalTaoHoaDonTuDong()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
-                            <i class="fa-solid fa-bolt"></i>
-                            <span>Tạo Hóa Đơn Tự Động</span>
+                    <div class="flex items-center space-x-2 flex-wrap gap-2">
+                        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                            <button type="button" onclick="locHoaDonAdmin('ALL', this)" class="btn-filter-hd-admin active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất Cả</button>
+                            <button type="button" onclick="locHoaDonAdmin('CHUA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ Thu</button>
+                            <button type="button" onclick="locHoaDonAdmin('DA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã Thu</button>
+                            <button type="button" onclick="locHoaDonAdmin('DA_HOAN_TIEN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã Hoàn Tiền</button>
+                        </div>
+                        <button onclick="taiDanhSachHoaDon(true)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition" title="Làm mới">
+                            <i class="fa-solid fa-arrows-rotate"></i>
                         </button>
                     </div>
                 </div>
@@ -1741,7 +1852,7 @@
                             <div id="form-nguoi-than-moi" class="grid grid-cols-2 gap-2 text-xs">
                                 <div>
                                     <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Mối Quan Hệ:</label>
-                                    <select id="modal-dl-quan-he" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold">
+                                    <select id="modal-dl-quan-he" onchange="capNhatNhanNguoiThan()" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold">
                                         <option value="CON">Con cái (Bé nhỏ / Thanh thiếu niên)</option>
                                         <option value="CHA_ME">Bố / Mẹ</option>
                                         <option value="VO_CHONG">Vợ / Chồng</option>
@@ -2013,51 +2124,6 @@
         </div>
     </div>
 
-    <!-- MODAL 2: TẠO HÓA ĐƠN TỰ ĐỘNG (ADMIN) -->
-    <div class="modal-backdrop" id="modal-tao-hoa-don">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-lg w-full overflow-hidden">
-            <form id="form-tao-hoa-don" onsubmit="event.preventDefault(); xacNhanTaoHoaDonTuDong();" autocomplete="off">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-bolt text-amber-500"></i>
-                        <span>Tự Động Tổng Hợp Hóa Đơn Liên Dịch Vụ</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-tao-hoa-don')" class="text-slate-400 hover:text-slate-600 text-base">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="p-6 space-y-4 text-xs">
-                    <p class="text-slate-500">
-                        Service 04 sẽ tự động liên lạc sang Service 01 (tiền khám) và Service 03 (tất cả cận lâm sàng bác sĩ đã chỉ định) để lập hóa đơn viện phí:
-                    </p>
-
-                    <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Chọn Lịch Hẹn Cần Tính Phí:</label>
-                        <select id="modal-hd-lich-hen-id" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
-                            <!-- Dynamic -->
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giảm giá / Ưu đãi (VND):</label>
-                        <input type="number" id="modal-hd-giam-gia" value="0" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
-                    </div>
-
-                    <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ghi chú hóa đơn:</label>
-                        <input type="text" id="modal-hd-ghi-chu" value="Thanh toán viện phí khám bệnh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
-                    </div>
-                </div>
-                <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-tao-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-calculator"></i>
-                        <span>Tự Động Tính & Tạo Hóa Đơn</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- MODAL 3: CHI TIẾT & THANH TOÁN HÓA ĐƠN (ADMIN) -->
     <div class="modal-backdrop" id="modal-chi-tiet-hoa-don">
@@ -2112,22 +2178,42 @@
                     </div>
                 </div>
 
-                <div id="box-thanh-toan-actions" class="pt-3 border-t border-slate-100 space-y-2">
+                <div id="box-thanh-toan-actions" class="pt-3 border-t border-slate-100 space-y-2.5">
                     <label class="block font-bold uppercase tracking-wider text-slate-700">Chọn Phương Thức Thanh Toán:</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="chonPhuongThuc(this, 'TIEN_MAT')" class="py-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-xl text-center transition">💵 Tiền Mặt</button>
-                        <button type="button" onclick="chonPhuongThuc(this, 'CHUYEN_KHOAN')" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center transition">🏦 Chuyển Khoản</button>
-                        <button type="button" onclick="chonPhuongThuc(this, 'VNPAY')" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center transition">💳 VNPAY</button>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button type="button" onclick="chonPhuongThuc(this, 'TIEN_MAT')" class="py-2.5 px-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-xl text-center text-xs transition">💵 Tiền Mặt</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'CHUYEN_KHOAN')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition">🏦 VietQR 24/7</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'VNPAY')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition">💳 VNPAY</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'MOMO')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition">📱 MoMo</button>
+                    </div>
+
+                    <!-- VietQR Dynamic Box -->
+                    <div id="box-vietqr-code" class="hidden p-3.5 bg-gradient-to-r from-sky-50 to-emerald-50 border border-sky-200 rounded-2xl flex flex-col sm:flex-row items-center gap-4 text-xs">
+                        <div class="bg-white p-2 rounded-xl shadow-xs border border-slate-200 flex-shrink-0 text-center">
+                            <img id="vietqr-img" src="" alt="VietQR" class="w-28 h-28 object-contain rounded-lg">
+                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter mt-1 block">Quét để trả</span>
+                        </div>
+                        <div class="space-y-1 text-slate-700 flex-1">
+                            <div class="font-extrabold text-sky-800 text-[13px]" id="vietqr-title">Quét mã chuyển khoản ngân hàng:</div>
+                            <div id="vietqr-info" class="text-[11px] leading-relaxed">--</div>
+                            <div class="text-[10px] text-slate-400 italic mt-1">* Hệ thống tự động ghi nhận thanh toán ngay sau khi giao dịch thành công.</div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between">
-                <button type="button" onclick="inHoaDonTuChiTietModal()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí">
-                    <i class="fa-solid fa-print"></i>
-                    <span>In Hóa Đơn Này</span>
-                </button>
+                <div>
+                    <button type="button" onclick="inBienLaiHoaDonHienTai()" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí">
+                        <i class="fa-solid fa-print text-sky-600"></i>
+                        <span>In Biên Lai</span>
+                    </button>
+                </div>
                 <div class="flex items-center space-x-2">
                     <button type="button" onclick="dongModal('modal-chi-tiet-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+                    <button id="btn-hoan-tien-hoa-don" onclick="moModalHoanTien()" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Hoàn Tiền</span>
+                    </button>
                     <button id="btn-xac-nhan-thanh-toan" onclick="xacNhanThanhToanHoaDonHienTai()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
                         <span>Xác Nhận Thu Tiền</span>
@@ -2136,6 +2222,40 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL HOÀN TIỀN HÓA ĐƠN (ADMIN) -->
+    <div class="modal-backdrop" id="modal-hoan-tien-hoa-don">
+        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-rose-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-rotate-left text-rose-600"></i>
+                    <span>Hoàn Tiền Viện Phí</span>
+                </h3>
+                <button type="button" onclick="dongModal('modal-hoan-tien-hoa-don')" class="text-slate-400 hover:text-slate-600 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 text-xs">
+                <p class="text-slate-600">Thực hiện hoàn trả viện phí cho hóa đơn: <strong id="modal-ht-ma-hd" class="text-slate-900 font-mono">--</strong></p>
+                <div class="p-3 bg-rose-50/60 rounded-xl border border-rose-200 flex justify-between items-center">
+                    <span class="text-slate-600 font-bold uppercase text-[10px]">Số tiền hoàn lại:</span>
+                    <span id="modal-ht-so-tien" class="text-base font-black text-rose-600">0 đ</span>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Lý do hoàn tiền (*):</label>
+                    <textarea id="modal-ht-ly-do" rows="3" placeholder="Nhập lý do hoàn trả viện phí (Ví dụ: Bác sĩ yêu cầu đổi xét nghiệm / Bệnh nhân yêu cầu hủy)..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-slate-800"></textarea>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
+                <button type="button" onclick="dongModal('modal-hoan-tien-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy Bỏ</button>
+                <button type="button" onclick="xacNhanHoanTien()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Xác Nhận Hoàn Tiền</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- MODAL 4: THÊM BÁC SĨ (ADMIN) -->
     <div class="modal-backdrop" id="modal-them-bac-si">
@@ -2683,7 +2803,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mối Quan Hệ Với Bạn: <span class="text-rose-500">*</span></label>
-                            <select id="modal-nt-quanhe" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-bold">
+                            <select id="modal-nt-quanhe" required onchange="capNhatNhanModalNguoiThan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-bold">
                                 <option value="CON">Con cái (Trẻ em / Hậu bối)</option>
                                 <option value="CHA_ME">Bố / Mẹ (Phụ mẫu)</option>
                                 <option value="VO_CHONG">Vợ / Chồng</option>
@@ -2691,7 +2811,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và Tên Người Thân: <span class="text-rose-500">*</span></label>
+                            <label id="lbl-modal-nt-hoten" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và Tên Người Thân: <span class="text-rose-500">*</span></label>
                             <input type="text" id="modal-nt-hoten" required placeholder="Ví dụ: Nguyễn Gia Bảo" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                     </div>
@@ -2723,7 +2843,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số Điện Thoại:</label>
+                            <label id="lbl-modal-nt-sdt" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số Điện Thoại:</label>
                             <input type="tel" id="modal-nt-sdt" placeholder="Để trống nếu là trẻ em" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium font-mono">
                         </div>
                         <div>
@@ -3160,8 +3280,10 @@
                 await taiDanhSachBenhNhan();
                 await taiDanhSachDichVuCLS();
             }
-            if (role === 'ADMIN') {
+            if (role === 'ADMIN' || role === 'BENH_NHAN') {
                 await taiDanhSachHoaDon();
+            }
+            if (role === 'ADMIN') {
                 await taiBaoCaoDoanhThu();
                 await taiDanhSachTaiKhoan();
                 await kiemTraHealthToanHeThong();
@@ -3185,6 +3307,7 @@
                 'tab-benh-nhan',
                 'tab-bang-gia-kham',
                 'tab-ho-so-gia-dinh',
+                'tab-benh-nhan-vien-phi',
                 'tab-admin-benh-nhan',
                 'tab-bac-si',
                 'tab-bac-si-lich-su',
@@ -3204,7 +3327,8 @@
                 'tab-benh-nhan-lich',
                 'tab-benh-nhan',
                 'tab-bang-gia-kham',
-                'tab-ho-so-gia-dinh'
+                'tab-ho-so-gia-dinh',
+                'tab-benh-nhan-vien-phi'
             ]
         };
 
@@ -3974,6 +4098,7 @@
                     dongModal('modal-dat-lich');
                     await taiDanhSachLichHen();
                     if (typeof taiDanhSachBenhNhan === 'function') await taiDanhSachBenhNhan();
+                    if (typeof taiHoSoGiaDinhVaThanhVien === 'function') await taiHoSoGiaDinhVaThanhVien();
                     chuyenTab('tab-benh-nhan-lich');
                 } else if (res.status === 409) {
                     Swal.fire({
@@ -5150,39 +5275,100 @@
         // =============================================================
         // PHÂN HỆ THU NGÂN & HÓA ĐƠN (SERVICE 04)
         // =============================================================
-        async function taiDanhSachHoaDon() {
+        let boLocHoaDonAdminHienTai = 'ALL';
+        let boLocHoaDonBenhNhanHienTai = 'ALL';
+
+        function layDanhSachBenhNhanIdsCuaUser() {
+            if (!AppState.currentUser) return [];
+            const uid = AppState.currentUser.id;
+            const phone = AppState.currentUser.so_dien_thoai;
+            const ids = [];
+            if (AppState.danhSachBenhNhan && AppState.danhSachBenhNhan.length > 0) {
+                AppState.danhSachBenhNhan.forEach(bn => {
+                    if (bn.tai_khoan_id == uid || (phone && bn.so_dien_thoai == phone)) {
+                        ids.push(Number(bn.id));
+                    }
+                });
+            }
+            if (ids.length === 0 && uid) {
+                ids.push(Number(uid));
+            }
+            return ids;
+        }
+
+        function timTenBenhNhanTheoId(benhNhanId, lichHenId = null) {
+            if (AppState.danhSachBenhNhan && AppState.danhSachBenhNhan.length > 0) {
+                const bn = AppState.danhSachBenhNhan.find(b => Number(b.id) === Number(benhNhanId));
+                if (bn && bn.ho_ten) return bn.ho_ten;
+            }
+            if (lichHenId && AppState.danhSachLichHen && AppState.danhSachLichHen.length > 0) {
+                const lh = AppState.danhSachLichHen.find(l => Number(l.id) === Number(lichHenId));
+                if (lh) {
+                    if (lh.benh_nhan && lh.benh_nhan.ho_ten) return lh.benh_nhan.ho_ten;
+                    if (lh.ho_ten_benh_nhan) return lh.ho_ten_benh_nhan;
+                }
+            }
+            return `Bệnh nhân #${benhNhanId || ''}`;
+        }
+
+        async function taiDanhSachHoaDon(hienThongBao = false) {
             const res = await goiApi('GET', '/api/v1/hoa-don');
-            if (res.ok && res.data && res.data.du_lieu) {
-                AppState.danhSachHoaDon = res.data.du_lieu;
-                renderHoaDonTable(AppState.danhSachHoaDon);
+            if (res.ok && res.data) {
+                AppState.danhSachHoaDon = Array.isArray(res.data) ? res.data : (res.data.du_lieu || []);
+                renderHoaDonTable(AppState.danhSachHoaDon, boLocHoaDonAdminHienTai);
+                renderHoaDonBenhNhanTable(AppState.danhSachHoaDon, boLocHoaDonBenhNhanHienTai);
+                if (hienThongBao) {
+                    showToast('success', 'Đã cập nhật', 'Danh sách hóa đơn đã được làm mới.');
+                }
             }
         }
 
-        function renderHoaDonTable(list) {
+        function locHoaDonAdmin(trangThai, btn) {
+            boLocHoaDonAdminHienTai = trangThai;
+            document.querySelectorAll('.btn-filter-hd-admin').forEach(b => {
+                b.className = 'btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900';
+            });
+            if (btn) {
+                btn.className = 'btn-filter-hd-admin active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs';
+            }
+            renderHoaDonTable(AppState.danhSachHoaDon, trangThai);
+        }
+
+        function renderHoaDonTable(list, filter = 'ALL') {
             const tbody = document.getElementById('tbody-hoa-don');
             if (!tbody) return;
 
-            if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Chưa có hóa đơn nào. Hãy tạo hóa đơn tự động!</td></tr>';
+            let filteredList = list || [];
+            if (filter !== 'ALL') {
+                filteredList = filteredList.filter(hd => hd.trang_thai === filter);
+            }
+
+            if (filteredList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Không có hóa đơn nào phù hợp bộ lọc.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = list.map(hd => {
-                const daThu = (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID');
-                const statusBadge = daThu
-                    ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>'
-                    : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
+            tbody.innerHTML = filteredList.map(hd => {
+                let statusBadge = '';
+                if (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID') {
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>';
+                } else if (hd.trang_thai === 'DA_HOAN_TIEN') {
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
+                } else {
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
+                }
 
                 const tongTien = Number(hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
                 const thucThu = Number(hd.thuc_thu || hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
                 const tienKham = Number(hd.tien_kham || 200000).toLocaleString('vi-VN') + ' đ';
-                const tienCls = Number(hd.tien_dich_vu_cls || (hd.tong_tien - (hd.tien_kham || 200000)) || 0).toLocaleString('vi-VN') + ' đ';
+                const tienCls = Number(hd.tien_dich_vu || hd.tien_dich_vu_cls || 0).toLocaleString('vi-VN') + ' đ';
+                const tenBn = timTenBenhNhanTheoId(hd.benh_nhan_id, hd.lich_hen_id);
 
                 return `
                     <tr class="hover:bg-slate-50/70 transition">
                         <td class="py-3 px-4 font-mono font-bold text-slate-800">${hd.ma_hoa_don || ('HD-' + hd.id)}</td>
                         <td class="py-3 px-4 text-slate-600 font-medium">#${hd.lich_hen_id}</td>
-                        <td class="py-3 px-4 font-extrabold text-slate-900">${hd.ten_benh_nhan || 'Bệnh nhân'}</td>
+                        <td class="py-3 px-4 font-extrabold text-slate-900">${tenBn}</td>
                         <td class="py-3 px-4 text-slate-600">${tienKham}</td>
                         <td class="py-3 px-4 text-slate-600">${tienCls}</td>
                         <td class="py-3 px-4 font-bold text-slate-800">${tongTien}</td>
@@ -5198,52 +5384,121 @@
             }).join('');
         }
 
-        function moModalTaoHoaDonTuDong() {
-            if (!AppState.currentUser || (AppState.currentUser.vai_tro !== 'ADMIN' && AppState.currentUser.vai_tro !== 'BAC_SI')) {
-                showToast('error', 'Từ chối', 'Bạn không có quyền lập hóa đơn viện phí.');
+        function locHoaDonBenhNhan(trangThai, btn) {
+            boLocHoaDonBenhNhanHienTai = trangThai;
+            document.querySelectorAll('.btn-filter-hd-bn').forEach(b => {
+                b.className = 'btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900';
+            });
+            if (btn) {
+                btn.className = 'btn-filter-hd-bn active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs';
+            }
+            renderHoaDonBenhNhanTable(AppState.danhSachHoaDon, trangThai);
+        }
+
+        function renderHoaDonBenhNhanTable(list, filter = 'ALL') {
+            const tbody = document.getElementById('tbody-hoa-don-benh-nhan');
+            if (!tbody) return;
+
+            const myBnIds = layDanhSachBenhNhanIdsCuaUser();
+            let myList = list || [];
+
+            // Nếu là Bệnh nhân, chỉ hiển thị hóa đơn thuộc tài khoản/người thân của mình
+            if (AppState.currentUser && AppState.currentUser.vai_tro === 'BENH_NHAN') {
+                myList = myList.filter(hd => myBnIds.includes(Number(hd.benh_nhan_id)));
+            }
+
+            // Thống kê nhanh viện phí của bệnh nhân
+            let tongChoThu = 0;
+            let soChoThu = 0;
+            let tongDaThu = 0;
+            let soDaThu = 0;
+
+            myList.forEach(hd => {
+                const tt = Number(hd.thuc_thu || hd.tong_tien || 0);
+                if (hd.trang_thai === 'CHUA_THANH_TOAN') {
+                    tongChoThu += tt;
+                    soChoThu++;
+                } else if (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID') {
+                    tongDaThu += tt;
+                    soDaThu++;
+                }
+            });
+
+            const elChoThu = document.getElementById('stat-bn-cho-thu');
+            if (elChoThu) elChoThu.textContent = tongChoThu.toLocaleString('vi-VN') + ' đ';
+            const elSoChoThu = document.getElementById('stat-bn-so-cho-thu');
+            if (elSoChoThu) elSoChoThu.textContent = `${soChoThu} hóa đơn chờ thanh toán`;
+
+            const elDaThu = document.getElementById('stat-bn-da-thu');
+            if (elDaThu) elDaThu.textContent = tongDaThu.toLocaleString('vi-VN') + ' đ';
+            const elSoDaThu = document.getElementById('stat-bn-so-da-thu');
+            if (elSoDaThu) elSoDaThu.textContent = `${soDaThu} hóa đơn đã thanh toán`;
+
+            const elTongHd = document.getElementById('stat-bn-tong-hd');
+            if (elTongHd) elTongHd.textContent = myList.length;
+
+            if (filter !== 'ALL') {
+                myList = myList.filter(hd => hd.trang_thai === filter);
+            }
+
+            if (myList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Bạn chưa có hóa đơn viện phí nào trong danh mục này.</td></tr>';
                 return;
             }
-            const selectEl = document.getElementById('modal-hd-lich-hen-id');
-            selectEl.innerHTML = AppState.danhSachLichHen.map(l => {
-                const bnName = l.benh_nhan ? l.benh_nhan.ho_ten : (l.ho_ten_benh_nhan || 'Bệnh nhân');
-                return `<option value="${l.id}">Ca #${l.id} - ${bnName} (${l.ngay_kham})</option>`;
+
+            tbody.innerHTML = myList.map(hd => {
+                let statusBadge = '';
+                const daThu = (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID');
+                const daHoan = (hd.trang_thai === 'DA_HOAN_TIEN');
+
+                if (daThu) {
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THANH TOÁN</span>';
+                } else if (daHoan) {
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
+                } else {
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THANH TOÁN</span>';
+                }
+
+                const tongTien = Number(hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
+                const thucThu = Number(hd.thuc_thu || hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
+                const tienKham = Number(hd.tien_kham || 200000).toLocaleString('vi-VN') + ' đ';
+                const tienCls = Number(hd.tien_dich_vu || hd.tien_dich_vu_cls || 0).toLocaleString('vi-VN') + ' đ';
+                const giamGia = Number(hd.giam_gia || 0).toLocaleString('vi-VN') + ' đ';
+                const tenBn = timTenBenhNhanTheoId(hd.benh_nhan_id, hd.lich_hen_id);
+
+                let btnThaoTac = '';
+                if (!daThu && !daHoan) {
+                    btnThaoTac = `
+                        <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1 mx-auto">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span>Thanh Toán</span>
+                        </button>
+                    `;
+                } else {
+                    btnThaoTac = `
+                        <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-xl text-xs font-bold transition flex items-center gap-1 mx-auto">
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>Xem & In</span>
+                        </button>
+                    `;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50/70 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-slate-800">${hd.ma_hoa_don || ('HD-' + hd.id)}</td>
+                        <td class="py-3 px-4 font-extrabold text-slate-900">${tenBn}</td>
+                        <td class="py-3 px-4 text-slate-600 font-medium">Lịch khám #${hd.lich_hen_id}</td>
+                        <td class="py-3 px-4 text-slate-600">${tienKham}</td>
+                        <td class="py-3 px-4 text-slate-600">${tienCls}</td>
+                        <td class="py-3 px-4 text-rose-500 font-semibold">-${giamGia}</td>
+                        <td class="py-3 px-4 font-extrabold text-emerald-600">${thucThu}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center">${btnThaoTac}</td>
+                    </tr>
+                `;
             }).join('');
-
-            moModal('modal-tao-hoa-don');
         }
 
-        async function xacNhanTaoHoaDonTuDong() {
-            const lichHenId = document.getElementById('modal-hd-lich-hen-id').value;
-            const giamGia = document.getElementById('modal-hd-giam-gia').value || 0;
-            const ghiChu = document.getElementById('modal-hd-ghi-chu').value;
-
-            if (!lichHenId) {
-                showToast('error', 'Lỗi', 'Vui lòng chọn 1 lịch hẹn.');
-                return;
-            }
-
-            const payload = {
-                lich_hen_id: Number(lichHenId),
-                giam_gia: Number(giamGia),
-                ghi_chu: ghiChu
-            };
-
-            const res = await goiApi('POST', '/api/v1/hoa-don/tao-tu-dong', payload);
-
-            if (res.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Tổng hợp hóa đơn thành công!',
-                    text: 'Hóa đơn đã được lập tự động từ Service 01 và Service 03.',
-                    confirmButtonColor: '#0284c7'
-                });
-                dongModal('modal-tao-hoa-don');
-                await taiDanhSachHoaDon();
-                await taiBaoCaoDoanhThu();
-            } else {
-                showToast('error', 'Lỗi', res.data.thong_diep || 'Không thể tạo hóa đơn.');
-            }
-        }
 
         async function xemChiTietHoaDon(hoaDonId) {
             AppState.hoaDonDangXemId = hoaDonId;
@@ -5252,54 +5507,79 @@
             if (res.ok && res.data && res.data.du_lieu) {
                 const hd = res.data.du_lieu;
                 AppState.hoaDonDangXem = hd;
+                const tenBn = timTenBenhNhanTheoId(hd.benh_nhan_id, hd.lich_hen_id);
                 document.getElementById('modal-cthd-title').textContent = `Chi Tiết Hóa Đơn #${hd.ma_hoa_don || hd.id}`;
-                document.getElementById('modal-cthd-benh-nhan').textContent = hd.ten_benh_nhan || 'Lê Văn Cường';
+                document.getElementById('modal-cthd-benh-nhan').textContent = tenBn;
                 document.getElementById('modal-cthd-ngay').textContent = hd.created_at ? hd.created_at.substring(0, 10) : 'Hôm nay';
 
                 const daThu = (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID');
-                document.getElementById('modal-cthd-trang-thai').innerHTML = daThu
-                    ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>'
-                    : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
+                const daHoan = (hd.trang_thai === 'DA_HOAN_TIEN');
 
+                let badgeHtml = '';
+                if (daThu) {
+                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>';
+                } else if (daHoan) {
+                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
+                } else {
+                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
+                }
+                document.getElementById('modal-cthd-trang-thai').innerHTML = badgeHtml;
+
+                // Render danh mục chi tiết viện phí (SỬA LỖI MẤT CẬN LÂM SÀNG)
                 const itemsTbody = document.getElementById('modal-cthd-tbody-items');
-                let rowsHtml = `
-                    <tr class="hover:bg-slate-50/70 transition">
-                        <td class="py-2 px-3 font-bold text-slate-800">Phí khám bác sĩ chuyên khoa</td>
-                        <td class="py-2 px-3 text-center">1</td>
-                        <td class="py-2 px-3 text-slate-600">${Number(hd.tien_kham || 200000).toLocaleString('vi-VN')} đ</td>
-                        <td class="py-2 px-3 text-right font-bold text-slate-900">${Number(hd.tien_kham || 200000).toLocaleString('vi-VN')} đ</td>
-                    </tr>
-                `;
+                const items = hd.chi_tiet || hd.chi_tiet_hoa_don || [];
 
-                if (hd.chi_tiet_hoa_don && hd.chi_tiet_hoa_don.length > 0) {
-                    hd.chi_tiet_hoa_don.forEach(it => {
-                        rowsHtml += `
+                let rowsHtml = '';
+                if (items.length > 0) {
+                    rowsHtml = items.map(it => {
+                        const tenItem = it.ten_khoan_thu || it.ten_khoan_muc || 'Dịch vụ y tế';
+                        return `
                             <tr class="hover:bg-slate-50/70 transition">
-                                <td class="py-2 px-3 text-slate-700">${it.ten_khoan_muc || 'Dịch vụ cận lâm sàng'}</td>
-                                <td class="py-2 px-3 text-center">${it.so_luong || 1}</td>
-                                <td class="py-2 px-3 text-slate-600">${Number(it.don_gia || 0).toLocaleString('vi-VN')} đ</td>
-                                <td class="py-2 px-3 text-right font-bold text-slate-900">${Number(it.thanh_tien || 0).toLocaleString('vi-VN')} đ</td>
+                                <td class="py-2.5 px-3 font-semibold text-slate-800">${tenItem}</td>
+                                <td class="py-2.5 px-3 text-center">${it.so_luong || 1}</td>
+                                <td class="py-2.5 px-3 text-slate-600">${Number(it.don_gia || 0).toLocaleString('vi-VN')} đ</td>
+                                <td class="py-2.5 px-3 text-right font-bold text-slate-900">${Number(it.thanh_tien || 0).toLocaleString('vi-VN')} đ</td>
                             </tr>
                         `;
-                    }
-                    );
+                    }).join('');
+                } else {
+                    rowsHtml = `
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="py-2.5 px-3 font-bold text-slate-800">Phí khám bác sĩ chuyên khoa</td>
+                            <td class="py-2.5 px-3 text-center">1</td>
+                            <td class="py-2.5 px-3 text-slate-600">${Number(hd.tien_kham || 200000).toLocaleString('vi-VN')} đ</td>
+                            <td class="py-2.5 px-3 text-right font-bold text-slate-900">${Number(hd.tien_kham || 200000).toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                    `;
                 }
 
                 itemsTbody.innerHTML = rowsHtml;
 
                 document.getElementById('modal-cthd-tien-kham').textContent = Number(hd.tien_kham || 200000).toLocaleString('vi-VN') + ' đ';
-                document.getElementById('modal-cthd-tien-cls').textContent = Number(hd.tien_dich_vu_cls || 0).toLocaleString('vi-VN') + ' đ';
+                document.getElementById('modal-cthd-tien-cls').textContent = Number(hd.tien_dich_vu || hd.tien_dich_vu_cls || 0).toLocaleString('vi-VN') + ' đ';
                 document.getElementById('modal-cthd-giam-tru').textContent = '-' + Number(hd.giam_gia || 0).toLocaleString('vi-VN') + ' đ';
                 document.getElementById('modal-cthd-thuc-thu').textContent = Number(hd.thuc_thu || hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
 
                 const btnPay = document.getElementById('btn-xac-nhan-thanh-toan');
                 const boxPay = document.getElementById('box-thanh-toan-actions');
+                const btnRefund = document.getElementById('btn-hoan-tien-hoa-don');
+
                 if (daThu) {
                     btnPay.style.display = 'none';
                     boxPay.style.display = 'none';
+                    if (btnRefund && AppState.currentUser && AppState.currentUser.vai_tro === 'ADMIN') {
+                        btnRefund.classList.remove('hidden');
+                    }
+                } else if (daHoan) {
+                    btnPay.style.display = 'none';
+                    boxPay.style.display = 'none';
+                    if (btnRefund) btnRefund.classList.add('hidden');
                 } else {
                     btnPay.style.display = 'inline-flex';
                     boxPay.style.display = 'block';
+                    if (btnRefund) btnRefund.classList.add('hidden');
+                    // Reset box VietQR
+                    capNhatGiaoDienVietQR(AppState.phuongThucThanhToan, hd);
                 }
 
                 moModal('modal-chi-tiet-hoa-don');
@@ -5308,10 +5588,203 @@
 
         function chonPhuongThuc(btn, pt) {
             document.querySelectorAll('#box-thanh-toan-actions button').forEach(b => {
-                b.className = 'py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center transition';
+                b.className = 'py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition';
             });
-            btn.className = 'py-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-xl text-center transition';
+            btn.className = 'py-2.5 px-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-xl text-center text-xs transition';
             AppState.phuongThucThanhToan = pt;
+
+            const hd = (AppState.danhSachHoaDon || []).find(h => h.id === AppState.hoaDonDangXemId);
+            capNhatGiaoDienVietQR(pt, hd);
+        }
+
+        function capNhatGiaoDienVietQR(pt, hd) {
+            const boxQr = document.getElementById('box-vietqr-code');
+            if (!boxQr) return;
+
+            if (pt === 'TIEN_MAT' || !hd) {
+                boxQr.classList.add('hidden');
+                return;
+            }
+
+            const amount = Math.round(Number(hd.thuc_thu || hd.tong_tien || 0));
+            const code = hd.ma_hoa_don || ('HD' + hd.id);
+
+            boxQr.classList.remove('hidden');
+            const qrImg = document.getElementById('vietqr-img');
+            const qrTitle = document.getElementById('vietqr-title');
+            const qrInfo = document.getElementById('vietqr-info');
+
+            if (pt === 'CHUYEN_KHOAN') {
+                qrTitle.textContent = 'Quét mã VietQR chuyển khoản nhanh 24/7:';
+                qrImg.src = `https://api.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(code)}`;
+                qrInfo.innerHTML = `Ngân hàng: <strong>MBBank Quân Đội</strong><br>Số tài khoản: <strong class="font-mono text-sky-800">0123456789</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Nội dung CK: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">${code}</strong>`;
+            } else if (pt === 'VNPAY') {
+                qrTitle.textContent = 'Cổng Thanh Toán Quốc Gia VNPAY-QR (Mô Phỏng):';
+                qrImg.src = `https://api.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${amount}&addInfo=VNPAY_${encodeURIComponent(code)}`;
+                qrInfo.innerHTML = `Cổng thanh toán: <strong>VNPAY Cổng Quốc Gia</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Mã giao dịch: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">VNPAY_${code}</strong>`;
+            } else if (pt === 'MOMO') {
+                qrTitle.textContent = 'Ví Điện Tử MoMo QR (Mô Phỏng):';
+                qrImg.src = `https://api.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${amount}&addInfo=MOMO_${encodeURIComponent(code)}`;
+                qrInfo.innerHTML = `Ví điện tử: <strong>MoMo Healthcare</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Mã giao dịch: <strong class="font-mono text-rose-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">MOMO_${code}</strong>`;
+            }
+        }
+
+        function inBienLaiHoaDonHienTai() {
+            if (!AppState.hoaDonDangXemId) return;
+            const hd = (AppState.danhSachHoaDon || []).find(h => h.id === AppState.hoaDonDangXemId) || {};
+            const tenBn = timTenBenhNhanTheoId(hd.benh_nhan_id, hd.lich_hen_id);
+            const items = hd.chi_tiet || hd.chi_tiet_hoa_don || [];
+
+            let itemsHtml = '';
+            if (items.length > 0) {
+                itemsHtml = items.map((it, idx) => `
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${idx + 1}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">${it.ten_khoan_thu || it.ten_khoan_muc || 'Dịch vụ y tế'}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${it.so_luong || 1}</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">${Number(it.don_gia || 0).toLocaleString('vi-VN')} đ</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">${Number(it.thanh_tien || 0).toLocaleString('vi-VN')} đ</td>
+                    </tr>
+                `).join('');
+            } else {
+                itemsHtml = `
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">1</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1;">Công khám bác sĩ chuyên khoa</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">1</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">${Number(hd.tien_kham || 200000).toLocaleString('vi-VN')} đ</td>
+                        <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">${Number(hd.tien_kham || 200000).toLocaleString('vi-VN')} đ</td>
+                    </tr>
+                `;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Biên Lai Viện Phí - ${hd.ma_hoa_don || hd.id}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #1e293b; max-width: 800px; margin: 0 auto; }
+                        .header { text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 15px; margin-bottom: 20px; }
+                        .title { font-size: 20px; font-weight: 800; color: #0284c7; margin: 8px 0; text-transform: uppercase; }
+                        .meta-table { width: 100%; margin-bottom: 20px; font-size: 13px; }
+                        .meta-table td { padding: 4px 0; }
+                        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+                        .data-table th { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; }
+                        .totals { margin-left: auto; width: 340px; font-size: 13px; margin-bottom: 30px; }
+                        .totals td { padding: 4px 8px; }
+                        .footer { display: flex; justify-content: space-between; text-align: center; margin-top: 40px; font-size: 13px; }
+                        @media print {
+                            .no-print { display: none; }
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div style="font-weight: bold; font-size: 14px; color: #64748b; text-transform: uppercase;">PHÒNG KHÁM ĐA KHOA QUỐC TẾ - HỆ THỐNG Y TẾ SỐ</div>
+                        <div class="title">BIÊN LAI THU TIỀN VIỆN PHÍ & DỊCH VỤ</div>
+                        <div style="font-size: 12px; color: #64748b;">Mã hóa đơn: <strong style="color: #0f172a; font-family: monospace;">${hd.ma_hoa_don || ('HD-' + hd.id)}</strong> | Ngày in: ${new Date().toLocaleDateString('vi-VN')}</div>
+                    </div>
+
+                    <table class="meta-table">
+                        <tr>
+                            <td style="width: 50%;">Họ tên bệnh nhân: <strong>${tenBn}</strong></td>
+                            <td>Mã lịch hẹn: <strong>#${hd.lich_hen_id || '--'}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Trạng thái thanh toán: <strong>${hd.trang_thai === 'DA_THANH_TOAN' ? 'ĐÃ HOÀN TẤT THANH TOÁN' : (hd.trang_thai === 'DA_HOAN_TIEN' ? 'ĐÃ HOÀN TIỀN' : 'CHỜ THANH TOÁN')}</strong></td>
+                            <td>Hình thức: <strong>${hd.phuong_thuc_thanh_toan || 'TIEN_MAT'}</strong></td>
+                        </tr>
+                    </table>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">STT</th>
+                                <th>Nội dung chi phí & Dịch vụ</th>
+                                <th style="width: 50px;">SL</th>
+                                <th style="width: 120px;">Đơn giá</th>
+                                <th style="width: 140px;">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+
+                    <table class="totals">
+                        <tr>
+                            <td>Tổng chi phí ban đầu:</td>
+                            <td style="text-align: right; font-weight: bold;">${Number(hd.tong_tien || 0).toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                        <tr>
+                            <td>Miễn giảm / Ưu đãi:</td>
+                            <td style="text-align: right; color: #e11d48;">-${Number(hd.giam_gia || 0).toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                        <tr style="border-top: 1.5px solid #0284c7; font-size: 15px;">
+                            <td style="font-weight: 800; color: #0284c7;">THỰC THU:</td>
+                            <td style="text-align: right; font-weight: 900; color: #059669;">${Number(hd.thuc_thu || hd.tong_tien || 0).toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                    </table>
+
+                    <div class="footer">
+                        <div>
+                            <div><strong>Người Nộp Tiền</strong></div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">(Ký, ghi rõ họ tên)</div>
+                        </div>
+                        <div>
+                            <div><strong>Bộ Phận Thu Ngân</strong></div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">(Ký, đóng dấu)</div>
+                            <div style="margin-top: 50px; font-weight: bold;">Bộ Phận Tài Chính Viện Phí</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 35px;" class="no-print">
+                        <button onclick="window.print()" style="padding: 10px 24px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">In Biên Lai Này</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function moModalHoanTien() {
+            if (!AppState.currentUser || AppState.currentUser.vai_tro !== 'ADMIN') {
+                showToast('error', 'Từ chối', 'Chỉ Quản trị viên (ADMIN) mới có quyền hoàn tiền viện phí.');
+                return;
+            }
+            const hd = (AppState.danhSachHoaDon || []).find(h => h.id === AppState.hoaDonDangXemId);
+            if (!hd) return;
+            document.getElementById('modal-ht-ma-hd').textContent = hd.ma_hoa_don || ('HD-' + hd.id);
+            document.getElementById('modal-ht-so-tien').textContent = Number(hd.thuc_thu || hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
+            document.getElementById('modal-ht-ly-do').value = '';
+            moModal('modal-hoan-tien-hoa-don');
+        }
+
+        async function xacNhanHoanTien() {
+            if (!AppState.hoaDonDangXemId) return;
+            const lyDo = document.getElementById('modal-ht-ly-do').value.trim();
+            if (!lyDo) {
+                showToast('error', 'Lỗi', 'Vui lòng nhập lý do hoàn tiền.');
+                return;
+            }
+            const res = await goiApi('PUT', `/api/v1/hoa-don/${AppState.hoaDonDangXemId}/hoan-tien`, { ly_do: lyDo });
+            if (res.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Hoàn tiền thành công!',
+                    text: `Hóa đơn đã được chuyển sang trạng thái ĐÃ HOÀN TIỀN.`,
+                    confirmButtonColor: '#0284c7'
+                });
+                dongModal('modal-hoan-tien-hoa-don');
+                dongModal('modal-chi-tiet-hoa-don');
+                await taiDanhSachHoaDon();
+                await taiBaoCaoDoanhThu();
+            } else {
+                showToast('error', 'Lỗi', res.data.thong_diep || 'Không thể hoàn tiền.');
+            }
         }
 
         async function xacNhanThanhToanHoaDonHienTai() {
@@ -5324,7 +5797,7 @@
             if (res.ok) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Thu tiền thành công!',
+                    title: 'Thanh toán thành công!',
                     text: `Hóa đơn #${AppState.hoaDonDangXemId} đã hoàn tất thanh toán.`,
                     confirmButtonColor: '#0284c7'
                 });
@@ -7221,6 +7694,33 @@
         // =============================================================
 
         let AppStateDoiTuongKham = 'BAN_THAN';
+
+        function capNhatNhanNguoiThan() {
+            const qh = document.getElementById('modal-dl-quan-he')?.value || 'CON';
+            const lbl = document.getElementById('lbl-ho-ten-bn');
+            const inp = document.getElementById('modal-dl-ho-ten');
+            if (!lbl || !inp) return;
+
+            if (AppStateDoiTuongKham === 'BAN_THAN') {
+                lbl.innerHTML = 'Họ tên Bệnh nhân: <span class="text-rose-500">*</span>';
+                inp.placeholder = 'Nhập họ tên bệnh nhân...';
+                return;
+            }
+
+            if (qh === 'CON') {
+                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-child text-sky-600"></i> Họ Tên Bé / Con Cái: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Bé Bo, Nguyễn Gia Hân...';
+            } else if (qh === 'CHA_ME') {
+                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ Tên Bố / Mẹ: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Nguyễn Văn Nam, Trần Thị Mai...';
+            } else if (qh === 'VO_CHONG') {
+                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-heart text-rose-600"></i> Họ Tên Vợ / Chồng: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Lê Thị Hoa...';
+            } else {
+                lbl.innerHTML = 'Họ Tên Người Thân: <span class="text-rose-500">*</span>';
+                inp.placeholder = 'Nhập họ tên người thân...';
+            }
+        }
         let DanhSachHoSoGiaDinh = [];
 
         // 1. CHUYỂN ĐỔI ĐỐI TƯỢNG ĐẶT KHÁM (BẢN THÂN vs NGƯỜI THÂN)
@@ -7235,19 +7735,19 @@
                 btnBt.className = 'px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition';
                 btnNt.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
                 khuVucNt.classList.add('hidden');
-                if (lblHoTen) lblHoTen.textContent = 'Họ tên Bệnh nhân:';
 
                 if (AppState.currentUser) {
                     document.getElementById('modal-dl-ho-ten').value = AppState.currentUser.ho_ten || '';
                     document.getElementById('modal-dl-sdt').value = AppState.currentUser.so_dien_thoai || '';
                 }
+                capNhatNhanNguoiThan();
             } else {
                 btnNt.className = 'px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition';
                 btnBt.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
                 khuVucNt.classList.remove('hidden');
-                if (lblHoTen) lblHoTen.textContent = 'Họ tên Người Thân:';
 
                 document.getElementById('modal-dl-ho-ten').value = '';
+                capNhatNhanNguoiThan();
                 taiDanhSachHoSoGiaDinh();
             }
         }
@@ -8646,6 +9146,37 @@
             container.innerHTML = html;
         }
 
+        function capNhatNhanModalNguoiThan() {
+            const qh = document.getElementById('modal-nt-quanhe')?.value || 'CON';
+            const lbl = document.getElementById('lbl-modal-nt-hoten');
+            const inp = document.getElementById('modal-nt-hoten');
+            const lblSdt = document.getElementById('lbl-modal-nt-sdt');
+            const inpSdt = document.getElementById('modal-nt-sdt');
+            if (!lbl || !inp) return;
+
+            if (qh === 'CON') {
+                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-child text-sky-600"></i> Họ Tên Bé / Con Cái: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Bé Bo, Nguyễn Gia Hân...';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[10px] text-slate-400 font-normal lowercase">(không bắt buộc đối với trẻ em)</span>';
+                if (inpSdt) inpSdt.placeholder = 'Để trống nếu là trẻ em';
+            } else if (qh === 'CHA_ME') {
+                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ Tên Bố / Mẹ: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Nguyễn Văn Nam, Trần Thị Mai...';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[10px] text-slate-400 font-normal lowercase">(hoặc SĐT người giám hộ)</span>';
+                if (inpSdt) inpSdt.placeholder = 'Nhập SĐT của bố/mẹ...';
+            } else if (qh === 'VO_CHONG') {
+                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-heart text-rose-600"></i> Họ Tên Vợ / Chồng: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Lê Thị Hoa...';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại:';
+                if (inpSdt) inpSdt.placeholder = 'Nhập số điện thoại...';
+            } else {
+                lbl.innerHTML = 'Họ và Tên Người Thân: <span class="text-rose-500">*</span>';
+                inp.placeholder = 'Ví dụ: Nguyễn Gia Bảo';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại:';
+                if (inpSdt) inpSdt.placeholder = 'Để trống nếu là trẻ em';
+            }
+        }
+
         function moModalThemNguoiThan(hoSoId = null) {
             const form = document.getElementById('form-them-sua-nguoi-than');
             if (form) form.reset();
@@ -8658,8 +9189,8 @@
                 if (hoSo) {
                     if (titleEl) titleEl.textContent = 'Cập Nhật Hồ Sơ Thành Viên';
                     if (idInput) idInput.value = hoSo.id;
-                    document.getElementById('modal-nt-hoten').value = hoSo.ho_ten || '';
                     document.getElementById('modal-nt-quanhe').value = hoSo.quan_he_chu_tai_khoan || 'CON';
+                    document.getElementById('modal-nt-hoten').value = hoSo.ho_ten || '';
                     document.getElementById('modal-nt-ngaysinh').value = hoSo.ngay_sinh || '';
                     document.getElementById('modal-nt-gioitinh').value = hoSo.gioi_tinh || 'NAM';
                     document.getElementById('modal-nt-nhommau').value = hoSo.nhom_mau || '';
@@ -8674,8 +9205,10 @@
             } else {
                 if (titleEl) titleEl.textContent = 'Thêm Hồ Sơ Người Thân Mới';
                 if (idInput) idInput.value = '';
+                document.getElementById('modal-nt-quanhe').value = 'CON';
             }
 
+            capNhatNhanModalNguoiThan();
             moModal('modal-them-sua-nguoi-than');
         }
 
@@ -8689,13 +9222,15 @@
                 return;
             }
 
+            const rawSdt = document.getElementById('modal-nt-sdt')?.value.trim();
+
             const payload = {
                 ho_ten: hoTen,
                 quan_he_chu_tai_khoan: quanHe,
                 ngay_sinh: document.getElementById('modal-nt-ngaysinh')?.value || null,
                 gioi_tinh: document.getElementById('modal-nt-gioitinh')?.value || 'NAM',
                 nhom_mau: document.getElementById('modal-nt-nhommau')?.value || null,
-                so_dien_thoai: document.getElementById('modal-nt-sdt')?.value.trim() || null,
+                so_dien_thoai: rawSdt ? rawSdt : null,
                 so_cccd: document.getElementById('modal-nt-cccd')?.value.trim() || null,
                 dia_chi: document.getElementById('modal-nt-diachi')?.value.trim() || null,
                 tien_su_di_ung: document.getElementById('modal-nt-diung')?.value.trim() || null,
