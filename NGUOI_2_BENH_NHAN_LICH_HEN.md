@@ -110,8 +110,10 @@ Phân hệ 02 là **cầu nối trực tiếp giữa Bệnh nhân và Phòng kh�
 Chạy lệnh kiểm thử độc lập cho phân hệ:
 ```bash
 php appointment-service/artisan test
+# hoặc
+php vendor/phpunit/phpunit/phpunit -c appointment-service/phpunit.xml --no-coverage
 ```
-**Kết quả: `11 passed (53 assertions) - 100% OK`**
+**Kết quả: `12 passed (63 assertions) - 100% OK`**
 - `test_benh_nhan_bat_buoc_dang_nhap_khi_dat_lich`
 - `test_mo_rong_ho_so_benh_an_dien_tu`
 - `test_thuat_toan_chong_trung_lich_kham_30_phut` (409 Conflict)
@@ -121,5 +123,7 @@ php appointment-service/artisan test
 - `test_chan_huy_lich_kham_sat_gio_duoi_2_tieng` (422)
 - `test_dinh_kem_tep_va_anh_y_te_khi_dat_lich`
 - `test_tra_cuu_slots_kha_dung_theo_thoi_gian_thuc` (BookingCare style)
-- `test_ho_so_gia_dinh_va_dat_lich_cho_nguoi_than` (Family Intake)
+- `test_ho_so_gia_dinh_va_dat_lich_cho_nguoi_than` (Family EHR Intake)
 - `test_bac_si_ke_toa_thuoc_va_ket_luan_kham` (E-Prescription)
+- `test_cap_nhat_ho_so_benh_nhan_ehr` (Cập nhật EHR dị ứng & SĐT nullable linh hoạt cho trẻ em)
+
