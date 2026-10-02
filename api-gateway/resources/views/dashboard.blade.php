@@ -1586,7 +1586,7 @@
                             <div id="form-nguoi-than-moi" class="grid grid-cols-2 gap-2 text-xs">
                                 <div>
                                     <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Mối Quan Hệ:</label>
-                                    <select id="modal-dl-quan-he" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold">
+                                    <select id="modal-dl-quan-he" onchange="capNhatNhanNguoiThan()" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold">
                                         <option value="CON">Con cái (Bé nhỏ / Thanh thiếu niên)</option>
                                         <option value="CHA_ME">Bố / Mẹ</option>
                                         <option value="VO_CHONG">Vợ / Chồng</option>
@@ -6268,6 +6268,33 @@
         // =============================================================
 
         let AppStateDoiTuongKham = 'BAN_THAN';
+
+        function capNhatNhanNguoiThan() {
+            const qh = document.getElementById('modal-dl-quan-he')?.value || 'CON';
+            const lbl = document.getElementById('lbl-ho-ten-bn');
+            const inp = document.getElementById('modal-dl-ho-ten');
+            if (!lbl || !inp) return;
+
+            if (AppStateDoiTuongKham === 'BAN_THAN') {
+                lbl.innerHTML = 'Họ tên Bệnh nhân: <span class="text-rose-500">*</span>';
+                inp.placeholder = 'Nhập họ tên bệnh nhân...';
+                return;
+            }
+
+            if (qh === 'CON') {
+                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-child text-sky-600"></i> Họ Tên Bé / Con Cái: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Bé Bo, Nguyễn Gia Hân...';
+            } else if (qh === 'CHA_ME') {
+                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ Tên Bố / Mẹ: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Nguyễn Văn Nam, Trần Thị Mai...';
+            } else if (qh === 'VO_CHONG') {
+                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-heart text-rose-600"></i> Họ Tên Vợ / Chồng: <span class="text-rose-500">*</span></span>';
+                inp.placeholder = 'Ví dụ: Lê Thị Hoa...';
+            } else {
+                lbl.innerHTML = 'Họ Tên Người Thân: <span class="text-rose-500">*</span>';
+                inp.placeholder = 'Nhập họ tên người thân...';
+            }
+        }
         let DanhSachHoSoGiaDinh = [];
 
         // 1. CHUYỂN ĐỔI ĐỐI TƯỢNG ĐẶT KHÁM (BẢN THÂN vs NGƯỜI THÂN)
@@ -6282,19 +6309,19 @@
                 btnBt.className = 'px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition';
                 btnNt.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
                 khuVucNt.classList.add('hidden');
-                if (lblHoTen) lblHoTen.textContent = 'Họ tên Bệnh nhân:';
 
                 if (AppState.currentUser) {
                     document.getElementById('modal-dl-ho-ten').value = AppState.currentUser.ho_ten || '';
                     document.getElementById('modal-dl-sdt').value = AppState.currentUser.so_dien_thoai || '';
                 }
+                capNhatNhanNguoiThan();
             } else {
                 btnNt.className = 'px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition';
                 btnBt.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
                 khuVucNt.classList.remove('hidden');
-                if (lblHoTen) lblHoTen.textContent = 'Họ tên Người Thân:';
 
                 document.getElementById('modal-dl-ho-ten').value = '';
+                capNhatNhanNguoiThan();
                 taiDanhSachHoSoGiaDinh();
             }
         }
