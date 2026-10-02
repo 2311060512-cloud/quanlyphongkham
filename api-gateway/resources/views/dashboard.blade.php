@@ -236,32 +236,13 @@
             </div>
         </div>
 
-        <!-- Sidebar Footer: Profile & Logout -->
-        <div class="p-3.5 border-t border-slate-800 bg-slate-950/70 space-y-2 flex-shrink-0">
-            <div onclick="moModalHoSoCaNhan()" class="flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-slate-800/80 cursor-pointer transition group" title="Nhấn để xem & chỉnh sửa hồ sơ">
-                <div class="relative flex-shrink-0">
-                    <img id="sidebar-user-avatar-img" src="" alt="Avatar" class="w-9 h-9 rounded-xl object-cover border border-slate-700 shadow-md hidden">
-                    <div id="sidebar-user-avatar-icon" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                    <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p id="header-user-name" class="text-xs font-bold text-white truncate group-hover:text-sky-300 transition">Đang tải...</p>
-                    <span id="header-user-role" class="px-2 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-800 text-sky-400 border border-slate-700 inline-block">ADMIN</span>
-                </div>
-                <i class="fa-solid fa-gear text-slate-500 group-hover:text-white text-xs transition"></i>
-            </div>
-            <div class="grid grid-cols-2 gap-1.5">
-                <button onclick="moModalHoSoCaNhan()" class="flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl text-[11px] font-semibold border border-slate-700 transition" title="Hồ sơ cá nhân">
-                    <i class="fa-solid fa-id-card text-sky-400"></i>
-                    <span>Hồ Sơ</span>
-                </button>
-                <button onclick="xuLyDangXuatGateway()" class="flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 rounded-xl text-[11px] font-semibold border border-rose-500/20 transition" title="Đăng xuất">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span>Đăng Xuất</span>
-                </button>
-            </div>
+        <!-- Sidebar Footer: Trạng Thái Hệ Thống -->
+        <div class="p-3.5 border-t border-slate-800/80 bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-400 flex-shrink-0">
+            <span class="flex items-center gap-1.5 font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Hệ thống trực tuyến</span>
+            </span>
+            <span class="font-mono text-[10px] text-slate-400 font-bold bg-slate-800 px-2 py-0.5 rounded-md border border-slate-700">v1.2</span>
         </div>
     </aside>
 
@@ -280,17 +261,27 @@
                 <span id="brand-subtitle" class="text-xs font-medium text-slate-500 hidden md:inline truncate">Phòng Khám Đa Khoa</span>
             </div>
 
-            <div class="flex items-center space-x-2 flex-shrink-0">
-                <!-- Nút Liên Kết Nhanh Hồ Sơ Gia Đình Trên Header -->
-                <button onclick="chuyenTab('tab-ho-so-gia-dinh')" class="flex items-center space-x-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-xl text-xs font-bold transition shadow-2xs hover:scale-105 active:scale-95" title="Mở danh sách Hồ Sơ Gia Đình & Người Thân">
-                    <i class="fa-solid fa-people-roof text-emerald-600"></i>
-                    <span class="hidden sm:inline">Hồ Sơ Gia Đình</span>
-                </button>
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <!-- Thẻ Thông Tin Người Dùng / Hồ Sơ Cá Nhân (Di chuyển từ góc dưới trái lên) -->
+                <div onclick="moModalHoSoCaNhan()" class="flex items-center space-x-2.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-2xl cursor-pointer transition shadow-2xs group" title="Nhấn để xem & chỉnh sửa hồ sơ cá nhân">
+                    <div class="relative flex-shrink-0">
+                        <img id="top-user-avatar-img" src="" alt="Avatar" class="w-8 h-8 rounded-xl object-cover border border-slate-300 shadow-2xs hidden">
+                        <div id="top-user-avatar-icon" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-2xs">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
+                    </div>
+                    <div class="min-w-0 text-left">
+                        <p id="header-user-name" class="text-xs font-bold text-slate-800 truncate max-w-[130px] sm:max-w-[170px] group-hover:text-sky-600 transition">Đang tải...</p>
+                        <span id="header-user-role" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300 inline-block leading-none mt-0.5">ADMIN</span>
+                    </div>
+                    <i class="fa-solid fa-gear text-slate-400 group-hover:text-slate-600 text-xs transition ml-0.5"></i>
+                </div>
 
-                <button onclick="moModalHoSoCaNhan()" class="flex items-center space-x-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition" title="Hồ sơ tài khoản cá nhân">
-                    <img id="top-user-avatar-img" src="" alt="Avatar" class="w-6 h-6 rounded-lg object-cover hidden">
-                    <i id="top-user-avatar-icon" class="fa-solid fa-user-circle text-sky-600 text-sm"></i>
-                    <span id="top-user-name" class="hidden sm:inline">Hồ Sơ & Avatar</span>
+                <!-- Nút Đăng Xuất Duy Nhất (Di chuyển từ góc dưới trái lên) -->
+                <button onclick="xuLyDangXuatGateway()" class="flex items-center space-x-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200/90 rounded-2xl text-xs font-bold transition shadow-2xs hover:scale-105 active:scale-95" title="Đăng xuất khỏi hệ thống">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="hidden sm:inline">Đăng Xuất</span>
                 </button>
             </div>
         </header>
@@ -322,10 +313,6 @@
                     <button onclick="moModalDatLich(null)" class="px-6 py-3 bg-white hover:bg-sky-50 text-medical-700 font-extrabold text-sm rounded-2xl shadow-lg shadow-slate-900/10 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
                         <i class="fa-solid fa-calendar-plus text-medical-600"></i>
                         <span>Đặt Lịch Khám Ngay</span>
-                    </button>
-                    <button onclick="chuyenTab('tab-ho-so-gia-dinh')" class="px-5 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-extrabold text-sm rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center space-x-2">
-                        <i class="fa-solid fa-people-roof text-emerald-300"></i>
-                        <span>Hồ Sơ Gia Đình</span>
                     </button>
                 </div>
             </div>
@@ -386,17 +373,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2.5 flex-wrap z-10 flex-shrink-0">
-                    <button onclick="chuyenTab('tab-ho-so-gia-dinh')" class="px-4 py-2.5 bg-white text-emerald-700 hover:bg-emerald-50 rounded-2xl text-xs font-extrabold shadow-sm transition hover:scale-105 active:scale-95 flex items-center space-x-2">
-                        <i class="fa-solid fa-address-card text-emerald-600"></i>
-                        <span>Xem Hồ Sơ Gia Đình</span>
-                    </button>
-                    <button onclick="moModalThemNguoiThan()" class="px-4 py-2.5 bg-emerald-500/40 hover:bg-emerald-500/60 border border-white/20 text-white rounded-2xl text-xs font-bold transition hover:scale-105 active:scale-95 flex items-center space-x-2">
-                        <i class="fa-solid fa-user-plus"></i>
+                    <button onclick="moModalThemNguoiThan()" class="px-4 py-2.5 bg-white text-emerald-800 hover:bg-emerald-50 rounded-2xl text-xs font-extrabold shadow-sm transition hover:scale-105 active:scale-95 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus text-emerald-600"></i>
                         <span>+ Thêm Người Thân</span>
-                    </button>
-                    <button onclick="moModalHoSoCaNhan()" class="px-3.5 py-2.5 bg-slate-900/30 hover:bg-slate-900/50 border border-white/10 text-white rounded-2xl text-xs font-bold transition flex items-center space-x-1.5" title="Hồ sơ tài khoản cá nhân">
-                        <i class="fa-solid fa-id-badge"></i>
-                        <span>Hồ Sơ Cá Nhân</span>
                     </button>
                 </div>
             </div>
@@ -409,12 +388,6 @@
                             <span id="title-danh-sach-lich-kham">Quản Lý Lịch Khám Bệnh</span>
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">Theo dõi thời gian, bệnh nhân, bác sĩ phụ trách, dời lịch và tình trạng ca khám</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="chuyenTab('tab-ho-so-gia-dinh')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-2 rounded-xl border border-emerald-200 transition flex items-center gap-1.5 shadow-2xs">
-                            <i class="fa-solid fa-people-roof text-emerald-600"></i>
-                            <span>Hồ Sơ Gia Đình</span>
-                        </button>
                     </div>
                 </div>
 
@@ -843,10 +816,6 @@
                     <button onclick="moModalLichTrucBacSiHienTai()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white flex items-center space-x-1.5 transition shadow-sm" title="Quản lý ca trực trong tuần của bạn">
                         <i class="fa-solid fa-calendar-days text-sky-200"></i>
                         <span>Lịch Trực Của Tôi</span>
-                    </button>
-                    <button onclick="moModalHoSoCaNhan()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white flex items-center space-x-1.5 transition shadow-sm" title="Cập nhật thông tin cá nhân và ảnh đại diện">
-                        <i class="fa-solid fa-user-pen text-sky-200"></i>
-                        <span>Hồ Sơ & Avatar</span>
                     </button>
                     <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/30 backdrop-blur-sm border border-emerald-400/40 text-emerald-100 flex items-center space-x-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -3372,40 +3341,26 @@
             if (roleEl) {
                 roleEl.textContent = role;
                 if (role === 'ADMIN') {
-                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-indigo-950 text-indigo-300 border border-indigo-700/60 inline-block';
+                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 inline-block leading-none mt-0.5';
                 } else if (role === 'BAC_SI') {
-                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-sky-950 text-sky-300 border border-sky-700/60 inline-block';
+                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200 inline-block leading-none mt-0.5';
                 } else {
-                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-950 text-emerald-300 border border-emerald-700/60 inline-block';
+                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 inline-block leading-none mt-0.5';
                 }
             }
 
             // Cập nhật Avatar người dùng đồng bộ
             const userAvatar = AppState.currentUser ? AppState.currentUser.avatar : null;
-            const sidebarAvatarImg = document.getElementById('sidebar-user-avatar-img');
-            const sidebarAvatarIcon = document.getElementById('sidebar-user-avatar-icon');
             const topAvatarImg = document.getElementById('top-user-avatar-img');
             const topAvatarIcon = document.getElementById('top-user-avatar-icon');
-            const topUserName = document.getElementById('top-user-name');
-
-            if (topUserName) topUserName.textContent = hoTen;
 
             if (userAvatar) {
-                if (sidebarAvatarImg) {
-                    sidebarAvatarImg.src = userAvatar;
-                    sidebarAvatarImg.classList.remove('hidden');
-                }
-                if (sidebarAvatarIcon) sidebarAvatarIcon.classList.add('hidden');
-
                 if (topAvatarImg) {
                     topAvatarImg.src = userAvatar;
                     topAvatarImg.classList.remove('hidden');
                 }
                 if (topAvatarIcon) topAvatarIcon.classList.add('hidden');
             } else {
-                if (sidebarAvatarImg) sidebarAvatarImg.classList.add('hidden');
-                if (sidebarAvatarIcon) sidebarAvatarIcon.classList.remove('hidden');
-
                 if (topAvatarImg) topAvatarImg.classList.add('hidden');
                 if (topAvatarIcon) topAvatarIcon.classList.remove('hidden');
             }
