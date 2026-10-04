@@ -175,20 +175,52 @@ $dangKyDinhTuyenGateway = function () {
         Route::get('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', 'v1/dich-vu'));
 
         Route::middleware(['xac_thuc_gateway'])->group(function () {
-            // Bác sĩ & Admin chỉ định cận lâm sàng (Bệnh nhân bị chặn)
+            // Quản lý dịch vụ (ADMIN)
+            Route::post('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', 'v1/dich-vu'))
+                ->middleware('phan_quyen:ADMIN');
+            Route::put('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/dich-vu/{$id}"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN');
+            Route::patch('{id}/toggle-status', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/dich-vu/{$id}/toggle-status"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN');
+
+            // Bác sĩ & Admin chỉ định cận lâm sàng
             Route::post('chi-dinh', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', 'v1/dich-vu/chi-dinh'))
                 ->middleware('phan_quyen:ADMIN,BAC_SI');
+            Route::delete('chi-dinh/{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/dich-vu/chi-dinh/{$id}"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
 
-            // Cập nhật kết quả xét nghiệm / hình ảnh (Bệnh nhân bị chặn)
+            // Cập nhật kết quả xét nghiệm / hình ảnh (Bác sĩ / Kỹ thuật viên / Admin)
             Route::put('ket-qua/{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/dich-vu/ket-qua/{$id}"))
-                ->middleware('phan_quyen:ADMIN,BAC_SI');
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
 
             // Lấy danh sách cận lâm sàng theo lịch hẹn
             Route::get('lich-hen/{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/dich-vu/lich-hen/{$id}"));
+        });
+    });
 
-            // Thêm danh mục dịch vụ mới: Chỉ ADMIN
-            Route::post('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', 'v1/dich-vu'))
-                ->middleware('phan_quyen:ADMIN');
+    // Khám bệnh & Hồ sơ bệnh án
+    Route::prefix('kham-benh')->group(function () {
+        Route::middleware(['xac_thuc_gateway'])->group(function () {
+            Route::post('chi-dinh', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', 'v1/kham-benh/chi-dinh'))
+                ->middleware('phan_quyen:ADMIN,BAC_SI');
+            Route::delete('chi-dinh/{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/kham-benh/chi-dinh/{$id}"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
+            Route::get('{id}/dich-vu', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/kham-benh/{$id}/dich-vu"))
+                ->whereNumber('id');
+            Route::post('{id}/hoan-thanh', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/kham-benh/{$id}/hoan-thanh"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
+            Route::get('{id}/ho-so', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/kham-benh/{$id}/ho-so"))
+                ->whereNumber('id');
+        });
+    });
+
+    // Kỹ thuật viên Cận lâm sàng
+    Route::prefix('can-lam-sang')->group(function () {
+        Route::middleware(['xac_thuc_gateway'])->group(function () {
+            Route::get('danh-sach-cho', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', 'v1/can-lam-sang/danh-sach-cho'))
+                ->middleware('phan_quyen:ADMIN,BAC_SI');
+            Route::put('{id}/ket-qua', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'y_te', "v1/can-lam-sang/{$id}/ket-qua"))
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
         });
     });
 
