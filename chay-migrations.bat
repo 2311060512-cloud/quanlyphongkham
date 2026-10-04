@@ -1,12 +1,10 @@
 @echo off
-chcp 65001 > nul
 echo ============================================================
 echo   CHAY MIGRATIONS VA SEEDERS CHO 4 MICROSERVICES PHONG KHAM
-echo   (MySQL Laragon Port 3307)
 echo ============================================================
 
 echo.
-echo [1/5] Khoi tao co so du lieu tren MySQL 3307...
+echo [1/5] Khoi tao co so du lieu tren MySQL...
 php khoi-tao-database.php
 
 echo.
