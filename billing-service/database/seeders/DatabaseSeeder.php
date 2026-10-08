@@ -22,12 +22,12 @@ class DatabaseSeeder extends Seeder
             'phuong_thuc_thanh_toan' => 'CHUYEN_KHOAN',
             'trang_thai' => 'DA_THANH_TOAN',
             'ngay_thanh_toan' => now(),
-            'ghi_chu' => 'Thanh toan qua app Ngan hang',
+            'ghi_chu' => 'Thanh toán qua ứng dụng ngân hàng',
         ]);
 
         ChiTietHoaDon::updateOrCreate([
             'hoa_don_id' => $hoaDon->id,
-            'ten_khoan_thu' => 'Cong kham chuyen khoa Tim mach (ThS.BS Tran Thi Binh)',
+            'ten_khoan_thu' => 'Công khám chuyên khoa Tim mạch (ThS.BS Trần Thị Bình)',
         ], [
             'loai_khoan_thu' => 'TIEN_KHAM',
             'so_luong' => 1,
@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
 
         ChiTietHoaDon::updateOrCreate([
             'hoa_don_id' => $hoaDon->id,
-            'ten_khoan_thu' => 'Dien tam do (ECG 12 chuyen dao)',
+            'ten_khoan_thu' => 'Điện tâm đồ (ECG 12 chuyển đạo)',
         ], [
             'loai_khoan_thu' => 'DICH_VU_CLS',
             'so_luong' => 1,
