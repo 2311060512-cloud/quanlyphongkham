@@ -86,7 +86,7 @@ class HoaDonService
         $benhNhanId = null;
         $bacSiId = null;
         $tienKham = 200000.00; // Gia mac dinh phong ngua fallback
-        $tenBacSi = 'Bac si kham';
+        $tenBacSi = 'Bác sĩ khám';
         $danhSachDichVuCLS = [];
 
         $canhBao = [];
@@ -99,10 +99,10 @@ class HoaDonService
                 $benhNhanId = $lh['benh_nhan_id'] ?? 1;
                 $bacSiId = $lh['bac_si_id'] ?? null;
             } else {
-                $canhBao[] = 'Khong the ket noi Service 02 de lay lich hen.';
+                $canhBao[] = 'Không thể kết nối Service 02 để lấy lịch hẹn.';
             }
         } catch (\Exception $e) {
-            $canhBao[] = 'Khong the ket noi Service 02: ' . $e->getMessage();
+            $canhBao[] = 'Không thể kết nối Service 02: ' . $e->getMessage();
             Log::warning("Khong the ket noi Service 02 de lay lich hen: " . $e->getMessage());
         }
 
@@ -117,12 +117,12 @@ class HoaDonService
                 if ($respBacSi->successful() && isset($respBacSi['du_lieu'])) {
                     $bs = $respBacSi['du_lieu'];
                     $tienKham = (float)($bs['gia_kham'] ?? 200000.00);
-                    $tenBacSi = $bs['tai_khoan']['ho_ten'] ?? ($bs['ho_ten'] ?? 'Bac si kham');
+                    $tenBacSi = $bs['tai_khoan']['ho_ten'] ?? ($bs['ho_ten'] ?? 'Bác sĩ khám');
                 } else {
-                    $canhBao[] = 'Khong the ket noi Service 01 de lay gia kham bac si.';
+                    $canhBao[] = 'Không thể kết nối Service 01 để lấy giá khám bác sĩ.';
                 }
             } catch (\Exception $e) {
-                $canhBao[] = 'Khong the ket noi Service 01: ' . $e->getMessage();
+                $canhBao[] = 'Không thể kết nối Service 01: ' . $e->getMessage();
                 Log::warning("Khong the ket noi Service 01 de lay gia kham: " . $e->getMessage());
             }
         }
@@ -133,10 +133,10 @@ class HoaDonService
             if ($respYTe->successful() && isset($respYTe['du_lieu'])) {
                 $danhSachDichVuCLS = $respYTe['du_lieu'];
             } else {
-                $canhBao[] = 'Khong the ket noi Service 03 de lay danh sach can lam sang.';
+                $canhBao[] = 'Không thể kết nối Service 03 để lấy danh sách cận lâm sàng.';
             }
         } catch (\Exception $e) {
-            $canhBao[] = 'Khong the ket noi Service 03: ' . $e->getMessage();
+            $canhBao[] = 'Không thể kết nối Service 03: ' . $e->getMessage();
             Log::warning("Khong the ket noi Service 03 de lay danh sach can lam sang: " . $e->getMessage());
         }
 
@@ -168,14 +168,14 @@ class HoaDonService
                 'phuong_thuc_thanh_toan' => 'TIEN_MAT',
                 'trang_thai' => 'CHUA_THANH_TOAN',
                 'ngay_thanh_toan' => null,
-                'ghi_chu' => 'Hoa don tong hop tu dong',
+                'ghi_chu' => 'Hóa đơn tổng hợp tự động',
             ]);
 
             // Chi tiet tien kham
             ChiTietHoaDon::create([
                 'hoa_don_id' => $hd->id,
                 'loai_khoan_thu' => 'TIEN_KHAM',
-                'ten_khoan_thu' => "Cong kham benh ({$tenBacSi})",
+                'ten_khoan_thu' => "Công khám bệnh ({$tenBacSi})",
                 'so_luong' => 1,
                 'don_gia' => $tienKham,
                 'thanh_tien' => $tienKham,
@@ -183,7 +183,7 @@ class HoaDonService
 
             // Chi tiet cac dich vu CLS
             foreach ($danhSachDichVuCLS as $cls) {
-                $tenDichVu = $cls['dich_vu']['ten_dich_vu'] ?? ($cls['ten_dich_vu'] ?? 'Dich vu can lam sang');
+                $tenDichVu = $cls['dich_vu']['ten_dich_vu'] ?? ($cls['ten_dich_vu'] ?? 'Dịch vụ cận lâm sàng');
                 $soLuong = (int)($cls['so_luong'] ?? 1);
                 $donGia = (float)($cls['don_gia'] ?? 0);
                 $thanhTien = $soLuong * $donGia;
@@ -208,7 +208,7 @@ class HoaDonService
 
         return [
             'thanh_cong' => true,
-            'thong_diep' => 'Tong hop va tao hoa don tu dong thanh cong.',
+            'thong_diep' => 'Tổng hợp và tạo hóa đơn tự động thành công.',
             'du_lieu' => $duLieu
         ];
     }
@@ -219,14 +219,14 @@ class HoaDonService
         if (!$hoaDon) {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Khong tim thay hoa don.'
+                'thong_diep' => 'Không tìm thấy hóa đơn.'
             ];
         }
 
         if ($hoaDon->trang_thai === 'DA_THANH_TOAN') {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Hoa don nay da duoc thanh toan truoc do.',
+                'thong_diep' => 'Hóa đơn này đã được thanh toán trước đó.',
                 'ma_loi' => 'HOA_DON_DA_THANH_TOAN'
             ];
         }
@@ -234,7 +234,7 @@ class HoaDonService
         if ($hoaDon->trang_thai === 'DA_HOAN_TIEN') {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Hoa don nay da duoc hoan tien, khong the thanh toan.',
+                'thong_diep' => 'Hóa đơn này đã được hoàn tiền, không thể thanh toán.',
                 'ma_loi' => 'HOA_DON_DA_HOAN_TIEN'
             ];
         }
@@ -248,7 +248,7 @@ class HoaDonService
 
         return [
             'thanh_cong' => true,
-            'thong_diep' => 'Thanh toan hoa don thanh cong.',
+            'thong_diep' => 'Thanh toán hóa đơn thành công.',
             'du_lieu' => $hoaDon
         ];
     }
@@ -259,14 +259,14 @@ class HoaDonService
         if (!$hoaDon) {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Khong tim thay hoa don.'
+                'thong_diep' => 'Không tìm thấy hóa đơn.'
             ];
         }
 
         if ($hoaDon->trang_thai === 'DA_HOAN_TIEN') {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Hoa don nay da duoc hoan tien truoc do.',
+                'thong_diep' => 'Hóa đơn này đã được hoàn tiền trước đó.',
                 'ma_loi' => 'HOA_DON_DA_HOAN_TIEN'
             ];
         }
@@ -274,13 +274,13 @@ class HoaDonService
         if ($hoaDon->trang_thai !== 'DA_THANH_TOAN') {
             return [
                 'thanh_cong' => false,
-                'thong_diep' => 'Chi co the hoan tien cho hoa don da thanh toan.',
+                'thong_diep' => 'Chỉ có thể hoàn tiền cho hóa đơn đã thanh toán.',
                 'ma_loi' => 'HOA_DON_CHUA_THANH_TOAN'
             ];
         }
 
         $ghiChuCu = $hoaDon->ghi_chu;
-        $lyDoText = $lyDo ?: 'Hoan tra vien phi theo quy dinh';
+        $lyDoText = $lyDo ?: 'Hoàn trả viện phí theo quy định';
         $ghiChuMoi = ($ghiChuCu ? $ghiChuCu . ' | ' : '') . "[HOÀN TIỀN: {$lyDoText}]";
 
         $hoaDon->update([
@@ -290,7 +290,7 @@ class HoaDonService
 
         return [
             'thanh_cong' => true,
-            'thong_diep' => 'Hoan tien hoa don thanh cong.',
+            'thong_diep' => 'Hoàn tiền hóa đơn thành công.',
             'du_lieu' => $hoaDon
         ];
     }

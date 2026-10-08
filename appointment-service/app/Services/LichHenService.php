@@ -217,11 +217,20 @@ class LichHenService
             ];
         }
 
-        // 2. Kiểm tra phân quyền: ADMIN, Bác sĩ phụ trách, hoặc chính Bệnh nhân sở hữu lịch hẹn
+        // 2. Chặn Bác sĩ dời lịch của bệnh nhân (Chỉ bệnh nhân hoặc admin)
+        if ($vaiTro === 'BAC_SI') {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'BAC_SI_KHONG_THE_DOI_LICH',
+                'thong_diep' => 'Bác sĩ không thể dời lịch khám của bệnh nhân. Chỉ bệnh nhân hoặc quản trị viên mới có quyền dời lịch.',
+                'status' => 403,
+            ];
+        }
+
+        // Kiểm tra phân quyền: ADMIN hoặc chính Bệnh nhân sở hữu lịch hẹn
         if ($vaiTro !== 'ADMIN' && $nguoiThucHienId !== null) {
-            $laBacSiPhuTrach = ((int)$lichHen->bac_si_id === (int)$nguoiThucHienId);
             $laBenhNhan = ($lichHen->benhNhan && (int)$lichHen->benhNhan->tai_khoan_id === (int)$nguoiThucHienId);
-            if (!$laBacSiPhuTrach && !$laBenhNhan) {
+            if (!$laBenhNhan) {
                 return [
                     'thanh_cong' => false,
                     'ma_loi' => 'KHONG_CO_QUYEN',
@@ -420,6 +429,16 @@ class LichHenService
                 'ma_loi' => 'KHONG_TIM_THAY_LICH_HEN',
                 'thong_diep' => 'Không tìm thấy lịch hẹn.',
                 'status' => 404,
+            ];
+        }
+
+        // Chặn Bác sĩ hủy lịch của bệnh nhân (Chỉ bệnh nhân hoặc admin)
+        if ($vaiTro === 'BAC_SI') {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'BAC_SI_KHONG_THE_HUY_LICH',
+                'thong_diep' => 'Bác sĩ không thể hủy lịch khám của bệnh nhân. Chỉ bệnh nhân hoặc quản trị viên mới có quyền hủy lịch.',
+                'status' => 403,
             ];
         }
 

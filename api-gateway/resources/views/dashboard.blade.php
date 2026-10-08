@@ -3,41 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Phòng Khám Đa Khoa</title>
+        <title>Phòng khám đa khoa – Hệ thống quản lý</title>
+    <meta name="description" content="Hệ thống quản lý phòng khám đa khoa: đặt lịch khám, hồ sơ bệnh nhân, bàn khám bác sĩ và thu ngân viện phí.">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Bảng màu chủ đạo duy nhất (xanh dương y tế dịu). Các họ màu "trang trí" cũ
+        // (sky, blue, indigo, purple, violet, teal, cyan, fuchsia, pink) được quy về
+        // cùng một màu chủ đạo để giao diện đồng nhất mà không phải sửa từng class.
+        const PRIMARY_PALETTE = {
+            50: '#EEF5FB',
+            100: '#D9E8F5',
+            200: '#B3D1EB',
+            300: '#82B3DC',
+            400: '#4F91C9',
+            500: '#2A7BBE',
+            600: '#1F6FB2', // Màu chủ đạo
+            700: '#185A92',
+            800: '#144A78',
+            900: '#103B60',
+            950: '#0B2842',
+        };
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        medical: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7', // Mau chu dao y te
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        }
+                        medical: PRIMARY_PALETTE,
+                        primary: PRIMARY_PALETTE,
+                        sky: PRIMARY_PALETTE,
+                        blue: PRIMARY_PALETTE,
+                        indigo: PRIMARY_PALETTE,
+                        purple: PRIMARY_PALETTE,
+                        violet: PRIMARY_PALETTE,
+                        teal: PRIMARY_PALETTE,
+                        cyan: PRIMARY_PALETTE,
+                        fuchsia: PRIMARY_PALETTE,
+                        pink: PRIMARY_PALETTE,
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
+                        sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+                        mono: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+                    },
+                    // Cỡ chữ tối thiểu 13px, dễ đọc với người lớn tuổi
+                    fontSize: {
+                        xs: ['13px', { lineHeight: '18px' }],
+                        sm: ['14px', { lineHeight: '20px' }],
+                        base: ['15px', { lineHeight: '24px' }],
+                        lg: ['17px', { lineHeight: '26px' }],
+                        xl: ['19px', { lineHeight: '28px' }],
+                        '2xl': ['22px', { lineHeight: '30px' }],
+                        '3xl': ['26px', { lineHeight: '34px' }],
+                        '4xl': ['30px', { lineHeight: '38px' }],
+                    },
+                    // Tiêu đề tối đa 600, không dùng chữ quá đậm
+                    fontWeight: {
+                        bold: '600',
+                        extrabold: '600',
+                        black: '700',
+                    },
+                    // Bo góc vừa phải: nút/input 6px, card 8px
+                    borderRadius: {
+                        md: '6px',
+                        lg: '8px',
+                        xl: '8px',
+                        '2xl': '8px',
+                        '3xl': '10px',
+                    },
+                    // Bóng đổ rất nhẹ
+                    boxShadow: {
+                        '2xs': 'none',
+                        xs: '0 1px 2px rgba(16, 24, 40, 0.04)',
+                        sm: '0 1px 2px rgba(16, 24, 40, 0.05)',
+                        DEFAULT: '0 1px 3px rgba(16, 24, 40, 0.06)',
+                        md: '0 2px 6px rgba(16, 24, 40, 0.06)',
+                        lg: '0 4px 12px rgba(16, 24, 40, 0.08)',
+                        xl: '0 8px 24px rgba(16, 24, 40, 0.10)',
+                        '2xl': '0 12px 32px rgba(16, 24, 40, 0.12)',
+                    },
                 }
             }
         }
     </script>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Be Vietnam Pro (hỗ trợ tiếng Việt tốt) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -49,239 +101,474 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        /* ============================================================
+           DESIGN TOKENS
+           ============================================================ */
+        :root {
+            --primary: #1F6FB2;
+            --primary-hover: #185A92;
+            --primary-50: #EEF5FB;
+            --primary-100: #D9E8F5;
+            --primary-700: #185A92;
+
+            --success: #15803D;
+            --success-bg: #ECFDF3;
+            --warning: #B45309;
+            --warning-bg: #FFF7E6;
+            --danger: #C0352B;
+            --danger-bg: #FDEEEC;
+            --neutral: #5B6675;
+            --neutral-bg: #F1F3F6;
+
+            --bg-page: #F5F7FA;
+            --bg-card: #FFFFFF;
+            --border: #E3E8EE;
+            --border-strong: #CBD3DC;
+            --text: #1E2A38;
+            --text-muted: #5B6675;
+
+            --radius-sm: 6px;
+            --radius: 8px;
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 24px;
+
+            --control-h: 42px;
+            --ease: 150ms ease;
+        }
+
+        html { font-size: 15px; }
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
+            font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
         }
 
-        .portal-section {
-            display: none;
-            animation: fadeIn 0.25s ease-in-out;
-        }
+        .font-mono { font-variant-numeric: tabular-nums; }
 
-        .portal-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* ============================================================
+           TAB / SECTION
+           ============================================================ */
+        .portal-section { display: none; }
+        .portal-section.active { display: block; }
 
         .tab-btn.active {
-            background-color: #0284c7;
+            background-color: var(--primary);
             color: #ffffff;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+            font-weight: 600;
         }
 
+        .slot-btn {
+            min-height: 44px;
+            font-size: 15px;
+        }
         .slot-btn.selected {
-            background-color: #0284c7 !important;
+            background-color: var(--primary) !important;
             color: #ffffff !important;
-            border-color: #0284c7 !important;
-            font-weight: 700;
+            border-color: var(--primary) !important;
+            font-weight: 600;
         }
 
+        /* ============================================================
+           MODAL: nền tối nhẹ, không blur
+           ============================================================ */
         .modal-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.45);
             z-index: 200;
             align-items: center;
             justify-content: center;
             padding: 1rem;
         }
+        .modal-backdrop.show { display: flex; }
+        .modal-box { animation: modalFade 0.15s ease-out; }
+        @keyframes modalFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-        .modal-backdrop.show {
+        /* ============================================================
+           SIDEBAR
+           ============================================================ */
+        .app-sidebar {
+            width: 256px;
+            background: #FFFFFF;
+            border-right: 1px solid var(--border);
+        }
+        .sidebar-scroll::-webkit-scrollbar { width: 6px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #D5DBE3; border-radius: 6px; }
+
+        .nav-group-label {
+            padding: 0 12px;
+            margin-bottom: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .sidebar-item {
+            position: relative;
+            width: 100%;
             display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 42px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            text-align: left;
+            transition: background-color var(--ease), color var(--ease);
         }
-
-        .modal-box {
-            animation: modalScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        .sidebar-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+            color: #64748B;
+            transition: color var(--ease);
         }
-
-        @keyframes modalScale {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        .sidebar-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .sidebar-scroll::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
+        .sidebar-item:hover { background: var(--neutral-bg); color: var(--text); }
         .sidebar-item.active {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
-            color: #ffffff !important;
-            font-weight: 700 !important;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+            background: var(--primary-50);
+            color: var(--primary-700);
+            font-weight: 600;
         }
-        .sidebar-item.active i {
-            color: #ffffff !important;
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: var(--primary);
+        }
+        .sidebar-item.active i { color: var(--primary); }
+
+        #sidebar-overlay { display: none; }
+
+        @media (max-width: 1023px) {
+            .app-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+                transition: transform 200ms ease;
+                box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+            }
+            .app-sidebar.open { transform: translateX(0); }
+            #sidebar-overlay.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.35);
+                z-index: 40;
+            }
+        }
+
+        /* ============================================================
+           THÀNH PHẦN DÙNG CHUNG
+           ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 40px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background-color var(--ease), border-color var(--ease), color var(--ease);
+        }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #fff; color: var(--text); border-color: var(--border-strong); }
+        .btn-secondary:hover { background: var(--neutral-bg); }
+        .btn-danger { background: #fff; color: var(--danger); border-color: #EDB7B1; }
+        .btn-danger:hover { background: var(--danger-bg); }
+        .btn-danger-solid { background: var(--danger); color: #fff; }
+        .btn-ghost { background: transparent; color: var(--text-muted); }
+        .btn-ghost:hover { background: var(--neutral-bg); color: var(--text); }
+        .btn-icon { width: 40px; padding: 0; }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+        }
+
+        .input {
+            width: 100%;
+            min-height: var(--control-h);
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            color: var(--text);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 20px;
+            white-space: nowrap;
+        }
+        .badge-success { background: var(--success-bg); color: var(--success); }
+        .badge-warning { background: var(--warning-bg); color: var(--warning); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger); }
+        .badge-neutral { background: var(--neutral-bg); color: var(--neutral); }
+        .badge-info { background: var(--primary-50); color: var(--primary-700); }
+
+        .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+        /* ============================================================
+           CHUẨN HÓA TOÀN CỤC (áp cho markup cũ, không cần sửa từng dòng)
+           ============================================================ */
+
+        /* Focus rõ ràng khi dùng bàn phím */
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Ô nhập liệu */
+        input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="range"]):not([type="color"]),
+        select {
+            min-height: var(--control-h);
+            font-size: 15px;
+        }
+        input, select, textarea { color: var(--text); }
+        input::placeholder, textarea::placeholder { color: #8A94A3; }
+        input:not([type="checkbox"]):not([type="radio"]):focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(31, 111, 178, 0.25) !important;
+        }
+        label { color: #334155; }
+
+        /* Vùng bấm tối thiểu */
+        button[class*="py-2"], button[class*="py-3"],
+        a[class*="py-2"], a[class*="py-3"] {
+            min-height: 40px;
+        }
+
+        /* Bảng: hàng thoáng, tiêu đề không in hoa */
+        main table, .modal-box table { font-size: 14px; }
+        main table th, .modal-box table th {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: none;
+            letter-spacing: 0;
+            white-space: nowrap;
+        }
+        main table td, main table th,
+        .modal-box table td, .modal-box table th {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+        }
+        .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+        /* Bỏ hiệu ứng nhấp nháy/phóng to còn sót lại */
+        .animate-pulse, .animate-bounce, .animate-ping { animation: none !important; }
+
+        /* SweetAlert2 đồng bộ phong cách */
+        .swal2-popup { font-family: 'Be Vietnam Pro', system-ui, sans-serif !important; border-radius: 10px !important; }
+        .swal2-title { font-size: 20px !important; font-weight: 600 !important; color: var(--text) !important; }
+        .swal2-html-container { font-size: 15px !important; color: #334155 !important; line-height: 1.6 !important; }
+        .swal2-styled { border-radius: var(--radius-sm) !important; font-weight: 600 !important; font-size: 15px !important; min-height: 42px; padding: 8px 20px !important; }
+        .swal2-styled.swal2-cancel { background-color: #fff !important; color: var(--text) !important; border: 1px solid var(--border-strong) !important; }
+        .swal2-styled:focus { box-shadow: 0 0 0 3px rgba(31, 111, 178, 0.3) !important; }
+        .swal2-toast { border-radius: 8px !important; box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12) !important; }
+
+        @media (max-width: 1023px) {
+            button[class*="py-2"], button[class*="py-3"],
+            a[class*="py-2"], a[class*="py-3"],
+            .btn, .sidebar-item {
+                min-height: 44px;
+            }
+            main { padding: 16px !important; }
         }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex bg-slate-100 text-slate-800 font-sans">
+<body class="h-screen overflow-hidden flex bg-[#F5F7FA] text-slate-800 font-sans">
+
+    <!-- Lớp phủ khi mở menu trên điện thoại / máy tính bảng -->
+    <div id="sidebar-overlay" onclick="dongSidebarMobile()" aria-hidden="true"></div>
 
     <!-- ================================================================= -->
-    <!-- LEFT SIDEBAR: THANH MENU BÊN TRÁI ĐẦY ĐỦ TẤT CẢ CHỨC NĂNG       -->
+    <!-- THANH MENU BÊN TRÁI                                                -->
     <!-- ================================================================= -->
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 h-screen border-r border-slate-800 z-50 select-none shadow-2xl">
-        <!-- Logo & Brand Header -->
-        <div class="p-4 border-b border-slate-800 flex items-center space-x-3 bg-slate-950/60">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-medical-500 to-sky-600 flex items-center justify-center text-white text-lg shadow-lg shadow-medical-500/25 flex-shrink-0">
-                <i class="fa-solid fa-hospital"></i>
+    <aside id="app-sidebar" class="app-sidebar flex flex-col flex-shrink-0 h-screen z-50 select-none" aria-label="Menu chính">
+        <!-- Tên phòng khám -->
+        <div class="h-16 px-4 border-b border-[#E3E8EE] flex items-center gap-3 flex-shrink-0">
+            <div class="w-9 h-9 rounded-md bg-[#1F6FB2] flex items-center justify-center text-white flex-shrink-0" aria-hidden="true">
+                <i class="fa-solid fa-staff-snake"></i>
             </div>
             <div class="min-w-0 flex-1">
-                <h1 class="font-extrabold text-sm text-white tracking-tight truncate">Phòng Khám Đa Khoa</h1>
-                <p class="text-[10px] font-bold text-sky-400 tracking-wider uppercase flex items-center gap-1.5 mt-0.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Cổng Quản Trị Hệ Thống</span>
-                </p>
+                <p class="font-semibold text-[15px] text-slate-900 leading-tight truncate">Phòng khám đa khoa</p>
+                <p class="text-[13px] text-slate-500 leading-tight truncate mt-0.5">Hệ thống quản lý</p>
             </div>
+            <button type="button" onclick="dongSidebarMobile()" class="lg:hidden btn btn-ghost btn-icon" aria-label="Đóng menu" title="Đóng menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
-        <!-- Menu Navigation (Scrollable) -->
-        <div class="flex-1 overflow-y-auto px-3 py-4 space-y-5 sidebar-scroll">
+        <!-- Danh sách chức năng -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-5 sidebar-scroll">
             <!-- Nhóm 1: TỔNG QUAN (Chỉ ADMIN) -->
             <div id="nav-group-admin-giam-sat" class="role-nav-group" data-roles="ADMIN">
-                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Tổng Quan</p>
-                <div class="space-y-1">
-                    <button class="sidebar-item active w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-giam-sat" onclick="chuyenTab('tab-admin-giam-sat', this)">
-                        <i class="fa-solid fa-chart-pie text-sm text-purple-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Thống Kê & Giám Sát</span>
+                <p class="nav-group-label">Tổng quan</p>
+                <div class="space-y-0.5">
+                    <button class="sidebar-item active" data-tab="tab-admin-giam-sat" onclick="chuyenTab('tab-admin-giam-sat', this)">
+                        <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+                        <span>Thống kê</span>
                     </button>
                 </div>
             </div>
 
             <!-- Nhóm 2: ĐẶT LỊCH & BỆNH NHÂN (BENH_NHAN, BAC_SI & ADMIN) -->
             <div id="nav-group-benh-nhan" class="role-nav-group" data-roles="BENH_NHAN,ADMIN,BAC_SI">
-                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Lịch Hẹn & Bệnh Nhân</p>
-                <div class="space-y-1">
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-benh-nhan-lich" onclick="chuyenTab('tab-benh-nhan-lich', this)">
-                        <i class="fa-solid fa-calendar-days text-sm text-sky-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span id="nav-label-benh-nhan-lich">Quản Lý Lịch Khám</span>
+                <p class="nav-group-label">Khám bệnh</p>
+                <div class="space-y-0.5">
+                    <button class="sidebar-item" data-tab="tab-benh-nhan" onclick="chuyenTab('tab-benh-nhan', this)">
+                        <i class="fa-regular fa-calendar-plus" aria-hidden="true"></i>
+                        <span>Đặt lịch khám</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-benh-nhan" onclick="chuyenTab('tab-benh-nhan', this)">
-                        <i class="fa-regular fa-calendar-plus text-sm text-medical-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Tra Cứu & Đặt Lịch</span>
+                    <button class="sidebar-item" data-tab="tab-benh-nhan-lich" onclick="chuyenTab('tab-benh-nhan-lich', this)">
+                        <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                        <span id="nav-label-benh-nhan-lich">Lịch khám</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-bang-gia-kham" onclick="chuyenTab('tab-bang-gia-kham', this)">
-                        <i class="fa-solid fa-receipt text-sm text-amber-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Bảng Giá Khám Bệnh</span>
+                    <button class="sidebar-item" data-tab="tab-benh-nhan-vien-phi" onclick="chuyenTab('tab-benh-nhan-vien-phi', this)">
+                        <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+                        <span>Viện phí</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-ho-so-gia-dinh" onclick="chuyenTab('tab-ho-so-gia-dinh', this)">
-                        <i class="fa-solid fa-people-roof text-sm text-emerald-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Hồ Sơ Gia Đình</span>
+                    <button class="sidebar-item" data-tab="tab-ho-so-gia-dinh" onclick="chuyenTab('tab-ho-so-gia-dinh', this)">
+                        <i class="fa-solid fa-people-roof" aria-hidden="true"></i>
+                        <span>Hồ sơ gia đình</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-benh-nhan-vien-phi" onclick="chuyenTab('tab-benh-nhan-vien-phi', this)">
-                        <i class="fa-solid fa-file-invoice-dollar text-sm text-amber-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Viện Phí Của Tôi</span>
-                    </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-benh-nhan" onclick="chuyenTab('tab-admin-benh-nhan', this)">
-                        <i class="fa-solid fa-hospital-user text-sm text-rose-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Quản Lý Bệnh Nhân & EHR</span>
+                    <button class="sidebar-item" data-tab="tab-admin-benh-nhan" onclick="chuyenTab('tab-admin-benh-nhan', this)">
+                        <i class="fa-solid fa-hospital-user" aria-hidden="true"></i>
+                        <span>Bệnh nhân</span>
                     </button>
                 </div>
             </div>
 
             <!-- Nhóm 3: BÀN KHÁM BÁC SĨ (BAC_SI & ADMIN) -->
             <div id="nav-group-bac-si" class="role-nav-group" data-roles="BAC_SI,ADMIN">
-                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Bàn Khám Bác Sĩ</p>
-                <div class="space-y-1">
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-bac-si" onclick="chuyenTab('tab-bac-si', this)">
-                        <i class="fa-solid fa-stethoscope text-sm text-teal-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Khám & Kê Cận Lâm Sàng</span>
+                <p class="nav-group-label">Bác sĩ</p>
+                <div class="space-y-0.5">
+                    <button class="sidebar-item" data-tab="tab-bac-si" onclick="chuyenTab('tab-bac-si', this)">
+                        <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+                        <span>Bàn khám</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-bac-si-lich-su" onclick="chuyenTab('tab-bac-si-lich-su', this)">
-                        <i class="fa-solid fa-clipboard-user text-sm text-emerald-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Danh Sách Ca Khám Hôm Nay</span>
+                    <button class="sidebar-item" data-tab="tab-bac-si-lich-su" onclick="chuyenTab('tab-bac-si-lich-su', this)">
+                        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                        <span>Ca khám hôm nay</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" onclick="moModalLichTrucBacSiHienTai()">
-                        <i class="fa-solid fa-calendar-week text-sm text-sky-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Đăng Ký & Lịch Trực Của Tôi</span>
+                    <button class="sidebar-item" id="nav-item-lich-truc-bac-si" onclick="moModalLichTrucBacSiHienTai()">
+                        <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                        <span id="nav-label-lich-truc-bac-si">Lịch trực của tôi</span>
                     </button>
                 </div>
             </div>
 
             <!-- Nhóm 4: THU NGÂN & VIỆN PHÍ (Chỉ ADMIN) -->
             <div id="nav-group-thu-ngan" class="role-nav-group" data-roles="ADMIN">
-                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Viện Phí & Tài Chính</p>
-                <div class="space-y-1">
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-thu-ngan" onclick="chuyenTab('tab-admin-thu-ngan', this)">
-                        <i class="fa-solid fa-file-invoice-dollar text-sm text-amber-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Thu Ngân & Hóa Đơn</span>
+                <p class="nav-group-label">Tài chính</p>
+                <div class="space-y-0.5">
+                    <button class="sidebar-item" data-tab="tab-admin-thu-ngan" onclick="chuyenTab('tab-admin-thu-ngan', this)">
+                        <i class="fa-solid fa-cash-register" aria-hidden="true"></i>
+                        <span>Thu ngân</span>
                     </button>
                 </div>
             </div>
 
             <!-- Nhóm 5: QUẢN TRỊ HỆ THỐNG (Chỉ ADMIN) -->
             <div id="nav-group-admin-he-thong" class="role-nav-group" data-roles="ADMIN">
-                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Quản Trị Hệ Thống</p>
-                <div class="space-y-1">
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-bac-si" onclick="chuyenTab('tab-admin-bac-si', this)">
-                        <i class="fa-solid fa-user-doctor text-sm text-blue-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Bác Sĩ & Chuyên Khoa</span>
+                <p class="nav-group-label">Quản trị</p>
+                <div class="space-y-0.5">
+                    <button class="sidebar-item" data-tab="tab-admin-bac-si" onclick="chuyenTab('tab-admin-bac-si', this)">
+                        <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+                        <span>Bác sĩ &amp; chuyên khoa</span>
                     </button>
-                    <button class="sidebar-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition group text-left" data-tab="tab-admin-tai-khoan" onclick="chuyenTab('tab-admin-tai-khoan', this)">
-                        <i class="fa-solid fa-users-gear text-sm text-indigo-400 w-5 text-center group-hover:scale-110 transition-transform"></i>
-                        <span>Quản Trị Tài Khoản</span>
+                    <button class="sidebar-item" data-tab="tab-bang-gia-kham" onclick="chuyenTab('tab-bang-gia-kham', this)">
+                        <i class="fa-solid fa-tags" aria-hidden="true"></i>
+                        <span>Bảng giá khám</span>
+                    </button>
+                    <button class="sidebar-item" data-tab="tab-admin-tai-khoan" onclick="chuyenTab('tab-admin-tai-khoan', this)">
+                        <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                        <span>Tài khoản</span>
                     </button>
                 </div>
             </div>
-        </div>
+        </nav>
 
-        <!-- Sidebar Footer: Trạng Thái Hệ Thống -->
-        <div class="p-3.5 border-t border-slate-800/80 bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-400 flex-shrink-0">
-            <span class="flex items-center gap-1.5 font-medium">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Hệ thống trực tuyến</span>
-            </span>
-            <span class="font-mono text-[10px] text-slate-400 font-bold bg-slate-800 px-2 py-0.5 rounded-md border border-slate-700">v1.2</span>
+        <!-- Chân menu -->
+        <div class="px-4 py-3 border-t border-[#E3E8EE] text-[13px] text-slate-500 flex-shrink-0">
+            Phiên bản 1.2
         </div>
     </aside>
 
     <!-- ============================================================= -->
-    <!-- RIGHT MAIN WORKSPACE CONTENT                                  -->
+    <!-- VÙNG NỘI DUNG CHÍNH                                           -->
     <!-- ============================================================= -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        <!-- Top Sticky Sub-Header -->
-        <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-6 flex items-center justify-between z-30 flex-shrink-0 shadow-xs">
-            <div class="flex items-center space-x-3 min-w-0">
-                <h2 id="current-page-title" class="text-base font-extrabold text-slate-800 flex items-center gap-2 truncate">
-                    <i class="fa-solid fa-chart-pie text-purple-600"></i>
-                    <span>Tổng Quan & Giám Sát Hệ Thống</span>
-                </h2>
-                <span class="text-slate-300 hidden sm:inline">|</span>
-                <span id="brand-subtitle" class="text-xs font-medium text-slate-500 hidden md:inline truncate">Phòng Khám Đa Khoa</span>
+        <!-- Thanh tiêu đề -->
+        <header class="h-16 bg-white border-b border-[#E3E8EE] px-4 sm:px-6 flex items-center justify-between gap-3 z-30 flex-shrink-0">
+            <div class="flex items-center gap-3 min-w-0">
+                <button type="button" onclick="moSidebarMobile()" class="lg:hidden btn btn-secondary btn-icon flex-shrink-0" aria-label="Mở menu" title="Mở menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="min-w-0">
+                    <h1 id="current-page-title" class="text-[17px] font-semibold text-slate-900 flex items-center gap-2 truncate leading-tight">
+                        <span>Tổng quan</span>
+                    </h1>
+                    <p id="brand-subtitle" class="text-[13px] text-slate-500 hidden md:block truncate leading-tight mt-0.5">Phòng khám đa khoa</p>
+                </div>
             </div>
 
-            <div class="flex items-center space-x-3 flex-shrink-0">
-                <!-- Thẻ Thông Tin Người Dùng / Hồ Sơ Cá Nhân (Di chuyển từ góc dưới trái lên) -->
-                <div onclick="moModalHoSoCaNhan()" class="flex items-center space-x-2.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/90 rounded-2xl cursor-pointer transition shadow-2xs group" title="Nhấn để xem & chỉnh sửa hồ sơ cá nhân">
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <!-- Hồ sơ cá nhân -->
+                <button type="button" onclick="moModalHoSoCaNhan()" class="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-md hover:bg-slate-100 transition-colors text-left" title="Xem và sửa hồ sơ cá nhân" aria-label="Hồ sơ cá nhân">
                     <div class="relative flex-shrink-0">
-                        <img id="top-user-avatar-img" src="" alt="Avatar" class="w-8 h-8 rounded-xl object-cover border border-slate-300 shadow-2xs hidden">
-                        <div id="top-user-avatar-icon" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-2xs">
-                            <i class="fa-solid fa-user"></i>
+                        <img id="top-user-avatar-img" src="" alt="Ảnh đại diện" class="w-9 h-9 rounded-full object-cover border border-[#E3E8EE] hidden">
+                        <div id="top-user-avatar-icon" class="w-9 h-9 rounded-full bg-[#D9E8F5] flex items-center justify-center text-[#185A92] text-sm">
+                            <i class="fa-solid fa-user" aria-hidden="true"></i>
                         </div>
-                        <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
                     </div>
-                    <div class="min-w-0 text-left">
-                        <p id="header-user-name" class="text-xs font-bold text-slate-800 truncate max-w-[130px] sm:max-w-[170px] group-hover:text-sky-600 transition">Đang tải...</p>
-                        <span id="header-user-role" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300 inline-block leading-none mt-0.5">ADMIN</span>
+                    <div class="min-w-0 hidden sm:block">
+                        <p id="header-user-name" class="text-[14px] font-semibold text-slate-900 truncate max-w-[170px] leading-tight">Đang tải...</p>
+                        <span id="header-user-role" class="text-[13px] text-slate-500 leading-tight">Quản trị viên</span>
                     </div>
-                    <i class="fa-solid fa-gear text-slate-400 group-hover:text-slate-600 text-xs transition ml-0.5"></i>
-                </div>
+                </button>
 
-                <!-- Nút Đăng Xuất Duy Nhất (Di chuyển từ góc dưới trái lên) -->
-                <button onclick="xuLyDangXuatGateway()" class="flex items-center space-x-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200/90 rounded-2xl text-xs font-bold transition shadow-2xs hover:scale-105 active:scale-95" title="Đăng xuất khỏi hệ thống">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span class="hidden sm:inline">Đăng Xuất</span>
+                <!-- Đăng xuất -->
+                <button type="button" onclick="xuLyDangXuatGateway()" class="btn btn-secondary" title="Đăng xuất khỏi hệ thống" aria-label="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                    <span class="hidden sm:inline">Đăng xuất</span>
                 </button>
             </div>
         </header>
@@ -295,35 +582,35 @@
 
         <!-- TAB 1.1: TRA CỨU & ĐẶT LỊCH KHÁM -->
         <section id="tab-benh-nhan" class="portal-section space-y-6">
-            <!-- Patient Hero Banner -->
-            <div class="bg-gradient-to-r from-medical-700 via-medical-600 to-sky-500 rounded-3xl p-8 text-white shadow-xl shadow-medical-600/15 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
-                <div class="space-y-2 z-10">
-                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm border border-white/30 text-sky-100 uppercase tracking-wider">
-                        Cổng Đặt Lịch Trực Tuyến
-                    </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                        Xin chào, <span id="banner-patient-name" class="underline decoration-sky-300">Quý Khách</span>!
+            <!-- Patient Welcome Bar -->
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 sm:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="text-[18px] font-semibold text-slate-900">
+                        Xin chào, <span id="banner-patient-name">Quý khách</span>
                     </h2>
-                    <p class="text-sky-100 text-sm max-w-xl">
-                        Tra cứu danh sách bác sĩ chuyên khoa, xem phòng khám, giá niêm yết và đăng ký khám bệnh theo khung giờ 30 phút thuận tiện.
+                    <p class="text-[14px] text-slate-500 mt-1 max-w-2xl">
+                        Chọn bác sĩ chuyên khoa và khung giờ phù hợp để đăng ký khám bệnh nhanh chóng.
                     </p>
                 </div>
-                <div class="flex items-center gap-3 z-10 flex-wrap">
-                    <button onclick="moModalDatLich(null)" class="px-6 py-3 bg-white hover:bg-sky-50 text-medical-700 font-extrabold text-sm rounded-2xl shadow-lg shadow-slate-900/10 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
-                        <i class="fa-solid fa-calendar-plus text-medical-600"></i>
-                        <span>Đặt Lịch Khám Ngay</span>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button type="button" onclick="moModalDatLich(null)" class="btn btn-primary">
+                        <i class="fa-solid fa-calendar-plus" aria-hidden="true"></i>
+                        <span>Đặt lịch khám</span>
+                    </button>
+                    <button type="button" onclick="chuyenTab('tab-benh-nhan-lich')" class="btn btn-secondary">
+                        <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                        <span>Lịch hẹn của tôi</span>
                     </button>
                 </div>
             </div>
 
             <!-- Doctor List Panel -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-user-doctor text-medical-600"></i>
-                            <span>Đội Ngũ Bác Sĩ Chuyên Khoa</span>
+                            <span>Đội ngũ bác sĩ chuyên khoa</span>
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">Chọn bác sĩ phù hợp để đặt lịch khám trực tiếp</p>
                     </div>
@@ -332,17 +619,17 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="filter-doctor-search" oninput="locDanhSachBacSi()" placeholder="Tìm tên bác sĩ..." class="pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 w-56">
+                            <input type="text" id="filter-doctor-search" oninput="locDanhSachBacSi()" placeholder="Tìm tên bác sĩ..." class="pl-9 pr-4 py-2 text-xs bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 w-56">
                         </div>
-                        <select id="filter-doctor-chuyen-khoa" onchange="locDanhSachBacSi()" class="px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-700 font-medium">
+                        <select id="filter-doctor-chuyen-khoa" onchange="locDanhSachBacSi()" class="px-3.5 py-2 text-xs bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-700 font-medium">
                             <option value="">Tất cả chuyên khoa</option>
                         </select>
-                        <select id="filter-doctor-ca" onchange="locDanhSachBacSi()" class="px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-700 font-medium">
+                        <select id="filter-doctor-ca" onchange="locDanhSachBacSi()" class="px-3.5 py-2 text-xs bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-700 font-medium">
                             <option value="">Tất cả ca khám</option>
-                            <option value="CA_SANG">☀️ Ca Sáng (07:30 - 11:30)</option>
-                            <option value="CA_CHIEU">⛅ Ca Chiều (13:30 - 17:00)</option>
-                            <option value="CA_TOI">🌙 Ca Tối (17:30 - 20:30)</option>
-                            <option value="CA_NGAY">⭐ Cả Ngày (07:30 - 17:00)</option>
+                            <option value="CA_SANG">Ca sáng (07:30 - 11:30)</option>
+                            <option value="CA_CHIEU">Ca chiều (13:30 - 17:00)</option>
+                            <option value="CA_TOI">Ca tối (17:30 - 20:30)</option>
+                            <option value="CA_NGAY">Cả ngày (07:30 - 17:00)</option>
                         </select>
                     </div>
                 </div>
@@ -357,54 +644,56 @@
         <!-- TAB 1.2: LỊCH KHÁM (NGƯỜI 2) -->
         <section id="tab-benh-nhan-lich" class="portal-section space-y-6">
             <!-- Widget Liên Kết Hồ Sơ Nhanh (Giao Diện Chính) -->
-            <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 rounded-3xl p-6 text-white shadow-xl shadow-emerald-600/10 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
-                <div class="flex items-center space-x-4 z-10">
-                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl text-white shadow-inner flex-shrink-0">
-                        <i class="fa-solid fa-people-roof"></i>
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-people-roof" aria-hidden="true"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-white/20 text-emerald-100 border border-white/20">Hồ Sơ Y Tế</span>
-                            <span class="text-xs text-emerald-100 font-semibold" id="quick-banner-so-thanh-vien">Quản lý sức khỏe cả gia đình</span>
+                            <h3 class="text-[15px] font-semibold text-slate-900">Hồ sơ sức khỏe gia đình</h3>
+                            <span class="badge badge-info" id="quick-banner-so-thanh-vien">Quản lý sức khỏe gia đình</span>
                         </div>
-                        <h3 class="text-lg font-black text-white mt-1">Hồ Sơ Sức Khỏe Gia Đình & Người Thân</h3>
-                        <p class="text-xs text-emerald-100/90 mt-0.5">Lưu trữ thông tin nhóm máu, tiền sử dị ứng thuốc, bệnh án điện tử và đặt lịch khám 1-click cho người thân.</p>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Đặt lịch khám và theo dõi lịch sử y tế cho người thân trong gia đình.</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap z-10 flex-shrink-0">
-                    <button onclick="moModalThemNguoiThan()" class="px-4 py-2.5 bg-white text-emerald-800 hover:bg-emerald-50 rounded-2xl text-xs font-extrabold shadow-sm transition hover:scale-105 active:scale-95 flex items-center space-x-2">
-                        <i class="fa-solid fa-user-plus text-emerald-600"></i>
-                        <span>+ Thêm Người Thân</span>
+                <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+                    <button type="button" onclick="moModalThemNguoiThan()" class="btn btn-secondary">
+                        <i class="fa-solid fa-user-plus text-[#1F6FB2]" aria-hidden="true"></i>
+                        <span>Thêm người thân</span>
+                    </button>
+                    <button type="button" onclick="chuyenTab('tab-ho-so-gia-dinh')" class="btn btn-ghost">
+                        <span>Xem hồ sơ</span>
+                        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
                 <div class="flex items-center justify-between pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-list-check text-sky-600"></i>
-                            <span id="title-danh-sach-lich-kham">Quản Lý Lịch Khám Bệnh</span>
+                            <span id="title-danh-sach-lich-kham">Quản lý lịch khám bệnh</span>
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">Theo dõi thời gian, bệnh nhân, bác sĩ phụ trách, dời lịch và tình trạng ca khám</p>
                     </div>
                 </div>
 
                 <!-- Table Appointments -->
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-                                <th class="py-3.5 px-4">Mã Lịch</th>
-                                <th class="py-3.5 px-4">Bệnh Nhân</th>
-                                <th class="py-3.5 px-4">Bác Sĩ Khám</th>
-                                <th class="py-3.5 px-4">Chuyên Khoa</th>
-                                <th class="py-3.5 px-4">Ngày Khám</th>
-                                <th class="py-3.5 px-4">Khung Giờ</th>
-                                <th class="py-3.5 px-4">Lý Do Khám</th>
-                                <th class="py-3.5 px-4">Trạng Thái</th>
-                                <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                <th class="py-3.5 px-4">Mã lịch</th>
+                                <th class="py-3.5 px-4">Bệnh nhân</th>
+                                <th class="py-3.5 px-4">Bác sĩ khám</th>
+                                <th class="py-3.5 px-4">Chuyên khoa</th>
+                                <th class="py-3.5 px-4">Ngày khám</th>
+                                <th class="py-3.5 px-4">Khung giờ</th>
+                                <th class="py-3.5 px-4">Lý do khám</th>
+                                <th class="py-3.5 px-4">Trạng thái</th>
+                                <th class="py-3.5 px-4 text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-benh-nhan-lich" class="divide-y divide-slate-100 text-slate-700">
@@ -420,84 +709,81 @@
         <!-- ============================================================= -->
         <section id="tab-ho-so-gia-dinh" class="portal-section space-y-6">
             <!-- Header Section -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-emerald-50 via-white to-teal-50 p-6 sm:p-8 rounded-3xl border border-emerald-100 shadow-xs">
-                <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-people-roof"></i> Hồ Sơ Y Tế Gia Đình (Family EHR)
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-people-roof" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-2.5">
-                        <i class="fa-solid fa-house-chimney-medical text-emerald-600"></i>
-                        <span>Quản Lý Hồ Sơ Bệnh Nhân Gia Đình</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-1 max-w-2xl">
-                        Tài khoản duy nhất quản lý hồ sơ khám cho cả gia đình (Con cái, Cha/Mẹ, Vợ/Chồng). Đặt lịch khám và theo dõi lịch sử y tế chỉ với 1 cú click!
-                    </p>
+                    <div>
+                        <h2 class="text-[17px] font-semibold text-slate-900">Hồ sơ sức khỏe gia đình</h2>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Quản lý hồ sơ bệnh nhân cho cả gia đình (con cái, cha mẹ, vợ chồng), đặt lịch và theo dõi lịch sử y tế.</p>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-2xl shadow-md shadow-emerald-500/20 transition flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Thêm Người Thân Mới</span>
+                <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+                    <button type="button" onclick="moModalThemNguoiThan()" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                        <span>Thêm người thân</span>
                     </button>
-                    <button type="button" onclick="taiVaRenderHoSoGiaDinh(true)" class="px-3.5 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-2xl border border-slate-200 transition shadow-xs flex items-center gap-1.5" title="Làm mới">
-                        <i class="fa-solid fa-rotate text-xs"></i>
-                        <span>Làm Mới</span>
+                    <button type="button" onclick="taiVaRenderHoSoGiaDinh(true)" class="btn btn-secondary" title="Làm mới">
+                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                        <span>Làm mới</span>
                     </button>
                 </div>
             </div>
 
             <!-- KPI Stats Bar -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-3xl border border-emerald-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Thành Viên</p>
+                        <p class="text-[13px] font-bold text-slate-400">Tổng thành viên</p>
                         <h4 id="stat-gd-tong-thanh-vien" class="text-2xl font-black text-slate-900 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 mt-1">
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-emerald-600 mt-1">
                             <i class="fa-solid fa-address-book"></i> Hồ sơ quản lý
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-people-roof"></i>
                     </div>
                 </div>
-                <div class="bg-white p-5 rounded-3xl border border-sky-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Người Thân Bảo Hộ</p>
+                        <p class="text-[13px] font-bold text-slate-400">Người thân bảo hộ</p>
                         <h4 id="stat-gd-nguoi-than" class="text-2xl font-black text-sky-600 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 mt-1">
-                            <i class="fa-solid fa-children"></i> Con cái, Bố/Mẹ, Vợ/Chồng
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-sky-600 mt-1">
+                            <i class="fa-solid fa-children"></i> Con cái, bố/mẹ, vợ/chồng
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-user-group"></i>
                     </div>
                 </div>
-                <div class="bg-white p-5 rounded-3xl border border-purple-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lượt Khám Gia Đình</p>
+                        <p class="text-[13px] font-bold text-slate-400">Lượt khám gia đình</p>
                         <h4 id="stat-gd-luot-kham" class="text-2xl font-black text-purple-600 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-600 mt-1">
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-purple-600 mt-1">
                             <i class="fa-solid fa-calendar-check"></i> Ca khám đã đặt
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-clipboard-check"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Family Cards Container -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-id-card-clip text-emerald-600"></i>
-                            <span>Danh Sách Thành Viên Trong Gia Đình</span>
+                            <span>Danh sách thành viên trong gia đình</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Bấm nút "Đặt Lịch Khám" để lập tức đặt ca khám cho người thân</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Bấm nút "đặt lịch khám" để lập tức đặt ca khám cho người thân</p>
                     </div>
-                    <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5">
+                    <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-md shadow-xs transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-plus"></i>
-                        <span>Thêm Người Thân</span>
+                        <span>Thêm người thân</span>
                     </button>
                 </div>
 
@@ -511,94 +797,89 @@
         <!-- TAB 1.3: VIỆN PHÍ & THANH TOÁN (DÀNH CHO BỆNH NHÂN & ADMIN)   -->
         <!-- ============================================================= -->
         <section id="tab-benh-nhan-vien-phi" class="portal-section space-y-6">
-            <!-- Header Banner -->
-            <div class="bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 rounded-3xl p-6 text-white shadow-xl shadow-amber-500/10 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
-                <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
-                <div class="flex items-center space-x-4 z-10">
-                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl text-white shadow-inner flex-shrink-0">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
+            <!-- Header Bar -->
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-white/20 text-amber-100 border border-white/20">Viện Phí Trực Tuyến</span>
-                            <span class="text-xs text-amber-100 font-semibold">Thanh toán đa kênh nhanh chóng & an toàn</span>
-                        </div>
-                        <h3 class="text-lg font-black text-white mt-1">Tra Cứu & Quyết Toán Hóa Đơn Viện Phí</h3>
-                        <p class="text-xs text-emerald-100/90 mt-0.5">Theo dõi chi tiết viện phí từng ca khám, tiền công khám, cận lâm sàng, bảo hiểm ưu đãi và thanh toán trực tuyến 24/7.</p>
+                        <h2 class="text-[17px] font-semibold text-slate-900">Viện phí và hóa đơn</h2>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Theo dõi viện phí các ca khám, tiền công khám, cận lâm sàng và lịch sử thanh toán.</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap z-10 flex-shrink-0">
-                    <button onclick="taiDanhSachHoaDon(true)" class="px-4 py-2.5 bg-white text-emerald-700 hover:bg-emerald-50 rounded-2xl text-xs font-extrabold shadow-sm transition hover:scale-105 active:scale-95 flex items-center space-x-2">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <span>Làm Mới</span>
+                <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+                    <button type="button" onclick="taiDanhSachHoaDon(true)" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                        <span>Làm mới</span>
                     </button>
                 </div>
             </div>
 
             <!-- Metric Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div class="bg-white rounded-3xl border border-amber-200/80 p-5 shadow-xs flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-black">
+                <div class="bg-white rounded-lg border border-[#E3E8EE] p-5 shadow-xs flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-black">
                         <i class="fa-solid fa-clock"></i>
                     </div>
                     <div>
-                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Chờ Thanh Toán</div>
+                        <div class="text-[13px] font-bold text-slate-400">Chờ thanh toán</div>
                         <div id="stat-bn-cho-thu" class="text-lg font-black text-amber-600 mt-0.5">0 đ</div>
-                        <div class="text-[10px] text-slate-500" id="stat-bn-so-cho-thu">0 hóa đơn</div>
+                        <div class="text-[13px] text-slate-500" id="stat-bn-so-cho-thu">0 hóa đơn</div>
                     </div>
                 </div>
-                <div class="bg-white rounded-3xl border border-emerald-200/80 p-5 shadow-xs flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-black">
+                <div class="bg-white rounded-lg border border-[#E3E8EE] p-5 shadow-xs flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-black">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
                     <div>
-                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Đã Thanh Toán</div>
+                        <div class="text-[13px] font-bold text-slate-400">Đã thanh toán</div>
                         <div id="stat-bn-da-thu" class="text-lg font-black text-emerald-600 mt-0.5">0 đ</div>
-                        <div class="text-[10px] text-slate-500" id="stat-bn-so-da-thu">0 hóa đơn</div>
+                        <div class="text-[13px] text-slate-500" id="stat-bn-so-da-thu">0 hóa đơn</div>
                     </div>
                 </div>
-                <div class="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-xs flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl font-black">
+                <div class="bg-white rounded-lg border border-[#E3E8EE] p-5 shadow-xs flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center text-xl font-black">
                         <i class="fa-solid fa-receipt"></i>
                     </div>
                     <div>
-                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Số Hóa Đơn</div>
+                        <div class="text-[13px] font-bold text-slate-400">Tổng số hóa đơn</div>
                         <div id="stat-bn-tong-hd" class="text-lg font-black text-slate-900 mt-0.5">0</div>
-                        <div class="text-[10px] text-slate-500">Tất cả lượt khám</div>
+                        <div class="text-[13px] text-slate-500">Tất cả lượt khám</div>
                     </div>
                 </div>
             </div>
 
             <!-- Table Invoices -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-file-invoice text-emerald-600"></i>
-                            <span>Lịch Sử Hóa Đơn Viện Phí Của Bạn</span>
+                            <span>Lịch sử hóa đơn viện phí của bạn</span>
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">Bao gồm hóa đơn bản thân và người thân trong hồ sơ gia đình</p>
                     </div>
-                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-bold">
-                        <button type="button" onclick="locHoaDonBenhNhan('ALL', this)" class="btn-filter-hd-bn active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất Cả</button>
-                        <button type="button" onclick="locHoaDonBenhNhan('CHUA_THANH_TOAN', this)" class="btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ Thu</button>
-                        <button type="button" onclick="locHoaDonBenhNhan('DA_THANH_TOAN', this)" class="btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã Thu</button>
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-md text-xs font-bold">
+                        <button type="button" onclick="locHoaDonBenhNhan('ALL', this)" class="btn-filter-hd-bn active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất cả</button>
+                        <button type="button" onclick="locHoaDonBenhNhan('CHUA_THANH_TOAN', this)" class="btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ thu</button>
+                        <button type="button" onclick="locHoaDonBenhNhan('DA_THANH_TOAN', this)" class="btn-filter-hd-bn px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã thu</button>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-                                <th class="py-3.5 px-4">Mã Hóa Đơn</th>
-                                <th class="py-3.5 px-4">Bệnh Nhân</th>
-                                <th class="py-3.5 px-4">Lịch Khám</th>
-                                <th class="py-3.5 px-4">Tiền Khám</th>
-                                <th class="py-3.5 px-4">Cận Lâm Sàng</th>
-                                <th class="py-3.5 px-4">Giảm Giá</th>
-                                <th class="py-3.5 px-4">Thực Thu</th>
-                                <th class="py-3.5 px-4">Trạng Thái</th>
-                                <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                <th class="py-3.5 px-4">Mã hóa đơn</th>
+                                <th class="py-3.5 px-4">Bệnh nhân</th>
+                                <th class="py-3.5 px-4">Lịch khám</th>
+                                <th class="py-3.5 px-4">Tiền khám</th>
+                                <th class="py-3.5 px-4">Cận lâm sàng</th>
+                                <th class="py-3.5 px-4">Giảm giá</th>
+                                <th class="py-3.5 px-4">Thực thu</th>
+                                <th class="py-3.5 px-4">Trạng thái</th>
+                                <th class="py-3.5 px-4 text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-hoa-don-benh-nhan" class="divide-y divide-slate-100 text-slate-700">
@@ -614,27 +895,24 @@
         <!-- ============================================================= -->
         <section id="tab-admin-benh-nhan" class="portal-section space-y-6">
             <!-- Header Section -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-rose-50 via-white to-sky-50 p-6 rounded-3xl border border-rose-100/80 shadow-xs">
-                <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-[11px] font-bold uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-heart-pulse animate-pulse"></i> Phân Hệ Quản Lý Hồ Sơ Bệnh Án Điện Tử (EHR / EMR)
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-hospital-user" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-2.5">
-                        <i class="fa-solid fa-hospital-user text-rose-600"></i>
-                        <span>Quản Lý Bệnh Nhân & Lịch Sử Thăm Khám</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-1 max-w-2xl">
-                        Theo dõi hồ sơ bệnh nhân trọn đời, thông tin bác sĩ phụ trách, khung giờ khám 30 phút, chẩn đoán bệnh lý, đơn thuốc điện tử và chỉ định tái khám theo chuẩn y khoa.
-                    </p>
+                    <div>
+                        <h2 class="text-[17px] font-semibold text-slate-900">Quản lý bệnh nhân &amp; hồ sơ bệnh án</h2>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Theo dõi hồ sơ bệnh nhân, bác sĩ thăm khám, chẩn đoán, đơn thuốc và lịch sử điều trị.</p>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <button type="button" onclick="moModalThemSuaBenhNhan()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-2xl shadow-md shadow-rose-500/20 transition flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Thêm Bệnh Nhân Mới</span>
+                <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+                    <button type="button" onclick="moModalThemSuaBenhNhan()" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                        <span>Thêm bệnh nhân</span>
                     </button>
-                    <button type="button" onclick="taiDanhSachBenhNhan(true)" class="px-3.5 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-2xl border border-slate-200 transition shadow-xs flex items-center gap-1.5" title="Làm mới dữ liệu">
-                        <i class="fa-solid fa-rotate text-xs"></i>
-                        <span>Làm Mới</span>
+                    <button type="button" onclick="taiDanhSachBenhNhan(true)" class="btn btn-secondary" title="Làm mới dữ liệu">
+                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                        <span>Làm mới</span>
                     </button>
                 </div>
             </div>
@@ -642,71 +920,71 @@
             <!-- KPI Stats Cards (4 cards) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Card 1: Tổng số BN -->
-                <div class="bg-white p-5 rounded-3xl border border-rose-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Hồ Sơ Bệnh Nhân</p>
+                        <p class="text-[13px] font-bold text-slate-400">Tổng hồ sơ bệnh nhân</p>
                         <h4 id="qlbn-stat-tong-bn" class="text-2xl font-black text-slate-900 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 mt-1">
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-rose-600 mt-1">
                             <i class="fa-solid fa-address-book"></i> Hồ sơ quản lý
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#FDF2F2] text-[#C0352B] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-users"></i>
                     </div>
                 </div>
 
                 <!-- Card 2: Ca Khám Hôm Nay -->
-                <div class="bg-white p-5 rounded-3xl border border-sky-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lượt Khám Hôm Nay</p>
+                        <p class="text-[13px] font-bold text-slate-400">Lượt khám hôm nay</p>
                         <h4 id="qlbn-stat-kham-hom-nay" class="text-2xl font-black text-sky-600 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 mt-1">
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-sky-600 mt-1">
                             <i class="fa-regular fa-calendar-check"></i> Ca khám trong ngày
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-calendar-day"></i>
                     </div>
                 </div>
 
                 <!-- Card 3: Đang Chờ Khám -->
-                <div class="bg-white p-5 rounded-3xl border border-amber-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Bệnh Nhân Chờ Khám</p>
+                        <p class="text-[13px] font-bold text-slate-400">Bệnh nhân chờ khám</p>
                         <h4 id="qlbn-stat-dang-cho" class="text-2xl font-black text-amber-600 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 mt-1">
-                            <i class="fa-solid fa-hourglass-half"></i> Tiếp nhận / Chờ phòng
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-amber-600 mt-1">
+                            <i class="fa-solid fa-hourglass-half"></i> Tiếp nhận / chờ phòng
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#FEF6EE] text-[#B54708] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-user-clock"></i>
                     </div>
                 </div>
 
                 <!-- Card 4: Tái Khám -->
-                <div class="bg-white p-5 rounded-3xl border border-emerald-100 shadow-xs flex items-center justify-between">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] flex items-center justify-between">
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Có Lịch Tái Khám</p>
+                        <p class="text-[13px] font-bold text-slate-400">Có lịch tái khám</p>
                         <h4 id="qlbn-stat-tai-kham" class="text-2xl font-black text-emerald-600 mt-1">0</h4>
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 mt-1">
-                            <i class="fa-solid fa-notes-medical"></i> Kê đơn & Hẹn tái khám
+                        <span class="inline-flex items-center gap-1 text-[13px] font-semibold text-emerald-600 mt-1">
+                            <i class="fa-solid fa-notes-medical"></i> Kê đơn & hẹn tái khám
                         </span>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-xs">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg">
                         <i class="fa-solid fa-clipboard-check"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Smart Filter Bar -->
-            <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
+            <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
                     <!-- Search input (4 cols) -->
                     <div class="lg:col-span-4 relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                             <i class="fa-solid fa-magnifying-glass text-xs"></i>
                         </div>
-                        <input type="text" id="qlbn-tim-kiem" oninput="locDanhSachBenhNhan()" placeholder="Tìm theo Mã BN, Họ tên, SĐT, CCCD, Bệnh..." class="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition">
+                        <input type="text" id="qlbn-tim-kiem" oninput="locDanhSachBenhNhan()" placeholder="Tìm theo Mã BN, Họ tên, SĐT, CCCD, Bệnh..." class="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
                         <button type="button" onclick="document.getElementById('qlbn-tim-kiem').value=''; locDanhSachBenhNhan();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-slate-500">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
@@ -714,58 +992,58 @@
 
                     <!-- Bác sĩ phụ trách (3 cols) -->
                     <div class="lg:col-span-3">
-                        <select id="qlbn-loc-bac-si" onchange="locDanhSachBenhNhan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition">
-                            <option value="">Tất cả Bác Sĩ Thăm Khám</option>
+                        <select id="qlbn-loc-bac-si" onchange="locDanhSachBenhNhan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
+                            <option value="">Tất cả bác sĩ thăm khám</option>
                         </select>
                     </div>
 
                     <!-- Khung giờ khám (2 cols) -->
                     <div class="lg:col-span-2">
-                        <select id="qlbn-loc-khung-gio" onchange="locDanhSachBenhNhan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition">
-                            <option value="">Tất cả Khung Giờ</option>
-                            <option value="SANG">Buổi Sáng (07:30 - 11:30)</option>
-                            <option value="CHIEU">Buổi Chiều (13:30 - 17:30)</option>
+                        <select id="qlbn-loc-khung-gio" onchange="locDanhSachBenhNhan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
+                            <option value="">Tất cả khung giờ</option>
+                            <option value="SANG">Buổi sáng (07:30 - 11:30)</option>
+                            <option value="CHIEU">Buổi chiều (13:30 - 17:30)</option>
                         </select>
                     </div>
 
                     <!-- Trạng thái (3 cols) -->
                     <div class="lg:col-span-3">
-                        <select id="qlbn-loc-trang-thai" onchange="locDanhSachBenhNhan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition">
-                            <option value="">Tất cả Trạng Thái Khám</option>
-                            <option value="HOAN_THANH">Đã Khám (Hoàn Thành)</option>
-                            <option value="DANG_KHAM">Đang Trong Phòng Khám</option>
-                            <option value="DA_XAC_NHAN">Đã Xác Nhận / Chờ Khám</option>
-                            <option value="CHO_XAC_NHAN">Chờ Xác Nhận Check-in</option>
-                            <option value="DA_HUY">Đã Hủy Ca Khám</option>
-                            <option value="CO_TAI_KHAM">Có Lịch Hẹn Tái Khám</option>
+                        <select id="qlbn-loc-trang-thai" onchange="locDanhSachBenhNhan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
+                            <option value="">Tất cả trạng thái khám</option>
+                            <option value="HOAN_THANH">Đã khám (hoàn thành)</option>
+                            <option value="DANG_KHAM">Đang trong phòng khám</option>
+                            <option value="DA_XAC_NHAN">Đã xác nhận / chờ khám</option>
+                            <option value="CHO_XAC_NHAN">Chờ xác nhận check-in</option>
+                            <option value="DA_HUY">Đã hủy ca khám</option>
+                            <option value="CO_TAI_KHAM">Có lịch hẹn tái khám</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Chips bộ lọc nhanh -->
                 <div class="flex items-center gap-2 flex-wrap text-xs pt-1 border-t border-slate-100">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Bộ lọc nhanh:</span>
-                    <button type="button" onclick="datBoLocNhanh('ALL')" class="btn-quick-filter px-3 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Tất cả</button>
-                    <button type="button" onclick="datBoLocNhanh('HOM_NAY')" class="btn-quick-filter px-3 py-1 rounded-xl text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 transition">Khám hôm nay</button>
-                    <button type="button" onclick="datBoLocNhanh('CHO_KHAM')" class="btn-quick-filter px-3 py-1 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition">Đang chờ khám</button>
-                    <button type="button" onclick="datBoLocNhanh('DA_KHAM')" class="btn-quick-filter px-3 py-1 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">Đã khám xong</button>
-                    <button type="button" onclick="datBoLocNhanh('CANH_BAO')" class="btn-quick-filter px-3 py-1 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">Có cảnh báo dị ứng</button>
+                    <span class="text-[13px] font-bold text-slate-400 mr-1">Bộ lọc nhanh:</span>
+                    <button type="button" onclick="datBoLocNhanh('ALL')" class="btn-quick-filter px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Tất cả</button>
+                    <button type="button" onclick="datBoLocNhanh('HOM_NAY')" class="btn-quick-filter px-3 py-1 rounded-md text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 transition">Khám hôm nay</button>
+                    <button type="button" onclick="datBoLocNhanh('CHO_KHAM')" class="btn-quick-filter px-3 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition">Đang chờ khám</button>
+                    <button type="button" onclick="datBoLocNhanh('DA_KHAM')" class="btn-quick-filter px-3 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">Đã khám xong</button>
+                    <button type="button" onclick="datBoLocNhanh('CANH_BAO')" class="btn-quick-filter px-3 py-1 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">Có cảnh báo dị ứng</button>
                 </div>
             </div>
 
             <!-- Patient EHR Table -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-                                <th class="py-3.5 px-4">Bệnh Nhân</th>
-                                <th class="py-3.5 px-4">Liên Hệ & Y Tế</th>
-                                <th class="py-3.5 px-4">Bác Sĩ Khám</th>
-                                <th class="py-3.5 px-4">Khung Giờ & Ngày</th>
-                                <th class="py-3.5 px-4">Chẩn Đoán / Bị Bệnh Gì</th>
-                                <th class="py-3.5 px-4">Trạng Thái</th>
-                                <th class="py-3.5 px-4 text-center">Hành Động</th>
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                <th class="py-3.5 px-4">Bệnh nhân</th>
+                                <th class="py-3.5 px-4">Liên hệ & Y tế</th>
+                                <th class="py-3.5 px-4">Bác sĩ khám</th>
+                                <th class="py-3.5 px-4">Khung giờ & ngày</th>
+                                <th class="py-3.5 px-4">Chẩn đoán / bị bệnh gì</th>
+                                <th class="py-3.5 px-4">Trạng thái</th>
+                                <th class="py-3.5 px-4 text-center">Hành động</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-danh-sach-benh-nhan" class="divide-y divide-slate-100 text-slate-700">
@@ -784,7 +1062,7 @@
                     <div>
                         Hiển thị <span id="qlbn-count-hien-thi" class="font-bold text-slate-800">0</span> / <span id="qlbn-count-tong" class="font-bold text-slate-800">0</span> hồ sơ bệnh nhân
                     </div>
-                    <div class="text-[11px] text-slate-400">
+                    <div class="text-[13px] text-slate-400">
                         <i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Dữ liệu hồ sơ bệnh án được bảo mật theo tiêu chuẩn y tế
                     </div>
                 </div>
@@ -799,50 +1077,57 @@
 
         <!-- TAB 2.1: BÀN KHÁM TIẾP NHẬN & CHỈ ĐỊNH CẬN LÂM SÀNG -->
         <section id="tab-bac-si" class="portal-section space-y-6">
-            <!-- Doctor Banner -->
-            <div class="bg-gradient-to-r from-sky-700 via-medical-600 to-teal-600 rounded-3xl p-6 text-white shadow-xl shadow-sky-700/15 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl text-white border border-white/30">
-                        <i class="fa-solid fa-stethoscope"></i>
+            <!-- Doctor Header Bar -->
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <span class="text-[11px] font-bold text-sky-200 tracking-wider uppercase">Bàn Khám Bác Sĩ Đang Trực</span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">
-                            BS. <span id="banner-doctor-name">Khám Bệnh</span>
-                        </h2>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-[17px] font-semibold text-slate-900">
+                                <span id="banner-doctor-name">Bàn khám bệnh</span>
+                            </h2>
+                            <span class="badge badge-success">Đang tiếp nhận</span>
+                        </div>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Bàn khám chuyên môn, kê cận lâm sàng và quản lý ca khám</p>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="moModalLichTrucBacSiHienTai()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white flex items-center space-x-1.5 transition shadow-sm" title="Quản lý ca trực trong tuần của bạn">
-                        <i class="fa-solid fa-calendar-days text-sky-200"></i>
-                        <span>Lịch Trực Của Tôi</span>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" onclick="moModalLichTrucBacSiHienTai()" class="btn btn-secondary" title="Xem lịch trực trong tuần">
+                        <i class="fa-regular fa-calendar-days" aria-hidden="true"></i>
+                        <span id="btn-banner-lich-truc-label">Lịch trực của tôi</span>
                     </button>
-                    <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/30 backdrop-blur-sm border border-emerald-400/40 text-emerald-100 flex items-center space-x-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span>ĐANG TIẾP NHẬN</span>
-                    </span>
+                    <button type="button" onclick="chuyenTab('tab-bac-si-lich-su')" class="btn btn-ghost">
+                        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                        <span>Ca khám hôm nay</span>
+                    </button>
                 </div>
             </div>
 
             <!-- 2-Column Doctor Workspace -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Column 1: Waiting Patient Queue (5 Cols) -->
-                <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="lg:col-span-5 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-user-clock text-amber-500"></i>
-                            <span>1. Hàng Đợi Bệnh Nhân Đang Chờ</span>
+                            <span>1. Hàng đợi bệnh nhân đang chờ</span>
                         </h3>
+                        <div class="flex items-center gap-1.5 text-xs">
+                            <input type="date" id="filter-ca-kham-ngay" onchange="renderCaKhamBacSi(AppState.danhSachLichHen)" class="border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 font-semibold focus:ring-1 focus:ring-medical-500" title="Chọn ngày xem ca khám">
+                            <button type="button" onclick="datNgayCaKhamHomNay()" class="px-2 py-1 bg-medical-50 hover:bg-medical-100 text-medical-700 font-bold rounded text-xs border border-medical-200 transition" title="Xem ca khám hôm nay">Hôm nay</button>
+                        </div>
                     </div>
 
-                    <div class="overflow-y-auto max-h-[420px] rounded-2xl border border-slate-200/80">
+                    <div class="overflow-y-auto max-h-[420px] rounded-lg border border-[#E3E8EE]">
                         <table class="w-full text-left text-xs">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
+                                <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
                                     <th class="py-2.5 px-3">Mã</th>
-                                    <th class="py-2.5 px-3">Bệnh Nhân</th>
-                                    <th class="py-2.5 px-3">Giờ Hẹn</th>
-                                    <th class="py-2.5 px-3 text-center">Thao Tác</th>
+                                    <th class="py-2.5 px-3">Bệnh nhân</th>
+                                    <th class="py-2.5 px-3">Giờ hẹn</th>
+                                    <th class="py-2.5 px-3 text-center">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-ca-kham-bac-si" class="divide-y divide-slate-100 text-slate-700">
@@ -853,31 +1138,44 @@
                 </div>
 
                 <!-- Column 2: Clinical Form & Paraclinical Test Prescription (7 Cols) -->
-                <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
-                    <div class="pb-3 border-b border-slate-100">
+                <div class="lg:col-span-7 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
+                    <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
                         <h3 class="text-sm font-extrabold text-medical-700 flex items-center space-x-2">
                             <i class="fa-solid fa-notes-medical"></i>
-                            <span>2. Phiếu Khám & Chỉ Định Cận Lâm Sàng</span>
+                            <span>2. Phiếu khám & chỉ định cận lâm sàng</span>
                         </h3>
+                        <button type="button" onclick="lamMoiBanKham()" class="text-xs text-slate-500 hover:text-medical-700 transition flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-md hover:bg-slate-100 border border-slate-200 shadow-2xs" title="Làm mới bàn khám để tiếp nhận ca tiếp theo">
+                            <i class="fa-solid fa-arrows-rotate text-medical-600"></i>
+                            <span>Làm mới bàn khám</span>
+                        </button>
                     </div>
 
                     <!-- Selected Patient Info Card -->
-                    <div id="box-chon-ca-kham-thong-tin" class="bg-sky-50/70 border border-sky-100 p-3.5 rounded-2xl text-xs text-slate-600">
-                        <em>👉 Hãy bấm nút <strong>"Tiếp Nhận"</strong> trên danh sách hàng đợi bên trái để nạp thông tin bệnh nhân.</em>
+                    <div id="box-chon-ca-kham-thong-tin" class="bg-sky-50/70 border border-sky-100 p-3.5 rounded-md text-xs text-slate-600">
+                        <em>Hãy bấm nút <strong>"Tiếp nhận"</strong> trên danh sách hàng đợi bên trái để nạp thông tin bệnh nhân.</em>
+                    </div>
+
+                    <!-- Banner Khóa chỉ định khi đã gửi thu ngân -->
+                    <div id="banner-khoa-chi-dinh" class="hidden p-3.5 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-900 flex items-start gap-2.5 font-medium">
+                        <i class="fa-solid fa-lock text-amber-600 text-sm mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <strong class="text-amber-800">Đã khóa phiếu chỉ định:</strong>
+                            <span class="text-amber-700"> Ca khám này đã tiếp nhận và gửi chỉ định dịch vụ sang bàn Thu Ngân. Hệ thống đã khóa tất cả thao tác kê thêm chỉ định để tránh phát sinh chi phí hoặc trùng lặp hóa đơn.</span>
+                        </div>
                     </div>
 
                     <!-- Preliminary Diagnosis Input -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Chẩn đoán sơ bộ / Triệu chứng lâm sàng:
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                            Chẩn đoán sơ bộ / triệu chứng lâm sàng:
                         </label>
-                        <input type="text" id="input-chan-doan" placeholder="Ví dụ: Đau đầu kéo dài, nghi rối loạn tiền đình..." class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                        <input type="text" id="input-chan-doan" placeholder="Ví dụ: Đau đầu kéo dài, nghi rối loạn tiền đình..." class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                     </div>
 
                     <!-- Paraclinical Tests Checkboxes -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Tích chọn các dịch vụ cận lâm sàng chỉ định (Service 03):
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                            Tích chọn các dịch vụ cận lâm sàng chỉ định (service 03):
                         </label>
                         <div id="list-dich-vu-checkboxes" class="space-y-2 max-h-[190px] overflow-y-auto pr-1">
                             <!-- Populated dynamically -->
@@ -887,17 +1185,17 @@
                     <!-- Subtotal & Action Buttons -->
                     <div class="flex items-center justify-between pt-4 border-t border-slate-100 gap-3">
                         <div>
-                            <span class="text-[11px] font-bold text-slate-500 uppercase">TỔNG PHÍ CẬN LÂM SÀNG:</span>
+                            <span class="text-[13px] font-bold text-slate-500">TỔNG PHÍ CẬN LÂM SÀNG:</span>
                             <div id="subtotal-cls" class="text-xl font-extrabold text-emerald-600">0 đ</div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button type="button" onclick="inHoaDonKhamBenhCaHienTai()" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md shadow-sky-600/20 transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí khám bệnh">
+                            <button type="button" onclick="inHoaDonKhamBenhCaHienTai()" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-md shadow-sm transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí khám bệnh">
                                 <i class="fa-solid fa-print"></i>
-                                <span>In Hóa Đơn Khám</span>
+                                <span>In hóa đơn khám</span>
                             </button>
-                            <button type="button" onclick="luuChiDinhCanLamSang()" class="px-5 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-medical-600/25 transition flex items-center space-x-2">
+                            <button type="button" id="btn-luu-chi-dinh-cls" onclick="luuChiDinhCanLamSang()" class="px-5 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-md shadow-lg transition flex items-center space-x-2">
                                 <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Lưu Chỉ Định & Gửi Thu Ngân</span>
+                                <span>Lưu chỉ định & gửi thu ngân</span>
                             </button>
                         </div>
                     </div>
@@ -907,28 +1205,34 @@
 
         <!-- TAB 2.2: DANH SÁCH CA KHÁM HÔM NAY -->
         <section id="tab-bac-si-lich-su" class="portal-section space-y-6">
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
-                <div class="flex items-center justify-between pb-5 border-b border-slate-100">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-clipboard-user text-emerald-600"></i>
-                            <span>Danh Sách Ca Bệnh Nhân Bác Sĩ Đã Tiếp Nhận</span>
+                            <span>Danh sách ca bệnh nhân bác sĩ đã tiếp nhận</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Lịch sử và tiến trình các ca khám trong ngày</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Tiến trình các ca khám (Chỉ hiển thị các ca đã đến ngày khám)</p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <label for="filter-bac-si-lich-su-ngay" class="text-xs text-slate-500 font-semibold">Ngày:</label>
+                        <input type="date" id="filter-bac-si-lich-su-ngay" onchange="renderBacSiLichSu(AppState.danhSachLichHen)" class="border border-slate-300 rounded px-2.5 py-1.5 text-xs text-slate-700 font-semibold focus:ring-1 focus:ring-medical-500">
+                        <button type="button" onclick="datNgayLichSuHomNay()" class="px-2.5 py-1.5 bg-medical-50 hover:bg-medical-100 text-medical-700 font-bold rounded text-xs border border-medical-200 transition">Hôm nay</button>
+                        <button type="button" onclick="datNgayLichSuTatCa()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded text-xs border border-slate-200 transition">Tất cả ca đã đến ngày</button>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-                                <th class="py-3.5 px-4">Mã Lịch</th>
-                                <th class="py-3.5 px-4">Bệnh Nhân</th>
-                                <th class="py-3.5 px-4">Số Điện Thoại</th>
-                                <th class="py-3.5 px-4">Ngày Khám</th>
-                                <th class="py-3.5 px-4">Khung Giờ</th>
-                                <th class="py-3.5 px-4">Lý Do Khám</th>
-                                <th class="py-3.5 px-4">Trạng Thái</th>
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                <th class="py-3.5 px-4">Mã lịch</th>
+                                <th class="py-3.5 px-4">Bệnh nhân</th>
+                                <th class="py-3.5 px-4">Số điện thoại</th>
+                                <th class="py-3.5 px-4">Ngày khám</th>
+                                <th class="py-3.5 px-4">Khung giờ</th>
+                                <th class="py-3.5 px-4">Lý do khám</th>
+                                <th class="py-3.5 px-4">Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-bac-si-lich-su" class="divide-y divide-slate-100 text-slate-700">
@@ -946,47 +1250,47 @@
 
         <!-- TAB 3.1: QUẢN TRỊ BÁC SĨ & CHUYÊN KHOA -->
         <section id="tab-admin-bac-si" class="portal-section space-y-6">
-            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-medical-900 rounded-3xl p-6 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center text-xl text-sky-400 border border-white/20">
-                        <i class="fa-solid fa-user-doctor"></i>
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <span class="text-[11px] font-bold text-indigo-300 tracking-wider uppercase">Quản Trị Hệ Thống</span>
-                        <h2 class="text-xl font-extrabold tracking-tight">Danh Mục Bác Sĩ & Chuyên Khoa</h2>
+                        <h2 class="text-[17px] font-semibold text-slate-900">Danh mục bác sĩ &amp; chuyên khoa</h2>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Quản lý danh sách bác sĩ, chuyên khoa, phòng khám, đơn giá và phân ca trực</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="moModalThemBacSi()" class="px-4 py-2 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Thêm Bác Sĩ</span>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" onclick="moModalThemBacSi()" class="btn btn-primary">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        <span>Thêm bác sĩ</span>
                     </button>
-                    <button onclick="moModalThemChuyenKhoa()" class="px-4 py-2 bg-white/15 hover:bg-white/25 text-white font-bold text-xs rounded-xl border border-white/20 transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-folder-plus"></i>
-                        <span>Thêm Khoa</span>
+                    <button type="button" onclick="moModalThemChuyenKhoa()" class="btn btn-secondary">
+                        <i class="fa-solid fa-folder-plus" aria-hidden="true"></i>
+                        <span>Thêm khoa</span>
                     </button>
                 </div>
             </div>
 
             <!-- Two Columns for Doctors and Specialties -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                <div class="lg:col-span-7 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-user-doctor text-medical-600"></i>
-                            <span>Danh Sách Bác Sĩ Phòng Khám</span>
+                            <span>Danh sách bác sĩ phòng khám</span>
                         </h3>
                     </div>
-                    <div class="overflow-y-auto max-h-[380px] rounded-2xl border border-slate-200/80">
+                    <div class="overflow-y-auto max-h-[380px] rounded-lg border border-[#E3E8EE]">
                         <table class="w-full text-left text-xs">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
+                                <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
                                     <th class="py-2.5 px-3">Mã</th>
-                                    <th class="py-2.5 px-3">Họ Tên</th>
-                                    <th class="py-2.5 px-3">Chuyên Khoa</th>
-                                    <th class="py-2.5 px-3">Giá Khám</th>
+                                    <th class="py-2.5 px-3">Họ tên</th>
+                                    <th class="py-2.5 px-3">Chuyên khoa</th>
+                                    <th class="py-2.5 px-3">Giá khám</th>
                                     <th class="py-2.5 px-3">Phòng</th>
-                                    <th class="py-2.5 px-3 text-center">Thao Tác</th>
+                                    <th class="py-2.5 px-3 text-center">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-admin-bac-si" class="divide-y divide-slate-100 text-slate-700">
@@ -996,21 +1300,21 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                <div class="lg:col-span-5 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-building-user text-indigo-600"></i>
-                            <span>Danh Mục Chuyên Khoa</span>
+                            <span>Danh mục chuyên khoa</span>
                         </h3>
                     </div>
-                    <div class="overflow-y-auto max-h-[380px] rounded-2xl border border-slate-200/80">
+                    <div class="overflow-y-auto max-h-[380px] rounded-lg border border-[#E3E8EE]">
                         <table class="w-full text-left text-xs">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
+                                <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
                                     <th class="py-2.5 px-3">Mã</th>
-                                    <th class="py-2.5 px-3">Tên Khoa</th>
-                                    <th class="py-2.5 px-3">Mô Tả</th>
-                                    <th class="py-2.5 px-3 text-center">Thao Tác</th>
+                                    <th class="py-2.5 px-3">Tên khoa</th>
+                                    <th class="py-2.5 px-3">Mô tả</th>
+                                    <th class="py-2.5 px-3 text-center">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-admin-chuyen-khoa" class="divide-y divide-slate-100 text-slate-700">
@@ -1022,44 +1326,44 @@
             </div>
 
             <!-- BẢNG PHÊ DUYỆT LỊCH TRỰC BÁC SĨ (YÊU CẦU ĐĂNG KÝ MỚI & ĐỔI CA) -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center font-bold text-base">
+                        <div class="w-10 h-10 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center font-bold text-base">
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                         <div>
                             <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                                <span>Phê Duyệt Lịch Trực Bác Sĩ (Đăng Ký & Đổi Ca)</span>
-                                <span id="badge-admin-count-cho-duyet" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white shadow-xs">0 chờ duyệt</span>
+                                <span>Phê duyệt lịch trực bác sĩ (đăng ký & đổi ca)</span>
+                                <span id="badge-admin-count-cho-duyet" class="px-2 py-0.5 rounded-full text-[13px] font-black bg-amber-500 text-white shadow-xs">0 chờ duyệt</span>
                             </h3>
-                            <p class="text-[11px] text-slate-500">Mỗi ngày bác sĩ chỉ trực 1 ca (Sáng, Chiều, Tối hoặc Cả Ngày). Yêu cầu đăng ký mới hoặc đổi ca cần Admin duyệt để kích hoạt.</p>
+                            <p class="text-[13px] text-slate-500">Mỗi ngày bác sĩ chỉ trực 1 ca (sáng, chiều, tối hoặc cả ngày). Yêu cầu đăng ký mới hoặc đổi ca cần admin duyệt để kích hoạt.</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <select id="filter-admin-duyet-trang-thai" onchange="taiVaRenderDanhSachDuyetCaTruc()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700">
-                            <option value="CHO_DUYET">Chờ Admin Duyệt</option>
-                            <option value="HOAT_DONG">Đã Duyệt (Hoạt Động)</option>
-                            <option value="TU_CHOI">Bị Từ Chối</option>
+                        <select id="filter-admin-duyet-trang-thai" onchange="taiVaRenderDanhSachDuyetCaTruc()" class="px-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs font-bold text-slate-700">
+                            <option value="CHO_DUYET">Chờ admin duyệt</option>
+                            <option value="HOAT_DONG">Đã duyệt (hoạt động)</option>
+                            <option value="TU_CHOI">Bị từ chối</option>
                             <option value="">Tất cả trạng thái</option>
                         </select>
-                        <button type="button" onclick="taiVaRenderDanhSachDuyetCaTruc()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                        <button type="button" onclick="taiVaRenderDanhSachDuyetCaTruc()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-bold transition flex items-center gap-1">
                             <i class="fa-solid fa-arrows-rotate"></i> Làm mới
                         </button>
                     </div>
                 </div>
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
-                                <th class="py-2.5 px-3">Bác Sĩ</th>
-                                <th class="py-2.5 px-3">Thứ / Ngày</th>
-                                <th class="py-2.5 px-3">Ca Trực</th>
-                                <th class="py-2.5 px-3">Khung Giờ</th>
-                                <th class="py-2.5 px-3">Phòng Khám</th>
-                                <th class="py-2.5 px-3">Khám Tối Đa</th>
-                                <th class="py-2.5 px-3">Trạng Thái</th>
-                                <th class="py-2.5 px-3 text-center">Thao Tác Phê Duyệt</th>
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                <th class="py-2.5 px-3">Bác sĩ</th>
+                                <th class="py-2.5 px-3">Thứ / ngày</th>
+                                <th class="py-2.5 px-3">Ca trực</th>
+                                <th class="py-2.5 px-3">Khung giờ</th>
+                                <th class="py-2.5 px-3">Phòng khám</th>
+                                <th class="py-2.5 px-3">Khám tối đa</th>
+                                <th class="py-2.5 px-3">Trạng thái</th>
+                                <th class="py-2.5 px-3 text-center">Thao tác phê duyệt</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-admin-duyet-lich-truc" class="divide-y divide-slate-100 text-slate-700">
@@ -1072,85 +1376,85 @@
 
         <!-- TAB: BẢNG GIÁ KHÁM BỆNH & DỊCH VỤ KHÁM CHUYÊN KHOA (MEMBER 1) -->
         <section id="tab-bang-gia-kham" class="portal-section space-y-6">
-            <!-- Header Banner -->
-            <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-medical-900 rounded-3xl p-6 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-xl text-amber-400 shadow-md">
-                        <i class="fa-solid fa-receipt"></i>
+            <!-- Header Bar -->
+            <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px] font-bold text-amber-300 tracking-wider uppercase">Biểu Phí Khám Bệnh Niêm Yết</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Công Khai & Minh Bạch</span>
+                            <h2 class="text-[17px] font-semibold text-slate-900">Bảng giá khám bệnh</h2>
+                            <span class="badge badge-success">Niêm yết công khai</span>
                         </div>
-                        <h2 class="text-xl font-extrabold tracking-tight">Bảng Giá Khám Bệnh & Danh Mục Phí Khám Chuyên Khoa</h2>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Danh mục phí khám chuyên khoa và đơn giá khám theo bác sĩ</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="taiBangGiaKham()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition flex items-center space-x-1.5 shadow-sm">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <span>Làm Mới</span>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" onclick="taiBangGiaKham()" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                        <span>Làm mới</span>
                     </button>
-                    <button onclick="inBangGiaKham()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl shadow transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-print"></i>
-                        <span>In / Xuất Biểu Phí</span>
+                    <button type="button" onclick="inBangGiaKham()" class="btn btn-primary">
+                        <i class="fa-solid fa-print" aria-hidden="true"></i>
+                        <span>In bảng giá</span>
                     </button>
                 </div>
             </div>
 
             <!-- 4 Thẻ Thống Kê Nhanh -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-                    <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-lg flex-shrink-0">
+                <div class="bg-white rounded-lg p-4 border border-[#E3E8EE] shadow-xs flex items-center space-x-3.5">
+                    <div class="w-11 h-11 rounded-md bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-lg flex-shrink-0">
                         <i class="fa-solid fa-user-doctor"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Bác Sĩ Tiếp Nhận</p>
+                        <p class="text-[13px] font-bold text-slate-400">Tổng bác sĩ tiếp nhận</p>
                         <h4 id="stat-bgk-tong-bs" class="text-lg font-black text-slate-900 mt-0.5">--</h4>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-                    <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-lg flex-shrink-0">
+                <div class="bg-white rounded-lg p-4 border border-[#E3E8EE] shadow-xs flex items-center space-x-3.5">
+                    <div class="w-11 h-11 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-lg flex-shrink-0">
                         <i class="fa-solid fa-arrow-down text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khám Tiêu Chuẩn Từ</p>
+                        <p class="text-[13px] font-bold text-slate-400">Khám tiêu chuẩn từ</p>
                         <h4 id="stat-bgk-min" class="text-lg font-black text-emerald-600 mt-0.5 font-mono">--</h4>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-                    <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-lg flex-shrink-0">
+                <div class="bg-white rounded-lg p-4 border border-[#E3E8EE] shadow-xs flex items-center space-x-3.5">
+                    <div class="w-11 h-11 rounded-md bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-lg flex-shrink-0">
                         <i class="fa-solid fa-crown text-amber-500 text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khám Chuyên Gia / GS</p>
+                        <p class="text-[13px] font-bold text-slate-400">Khám chuyên gia / GS</p>
                         <h4 id="stat-bgk-max" class="text-lg font-black text-purple-700 mt-0.5 font-mono">--</h4>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-                    <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-lg flex-shrink-0">
+                <div class="bg-white rounded-lg p-4 border border-[#E3E8EE] shadow-xs flex items-center space-x-3.5">
+                    <div class="w-11 h-11 rounded-md bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-lg flex-shrink-0">
                         <i class="fa-solid fa-scale-balanced text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Mức Phí Bình Quân</p>
+                        <p class="text-[13px] font-bold text-slate-400">Mức phí bình quân</p>
                         <h4 id="stat-bgk-avg" class="text-lg font-black text-amber-600 mt-0.5 font-mono">--</h4>
                     </div>
                 </div>
             </div>
 
             <!-- Bảng Dữ Liệu Biểu Phí & Bộ Lọc -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-8 h-8 rounded-lg bg-medical-50 text-medical-600 flex items-center justify-center font-bold text-sm">
                             <i class="fa-solid fa-table-list"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900">Chi Tiết Biểu Phí Khám Bệnh Từng Bác Sĩ</h3>
-                            <p class="text-[11px] text-slate-500">Giá niêm yết áp dụng cho mỗi lượt khám chuyên khoa ban đầu (chưa bao gồm chỉ định cận lâm sàng)</p>
+                            <h3 class="text-sm font-extrabold text-slate-900">Chi tiết biểu phí khám bệnh từng bác sĩ</h3>
+                            <p class="text-[13px] text-slate-500">Giá niêm yết áp dụng cho mỗi lượt khám chuyên khoa ban đầu (chưa bao gồm chỉ định cận lâm sàng)</p>
                         </div>
                     </div>
 
@@ -1158,24 +1462,24 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="relative min-w-[200px]">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="filter-bgk-tu-khoa" oninput="locBangGiaKham()" placeholder="Tìm bác sĩ, học vị, phòng..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600">
+                            <input type="text" id="filter-bgk-tu-khoa" oninput="locBangGiaKham()" placeholder="Tìm bác sĩ, học vị, phòng..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs font-medium text-slate-800 focus:outline-none focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2]">
                         </div>
 
-                        <select id="filter-bgk-chuyen-khoa" onchange="locBangGiaKham()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                        <select id="filter-bgk-chuyen-khoa" onchange="locBangGiaKham()" class="px-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs font-bold text-slate-700 focus:outline-none">
                             <option value="">Tất cả chuyên khoa</option>
                         </select>
 
-                        <select id="filter-bgk-phan-khuc" onchange="locBangGiaKham()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                        <select id="filter-bgk-phan-khuc" onchange="locBangGiaKham()" class="px-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs font-bold text-slate-700 focus:outline-none">
                             <option value="">Tất cả phân khúc</option>
-                            <option value="Khám Tiêu Chuẩn">Khám Tiêu Chuẩn</option>
-                            <option value="Khám Thạc Sĩ / CKI">Khám Thạc Sĩ / CKI</option>
-                            <option value="Khám Chuyên Gia / CKII">Khám Chuyên Gia / CKII</option>
-                            <option value="Khám Phó Giáo Sư">Khám Phó Giáo Sư</option>
-                            <option value="Khám Giáo Sư / Chuyên Gia Đầu Ngành">Khám Giáo Sư</option>
-                            <option value="Khám Dịch Vụ VIP">Khám Dịch Vụ VIP</option>
+                            <option value="Khám Tiêu Chuẩn">Khám tiêu chuẩn</option>
+                            <option value="Khám Thạc Sĩ / CKI">Khám thạc sĩ / CKI</option>
+                            <option value="Khám Chuyên Gia / CKII">Khám chuyên gia / CKII</option>
+                            <option value="Khám Phó Giáo Sư">Khám phó giáo sư</option>
+                            <option value="Khám Giáo Sư / Chuyên Gia Đầu Ngành">Khám giáo sư</option>
+                            <option value="Khám Dịch Vụ VIP">Khám dịch vụ VIP</option>
                         </select>
 
-                        <select id="filter-bgk-muc-gia" onchange="locBangGiaKham()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                        <select id="filter-bgk-muc-gia" onchange="locBangGiaKham()" class="px-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-md text-xs font-bold text-slate-700 focus:outline-none">
                             <option value="">Tất cả mức giá</option>
                             <option value="DUOI_200">Dưới 200.000 VNĐ</option>
                             <option value="200_300">200.000đ - 300.000 VNĐ</option>
@@ -1185,18 +1489,18 @@
                 </div>
 
                 <!-- Bảng Hiển Thị Biểu Phí -->
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
                                 <th class="py-2.5 px-3.5 text-center w-12">STT</th>
-                                <th class="py-2.5 px-3.5">Bác Sĩ Khám Bệnh</th>
-                                <th class="py-2.5 px-3.5">Chuyên Khoa</th>
-                                <th class="py-2.5 px-3.5">Học Vị & Kinh Nghiệm</th>
-                                <th class="py-2.5 px-3.5">Phòng Khám</th>
-                                <th class="py-2.5 px-3.5">Hạng / Loại Khám</th>
-                                <th class="py-2.5 px-3.5">Đơn Giá Niêm Yết</th>
-                                <th class="py-2.5 px-3.5 text-center">Thao Tác</th>
+                                <th class="py-2.5 px-3.5">Bác sĩ khám bệnh</th>
+                                <th class="py-2.5 px-3.5">Chuyên khoa</th>
+                                <th class="py-2.5 px-3.5">Học vị & kinh nghiệm</th>
+                                <th class="py-2.5 px-3.5">Phòng khám</th>
+                                <th class="py-2.5 px-3.5">Hạng / loại khám</th>
+                                <th class="py-2.5 px-3.5">Đơn giá niêm yết</th>
+                                <th class="py-2.5 px-3.5 text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-bang-gia-kham" class="divide-y divide-slate-100 text-slate-700">
@@ -1206,7 +1510,7 @@
                 </div>
 
                 <!-- Chân bảng lưu ý chuẩn y tế -->
-                <div class="p-3 bg-amber-50/60 rounded-2xl border border-amber-200/60 flex items-start space-x-2 text-[11px] text-amber-800">
+                <div class="p-3 bg-amber-50/60 rounded-md border border-amber-200/60 flex items-start space-x-2 text-[13px] text-amber-800">
                     <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
                     <div>
                         <strong>Quy định niêm yết viện phí:</strong> Giá khám bệnh trên đã bao gồm tiền công khám lâm sàng, tư vấn chẩn đoán ban đầu. Đối với bệnh nhân đặt lịch hẹn trước trực tuyến, mức giá được bảo đảm giữ nguyên không phát sinh phụ thu giờ cao điểm.
@@ -1217,29 +1521,29 @@
 
         <!-- TAB 3.2: QUẢN TRỊ TÀI KHOẢN -->
         <section id="tab-admin-tai-khoan" class="portal-section space-y-6">
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
                 <div class="flex items-center justify-between pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-users-gear text-indigo-600"></i>
-                            <span>Quản Trị Danh Sách Tài Khoản Toàn Hệ Thống</span>
+                            <span>Quản trị danh sách tài khoản toàn hệ thống</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Phân quyền, kiểm tra hoạt động và khóa/mở khóa tài khoản (Service 01)</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Phân quyền, kiểm tra hoạt động và khóa/mở khóa tài khoản (service 01)</p>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
                                 <th class="py-3.5 px-4">ID</th>
-                                <th class="py-3.5 px-4">Tên Đăng Nhập</th>
-                                <th class="py-3.5 px-4">Họ Và Tên</th>
+                                <th class="py-3.5 px-4">Tên đăng nhập</th>
+                                <th class="py-3.5 px-4">Họ và tên</th>
                                 <th class="py-3.5 px-4">Email</th>
-                                <th class="py-3.5 px-4">Số Điện Thoại</th>
-                                <th class="py-3.5 px-4">Vai Trò</th>
-                                <th class="py-3.5 px-4">Trạng Thái</th>
-                                <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                                <th class="py-3.5 px-4">Số điện thoại</th>
+                                <th class="py-3.5 px-4">Vai trò</th>
+                                <th class="py-3.5 px-4">Trạng thái</th>
+                                <th class="py-3.5 px-4 text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-admin-tai-khoan" class="divide-y divide-slate-100 text-slate-700">
@@ -1252,41 +1556,41 @@
 
         <!-- TAB 3.3: THU NGÂN & VIỆN PHÍ -->
         <section id="tab-admin-thu-ngan" class="portal-section space-y-6">
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
-                            <span>Danh Sách Hóa Đơn & Thu Viện Phí Tự Động</span>
+                            <span>Danh sách hóa đơn & thu viện phí tự động</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Tổng hợp chi phí khám + cận lâm sàng tự động (Service 04)</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Tổng hợp chi phí khám + cận lâm sàng tự động (service 04)</p>
                     </div>
                     <div class="flex items-center space-x-2 flex-wrap gap-2">
-                        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
-                            <button type="button" onclick="locHoaDonAdmin('ALL', this)" class="btn-filter-hd-admin active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất Cả</button>
-                            <button type="button" onclick="locHoaDonAdmin('CHUA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ Thu</button>
-                            <button type="button" onclick="locHoaDonAdmin('DA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã Thu</button>
-                            <button type="button" onclick="locHoaDonAdmin('DA_HOAN_TIEN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã Hoàn Tiền</button>
+                        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-md text-xs font-bold">
+                            <button type="button" onclick="locHoaDonAdmin('ALL', this)" class="btn-filter-hd-admin active px-3 py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs">Tất cả</button>
+                            <button type="button" onclick="locHoaDonAdmin('CHUA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Chờ thu</button>
+                            <button type="button" onclick="locHoaDonAdmin('DA_THANH_TOAN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã thu</button>
+                            <button type="button" onclick="locHoaDonAdmin('DA_HOAN_TIEN', this)" class="btn-filter-hd-admin px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">Đã hoàn tiền</button>
                         </div>
-                        <button onclick="taiDanhSachHoaDon(true)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition" title="Làm mới">
+                        <button onclick="taiDanhSachHoaDon(true)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-md transition" title="Làm mới">
                             <i class="fa-solid fa-arrows-rotate"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
+                <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-                                <th class="py-3.5 px-4">Mã Hóa Đơn</th>
-                                <th class="py-3.5 px-4">Lịch Hẹn ID</th>
-                                <th class="py-3.5 px-4">Bệnh Nhân</th>
-                                <th class="py-3.5 px-4">Tiền Khám</th>
+                            <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                <th class="py-3.5 px-4">Mã hóa đơn</th>
+                                <th class="py-3.5 px-4">Lịch hẹn ID</th>
+                                <th class="py-3.5 px-4">Bệnh nhân</th>
+                                <th class="py-3.5 px-4">Tiền khám</th>
                                 <th class="py-3.5 px-4">Tiền CLS</th>
-                                <th class="py-3.5 px-4">Tổng Tiền</th>
-                                <th class="py-3.5 px-4">Thực Thu</th>
-                                <th class="py-3.5 px-4">Trạng Thái</th>
-                                <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                                <th class="py-3.5 px-4">Tổng tiền</th>
+                                <th class="py-3.5 px-4">Thực thu</th>
+                                <th class="py-3.5 px-4">Trạng thái</th>
+                                <th class="py-3.5 px-4 text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-hoa-don" class="divide-y divide-slate-100 text-slate-700">
@@ -1301,52 +1605,52 @@
         <section id="tab-admin-giam-sat" class="portal-section space-y-6">
             <!-- 5 Metric Cards (Bác Sĩ, Lịch Hẹn, Dịch Vụ, Doanh Thu, Hồ Sơ Bệnh Nhân) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5 hover:border-medical-400 hover:shadow-md transition cursor-pointer group" onclick="chuyenTab('tab-admin-bac-si')" title="Xem Danh Sách Bác Sĩ">
-                    <div class="w-12 h-12 rounded-xl bg-medical-50 text-medical-600 border border-medical-200 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] shadow-sm flex items-center space-x-3.5 hover:border-medical-400 hover:border-[#1F6FB2] transition cursor-pointer group" onclick="chuyenTab('tab-admin-bac-si')" title="Xem Danh Sách Bác Sĩ">
+                    <div class="w-12 h-12 rounded-md bg-medical-50 text-medical-600 border border-medical-200 flex items-center justify-center text-xl transition-transform">
                         <i class="fa-solid fa-user-doctor"></i>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bác Sĩ Công Tác</div>
+                        <div class="text-[13px] font-bold text-slate-400">Bác sĩ công tác</div>
                         <div class="text-xl sm:text-2xl font-black text-slate-800" id="stat-so-bac-si">--</div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5 hover:border-sky-400 hover:shadow-md transition cursor-pointer group" onclick="chuyenTab('tab-benh-nhan-lich')" title="Xem Lịch Khám Toàn Viện">
-                    <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] shadow-sm flex items-center space-x-3.5 hover:border-sky-400 hover:border-[#1F6FB2] transition cursor-pointer group" onclick="chuyenTab('tab-benh-nhan-lich')" title="Xem Lịch Khám Toàn Viện">
+                    <div class="w-12 h-12 rounded-md bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center text-xl transition-transform">
                         <i class="fa-solid fa-calendar-check"></i>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lịch Hẹn Hôm Nay</div>
+                        <div class="text-[13px] font-bold text-slate-400">Lịch hẹn hôm nay</div>
                         <div class="text-xl sm:text-2xl font-black text-slate-800" id="stat-so-lich-hen">--</div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5 hover:border-rose-400 hover:shadow-md transition cursor-pointer group" onclick="chuyenTab('tab-admin-benh-nhan')" title="Xem Quản Lý Bệnh Nhân & EHR">
-                    <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] shadow-sm flex items-center space-x-3.5 hover:border-rose-400 hover:border-[#1F6FB2] transition cursor-pointer group" onclick="chuyenTab('tab-admin-benh-nhan')" title="Xem Quản Lý Bệnh Nhân & EHR">
+                    <div class="w-12 h-12 rounded-md bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center text-xl transition-transform">
                         <i class="fa-solid fa-hospital-user"></i>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Quản Lý Bệnh Nhân</div>
+                        <div class="text-[13px] font-bold text-slate-400">Quản lý bệnh nhân</div>
                         <div class="text-xl sm:text-2xl font-black text-rose-600" id="stat-so-ho-so-bn">--</div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5 hover:border-amber-400 hover:shadow-md transition cursor-pointer group" onclick="chuyenTab('tab-bac-si')" title="Xem Danh Mục Cận Lâm Sàng">
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] shadow-sm flex items-center space-x-3.5 hover:border-amber-400 hover:border-[#1F6FB2] transition cursor-pointer group" onclick="chuyenTab('tab-bac-si')" title="Xem Danh Mục Cận Lâm Sàng">
+                    <div class="w-12 h-12 rounded-md bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-xl transition-transform">
                         <i class="fa-solid fa-flask-vial"></i>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dịch Vụ CLS</div>
+                        <div class="text-[13px] font-bold text-slate-400">Dịch vụ CLS</div>
                         <div class="text-xl sm:text-2xl font-black text-slate-800" id="stat-so-dich-vu">5</div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5 hover:border-emerald-400 hover:shadow-md transition cursor-pointer group" onclick="chuyenTab('tab-admin-thu-ngan')" title="Xem Thu Ngân & Viện Phí">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                <div class="bg-white p-5 rounded-lg border border-[#E3E8EE] shadow-sm flex items-center space-x-3.5 hover:border-emerald-400 hover:border-[#1F6FB2] transition cursor-pointer group" onclick="chuyenTab('tab-admin-thu-ngan')" title="Xem Thu Ngân & Viện Phí">
+                    <div class="w-12 h-12 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-xl transition-transform">
                         <i class="fa-solid fa-sack-dollar"></i>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tổng Thu Viện Phí</div>
+                        <div class="text-[13px] font-bold text-slate-400">Tổng thu viện phí</div>
                         <div class="text-xl sm:text-2xl font-black text-emerald-600 truncate" id="stat-tong-doanh-thu">--</div>
                     </div>
                 </div>
@@ -1357,31 +1661,27 @@
             <!-- ============================================================= -->
             <div class="space-y-6">
                 <!-- Header Thống Kê & Bộ Lọc Thời Gian -->
-                <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-slate-800">
+                <div class="bg-white rounded-lg p-5 border border-[#E3E8EE] flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <div class="flex items-center space-x-2 text-medical-400 text-xs font-bold uppercase tracking-wider mb-1">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>Trực Quan Hóa Dữ Liệu Thời Gian Thực</span>
-                        </div>
-                        <h2 class="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                            <i class="fa-solid fa-chart-line text-sky-400"></i>
-                            <span>Trung Tâm Biểu Đồ Thống Kê & Giám Sát</span>
+                        <h2 class="text-[17px] font-semibold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-[#1F6FB2]" aria-hidden="true"></i>
+                            <span>Biểu đồ thống kê và giám sát</span>
                         </h2>
-                        <p class="text-xs text-slate-300 mt-1">Phân tích chuyên sâu doanh thu viện phí, cơ cấu thanh toán, nhu cầu khám theo khoa và tiến độ tiếp đón bệnh nhân.</p>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Doanh thu viện phí, cơ cấu phương thức thanh toán và lượt khám theo chuyên khoa.</p>
                     </div>
 
                     <div class="flex items-center flex-wrap gap-2.5">
                         <!-- Bộ chọn khoảng thời gian -->
-                        <div class="inline-flex p-1 bg-slate-800/90 rounded-2xl border border-slate-700/80 text-xs">
-                            <button type="button" onclick="thayDoiKhungThoiGianBieuDo('7_NGAY', this)" class="btn-chart-filter px-3.5 py-1.5 rounded-xl font-bold transition text-white bg-medical-600 shadow-sm" id="btn-chart-7ngay">7 Ngày</button>
-                            <button type="button" onclick="thayDoiKhungThoiGianBieuDo('30_NGAY', this)" class="btn-chart-filter px-3.5 py-1.5 rounded-xl font-bold transition text-slate-400 hover:text-white" id="btn-chart-30ngay">30 Ngày</button>
-                            <button type="button" onclick="thayDoiKhungThoiGianBieuDo('TAT_CA', this)" class="btn-chart-filter px-3.5 py-1.5 rounded-xl font-bold transition text-slate-400 hover:text-white" id="btn-chart-tatca">Toàn Bộ</button>
+                        <div class="inline-flex p-1 bg-slate-100 rounded-md border border-[#E3E8EE] text-xs">
+                            <button type="button" onclick="thayDoiKhungThoiGianBieuDo('7_NGAY', this)" class="btn-chart-filter px-3.5 py-1.5 rounded font-medium transition text-white bg-medical-600 shadow-sm" id="btn-chart-7ngay">7 ngày</button>
+                            <button type="button" onclick="thayDoiKhungThoiGianBieuDo('30_NGAY', this)" class="btn-chart-filter px-3.5 py-1.5 rounded font-medium transition text-slate-600 hover:text-slate-900" id="btn-chart-30ngay">30 ngày</button>
+                            <button type="button" onclick="thayDoiKhungThoiGianBieuDo('TAT_CA', this)" class="btn-chart-filter px-3.5 py-1.5 rounded font-medium transition text-slate-600 hover:text-slate-900" id="btn-chart-tatca">Toàn bộ</button>
                         </div>
 
                         <!-- Nút làm mới biểu đồ -->
-                        <button onclick="lamMoiTatCaBieuDo()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold border border-white/10 flex items-center space-x-2 transition hover:scale-105 active:scale-95 shadow-sm">
-                            <i class="fa-solid fa-arrows-rotate text-sky-400" id="icon-refresh-chart"></i>
-                            <span>Làm Mới Dữ Liệu</span>
+                        <button type="button" onclick="lamMoiTatCaBieuDo()" class="btn btn-secondary" title="Làm mới dữ liệu biểu đồ">
+                            <i class="fa-solid fa-arrows-rotate text-[#1F6FB2]" id="icon-refresh-chart" aria-hidden="true"></i>
+                            <span>Làm mới dữ liệu</span>
                         </button>
                     </div>
                 </div>
@@ -1389,14 +1689,14 @@
                 <!-- Hàng 1: 2 Biểu đồ chính (Doanh Thu Viện Phí & Cơ Cấu Thanh Toán) -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <!-- Biểu đồ 1: Doanh Thu & Lượt Khám (Line / Area Chart) -->
-                    <div class="lg:col-span-8 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div class="lg:col-span-8 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 flex flex-col justify-between">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100 gap-2">
                             <div>
                                 <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                                     <i class="fa-solid fa-chart-area text-medical-600"></i>
-                                    <span>Xu Hướng Doanh Thu Viện Phí & Tiếp Đón Bệnh Nhân</span>
+                                    <span>Xu hướng doanh thu viện phí & tiếp đón bệnh nhân</span>
                                 </h3>
-                                <p class="text-[11px] text-slate-400 mt-0.5">Biến động số tiền thanh toán thực thu (VNĐ) và số lượt khám qua các ngày</p>
+                                <p class="text-[13px] text-slate-400 mt-0.5">Biến động số tiền thanh toán thực thu (VNĐ) và số lượt khám qua các ngày</p>
                             </div>
                             <div class="flex items-center space-x-3 text-xs font-semibold">
                                 <span class="inline-flex items-center text-sky-600"><span class="w-3 h-3 rounded-full bg-sky-500 mr-1.5 inline-block"></span> Doanh thu (VNĐ)</span>
@@ -1409,29 +1709,29 @@
                         </div>
                         
                         <div class="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 mt-2 text-center">
-                            <div class="p-2.5 bg-sky-50/60 rounded-2xl border border-sky-100">
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Doanh Thu TB/Ngày</span>
+                            <div class="p-2.5 bg-sky-50/60 rounded-md border border-sky-100">
+                                <span class="text-[13px] font-bold text-slate-400 block">Doanh thu TB/ngày</span>
                                 <span class="text-xs sm:text-sm font-extrabold text-sky-700" id="stat-chart-dt-tb">--</span>
                             </div>
-                            <div class="p-2.5 bg-purple-50/60 rounded-2xl border border-purple-100">
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Lượt Khám Cao Nhất</span>
+                            <div class="p-2.5 bg-purple-50/60 rounded-md border border-purple-100">
+                                <span class="text-[13px] font-bold text-slate-400 block">Lượt khám cao nhất</span>
                                 <span class="text-xs sm:text-sm font-extrabold text-purple-700" id="stat-chart-kham-max">--</span>
                             </div>
-                            <div class="p-2.5 bg-emerald-50/60 rounded-2xl border border-emerald-100">
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Tỷ Lệ Thu Thành Công</span>
+                            <div class="p-2.5 bg-emerald-50/60 rounded-md border border-emerald-100">
+                                <span class="text-[13px] font-bold text-slate-400 block">Tỷ lệ thu thành công</span>
                                 <span class="text-xs sm:text-sm font-extrabold text-emerald-700" id="stat-chart-ty-le-thu">100%</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Biểu đồ 2: Cơ Cấu Phương Thức Thanh Toán (Doughnut Chart) -->
-                    <div class="lg:col-span-4 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div class="lg:col-span-4 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 flex flex-col justify-between">
                         <div class="pb-4 border-b border-slate-100">
                             <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                                 <i class="fa-solid fa-chart-pie text-emerald-600"></i>
-                                <span>Cơ Cấu Phương Thức Thanh Toán</span>
+                                <span>Cơ cấu phương thức thanh toán</span>
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Tỷ lệ thanh toán viện phí qua các kênh</p>
+                            <p class="text-[13px] text-slate-400 mt-0.5">Tỷ lệ thanh toán viện phí qua các kênh</p>
                         </div>
 
                         <div class="relative w-full h-64 flex items-center justify-center pt-2">
@@ -1447,60 +1747,60 @@
                 <!-- Hàng 2: 3 Biểu đồ chuyên sâu (Chuyên Khoa, Trạng Thái Khám, Giám Sát Lưu Lượng Services) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Biểu đồ 3: Lượt Khám Theo Chuyên Khoa (Bar Chart) -->
-                    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 flex flex-col justify-between">
                         <div class="pb-3 border-b border-slate-100">
                             <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                                 <i class="fa-solid fa-hospital text-blue-600"></i>
-                                <span>Nhu Cầu Khám Theo Chuyên Khoa</span>
+                                <span>Nhu cầu khám theo chuyên khoa</span>
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Số lượt đặt khám phân bổ theo các chuyên khoa</p>
+                            <p class="text-[13px] text-slate-400 mt-0.5">Số lượt đặt khám phân bổ theo các chuyên khoa</p>
                         </div>
 
                         <div class="relative w-full h-60 pt-3">
                             <canvas id="chart-chuyen-khoa"></canvas>
                         </div>
 
-                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 text-[11px] text-slate-500 mt-3 flex items-center justify-between">
+                        <div class="p-3 bg-slate-50 rounded-md border border-[#E3E8EE] text-[13px] text-slate-500 mt-3 flex items-center justify-between">
                             <span>Khoa có lượt khám cao nhất:</span>
                             <span class="font-extrabold text-slate-800" id="badge-top-khoa">Đang tải...</span>
                         </div>
                     </div>
 
                     <!-- Biểu đồ 4: Trạng Thái Lịch Khám & Tiến Độ (Polar / Doughnut Chart) -->
-                    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 flex flex-col justify-between">
                         <div class="pb-3 border-b border-slate-100">
                             <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                                 <i class="fa-solid fa-list-check text-amber-500"></i>
-                                <span>Tình Trạng Lịch Hẹn Khám Bệnh</span>
+                                <span>Tình trạng lịch hẹn khám bệnh</span>
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Tiến độ tiếp đón và hoàn thành ca khám</p>
+                            <p class="text-[13px] text-slate-400 mt-0.5">Tiến độ tiếp đón và hoàn thành ca khám</p>
                         </div>
 
                         <div class="relative w-full h-60 pt-3">
                             <canvas id="chart-trang-thai-lich"></canvas>
                         </div>
 
-                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 text-[11px] text-slate-500 mt-3 flex items-center justify-between">
+                        <div class="p-3 bg-slate-50 rounded-md border border-[#E3E8EE] text-[13px] text-slate-500 mt-3 flex items-center justify-between">
                             <span>Tỷ lệ hoàn thành khám bệnh:</span>
                             <span class="font-extrabold text-emerald-600" id="badge-ty-le-hoan-thanh">--%</span>
                         </div>
                     </div>
 
                     <!-- Biểu đồ 5: Phân Bổ Tải & Request Của 4 Microservices (Giám Sát Hạ Tầng) -->
-                    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 flex flex-col justify-between">
                         <div class="pb-3 border-b border-slate-100">
                             <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                                 <i class="fa-solid fa-server text-teal-600"></i>
-                                <span>Phân Phối Lưu Lượng 4 Microservices</span>
+                                <span>Phân phối lưu lượng 4 microservices</span>
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Giám sát tải trọng và điều phối qua API Gateway</p>
+                            <p class="text-[13px] text-slate-400 mt-0.5">Giám sát tải trọng và điều phối qua API gateway</p>
                         </div>
 
                         <div class="relative w-full h-60 pt-3">
                             <canvas id="chart-traffic-microservices"></canvas>
                         </div>
 
-                        <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200/70 text-[11px] text-emerald-800 mt-3 flex items-center justify-between">
+                        <div class="p-3 bg-emerald-50 rounded-md border border-emerald-200/70 text-[13px] text-emerald-800 mt-3 flex items-center justify-between">
                             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 4 Services hoạt động ổn định</span>
                             <span class="font-mono font-black text-emerald-700">100% ONLINE</span>
                         </div>
@@ -1511,11 +1811,11 @@
             <!-- Trạng Thái 4 Microservices & Kiến Trúc Hệ Thống -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Services Status (7 Cols) -->
-                <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                <div class="lg:col-span-7 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-network-wired text-medical-600"></i>
-                            <span>Trạng Thái 4 Microservices Độc Lập</span>
+                            <span>Trạng thái 4 microservices độc lập</span>
                         </h3>
                         <button onclick="kiemTraHealthToanHeThong()" class="text-xs text-medical-600 hover:text-medical-700 font-bold flex items-center space-x-1">
                             <i class="fa-solid fa-arrows-rotate"></i>
@@ -1524,69 +1824,69 @@
                     </div>
 
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/70">
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-md border border-[#E3E8EE]">
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">01. Xác Thực & Bác Sĩ</h4>
-                                <p class="text-[11px] text-slate-400 font-mono">Port: 8001 | DB: db_xac_thuc_bac_si</p>
+                                <h4 class="text-xs font-bold text-slate-800">01. Xác thực & bác sĩ</h4>
+                                <p class="text-[13px] text-slate-400 font-mono">Port: 8001 | DB: db_xac_thuc_bac_si</p>
                             </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-1">ONLINE</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-1">ONLINE</span>
                         </div>
 
-                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/70">
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-md border border-[#E3E8EE]">
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">02. Bệnh Nhân & Lịch Hẹn</h4>
-                                <p class="text-[11px] text-slate-400 font-mono">Port: 8002 | DB: db_benh_nhan_lich_hen</p>
+                                <h4 class="text-xs font-bold text-slate-800">02. Bệnh nhân & lịch hẹn</h4>
+                                <p class="text-[13px] text-slate-400 font-mono">Port: 8002 | DB: db_benh_nhan_lich_hen</p>
                             </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-2">ONLINE</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-2">ONLINE</span>
                         </div>
 
-                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/70">
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-md border border-[#E3E8EE]">
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">03. Y Tế & Cận Lâm Sàng</h4>
-                                <p class="text-[11px] text-slate-400 font-mono">Port: 8003 | DB: db_dich_vu_y_te</p>
+                                <h4 class="text-xs font-bold text-slate-800">03. Y tế & cận lâm sàng</h4>
+                                <p class="text-[13px] text-slate-400 font-mono">Port: 8003 | DB: db_dich_vu_y_te</p>
                             </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-3">ONLINE</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-3">ONLINE</span>
                         </div>
 
-                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/70">
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-md border border-[#E3E8EE]">
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">04. Hóa Đơn & Thanh Toán</h4>
-                                <p class="text-[11px] text-slate-400 font-mono">Port: 8004 | DB: db_hoa_don_thanh_toan</p>
+                                <h4 class="text-xs font-bold text-slate-800">04. Hóa đơn & thanh toán</h4>
+                                <p class="text-[13px] text-slate-400 font-mono">Port: 8004 | DB: db_hoa_don_thanh_toan</p>
                             </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-4">ONLINE</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="badge-svc-4">ONLINE</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- System Info (5 Cols) -->
-                <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                <div class="lg:col-span-5 bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 space-y-4">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-circle-info text-indigo-600"></i>
-                            <span>Thông Tin Hạ Tầng & Kết Nối</span>
+                            <span>Thông tin hạ tầng & kết nối</span>
                         </h3>
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="status-gateway-badge">
+                        <span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="status-gateway-badge">
                             GATEWAY: 8000
                         </span>
                     </div>
 
                     <div class="space-y-3 text-xs">
-                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1">
-                            <div class="text-[10px] font-bold text-slate-400 uppercase">Cổng Giao Tiếp Tập Trung (API Gateway)</div>
+                        <div class="p-3 bg-slate-50 rounded-md border border-[#E3E8EE] space-y-1">
+                            <div class="text-[13px] font-bold text-slate-400">Cổng giao tiếp tập trung (API gateway)</div>
                             <div class="font-mono font-bold text-medical-700">http://127.0.0.1:8000</div>
-                            <p class="text-[11px] text-slate-500">Reverse Proxy trung tâm, xử lý phân quyền RBAC và điều hướng liên dịch vụ.</p>
+                            <p class="text-[13px] text-slate-500">Reverse proxy trung tâm, xử lý phân quyền RBAC và điều hướng liên dịch vụ.</p>
                         </div>
 
-                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1">
-                            <div class="text-[10px] font-bold text-slate-400 uppercase">Máy Chủ Cơ Sở Dữ Liệu</div>
-                            <div class="font-mono font-bold text-slate-800">MySQL Laragon (Port 3307)</div>
-                            <p class="text-[11px] text-slate-500">4 Database độc lập cho từng Microservice, bảo toàn tính toàn vẹn dữ liệu.</p>
+                        <div class="p-3 bg-slate-50 rounded-md border border-[#E3E8EE] space-y-1">
+                            <div class="text-[13px] font-bold text-slate-400">Máy chủ cơ sở dữ liệu</div>
+                            <div class="font-mono font-bold text-slate-800">MySQL laragon (port 3307)</div>
+                            <p class="text-[13px] text-slate-500">4 Database độc lập cho từng microservice, bảo toàn tính toàn vẹn dữ liệu.</p>
                         </div>
 
-                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 space-y-1">
-                            <div class="text-[10px] font-bold text-slate-400 uppercase">Giao Thức Xác Thực & An Toàn</div>
-                            <div class="font-mono font-bold text-emerald-700">Laravel Sanctum Bearer Token</div>
-                            <p class="text-[11px] text-slate-500">Mã hóa phiên làm việc, phân quyền nghiêm ngặt giữa Bệnh nhân, Bác sĩ và Quản trị viên.</p>
+                        <div class="p-3 bg-slate-50 rounded-md border border-[#E3E8EE] space-y-1">
+                            <div class="text-[13px] font-bold text-slate-400">Giao thức xác thực & an toàn</div>
+                            <div class="font-mono font-bold text-emerald-700">Laravel sanctum bearer token</div>
+                            <p class="text-[13px] text-slate-500">Mã hóa phiên làm việc, phân quyền nghiêm ngặt giữa bệnh nhân, bác sĩ và quản trị viên.</p>
                         </div>
                     </div>
                 </div>
@@ -1602,22 +1902,22 @@
 
     <!-- MODAL: HỒ SƠ TÀI KHOẢN CÁ NHÂN & CẬP NHẬT THÔNG TIN          -->
     <div class="modal-backdrop" id="modal-ho-so-ca-nhan">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-xl w-full overflow-hidden flex flex-col max-h-[90vh]">
             <form id="form-ho-so-ca-nhan" onsubmit="event.preventDefault(); xacNhanCapNhatHoSo();" autocomplete="off" class="flex flex-col h-full overflow-hidden">
                 <!-- Header Modal -->
-                <div class="bg-gradient-to-r from-sky-50 via-white to-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl bg-medical-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-medical-500/20">
-                            <i class="fa-solid fa-id-card"></i>
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between flex-shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-base flex-shrink-0">
+                            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                                <span>Hồ Sơ Thông Tin Tài Khoản</span>
+                            <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">
+                                Thông tin tài khoản
                             </h3>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Quản lý thông tin định danh cá nhân, ảnh đại diện và liên kết y tế</p>
+                            <p class="text-[13px] text-slate-500 mt-0.5 leading-tight">Thông tin cá nhân, ảnh đại diện và liên kết y tế</p>
                         </div>
                     </div>
-                    <button type="button" onclick="dongModal('modal-ho-so-ca-nhan')" class="text-slate-400 hover:text-slate-600 text-base p-1 transition">
+                    <button type="button" onclick="dongModal('modal-ho-so-ca-nhan')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -1625,30 +1925,30 @@
                 <!-- Body Modal (Scrollable) -->
                 <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
                     <!-- Avatar & User Headline Card -->
-                    <div class="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-4">
+                    <div class="p-4 bg-slate-50/90 rounded-md border border-[#E3E8EE] flex items-center justify-between gap-4">
                         <div class="flex items-center space-x-3.5">
                             <div class="relative group">
-                                <img id="profile-modal-avatar-preview" src="" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover border-2 border-medical-500 shadow-md hidden">
-                                <div id="profile-modal-avatar-placeholder" class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center text-xl font-black shadow-md">
+                                <img id="profile-modal-avatar-preview" src="" alt="Avatar" class="w-16 h-16 rounded-full object-cover border-2 border-medical-500 shadow-sm hidden">
+                                <div id="profile-modal-avatar-placeholder" class="w-16 h-16 rounded-full bg-sky-500 text-white flex items-center justify-center text-xl font-black shadow-sm">
                                     <i class="fa-solid fa-user"></i>
                                 </div>
-                                <label for="profile-modal-avatar-input" class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-medical-600 hover:bg-medical-700 text-white flex items-center justify-center text-[10px] shadow cursor-pointer transition">
+                                <label for="profile-modal-avatar-input" class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-medical-600 hover:bg-medical-700 text-white flex items-center justify-center text-[13px] shadow cursor-pointer transition">
                                     <i class="fa-solid fa-camera"></i>
                                 </label>
                                 <input type="file" id="profile-modal-avatar-input" accept="image/*" class="hidden" onchange="xuLyChonAvatar(this)">
                             </div>
                             <div>
-                                <h4 id="profile-modal-display-name" class="text-base font-extrabold text-slate-900">Người Dùng</h4>
+                                <h4 id="profile-modal-display-name" class="text-base font-extrabold text-slate-900">Người dùng</h4>
                                 <div class="flex items-center gap-2 mt-1">
-                                    <span id="profile-modal-display-role" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-medical-100 text-medical-800 border border-medical-200 inline-block">VAI TRÒ</span>
-                                    <span class="text-[11px] text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Đang hoạt động</span>
+                                    <span id="profile-modal-display-role" class="px-2 py-0.5 rounded text-[13px] font-bold bg-medical-100 text-medical-800 border border-medical-200 inline-block">VAI TRÒ</span>
+                                    <span class="text-[13px] text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Đang hoạt động</span>
                                 </div>
                             </div>
                         </div>
 
-                        <label for="profile-modal-avatar-input" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer transition shadow-2xs flex items-center gap-1.5">
+                        <label for="profile-modal-avatar-input" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-[#E3E8EE] rounded-md text-xs font-bold cursor-pointer transition shadow-2xs flex items-center gap-1.5">
                             <i class="fa-solid fa-upload text-medical-600"></i>
-                            <span>Đổi Avatar</span>
+                            <span>Đổi avatar</span>
                         </label>
                     </div>
 
@@ -1658,71 +1958,71 @@
                     <div class="space-y-3.5">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Tên đăng nhập (Username):</label>
-                                <input type="text" id="profile-username" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-mono font-bold cursor-not-allowed">
+                                <label class="block font-bold text-slate-600 text-[13px] mb-1">Tên đăng nhập (username):</label>
+                                <input type="text" id="profile-username" readonly class="w-full px-3 py-2 bg-slate-100 border border-[#E3E8EE] rounded-md text-slate-500 font-mono font-bold cursor-not-allowed">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Vai trò hệ thống:</label>
-                                <input type="text" id="profile-role" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-bold uppercase cursor-not-allowed">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 text-[10px] mb-1">Họ và tên: <span class="text-rose-500">*</span></label>
-                                <input type="text" id="profile-ho-ten" required class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 transition">
-                            </div>
-                            <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 text-[10px] mb-1">Số điện thoại:</label>
-                                <input type="text" id="profile-sdt" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 transition">
+                                <label class="block font-bold text-slate-600 text-[13px] mb-1">Vai trò hệ thống:</label>
+                                <input type="text" id="profile-role" readonly class="w-full px-3 py-2 bg-slate-100 border border-[#E3E8EE] rounded-md text-slate-500 font-bold uppercase cursor-not-allowed">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 text-[10px] mb-1">Địa chỉ Email: <span class="text-rose-500">*</span></label>
-                                <input type="email" id="profile-email" required class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 transition">
+                                <label class="block font-bold text-slate-700 text-[13px] mb-1">Họ và tên: <span class="text-rose-500">*</span></label>
+                                <input type="text" id="profile-ho-ten" required class="w-full px-3.5 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 text-[10px] mb-1">Ngày sinh:</label>
-                                <input type="date" id="profile-ngay-sinh" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 transition">
+                                <label class="block font-bold text-slate-700 text-[13px] mb-1">Số điện thoại:</label>
+                                <input type="text" id="profile-sdt" class="w-full px-3.5 py-2 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800 focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 text-[10px] mb-1">Giới tính:</label>
-                                <select id="profile-gioi-tinh" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 transition">
+                                <label class="block font-bold text-slate-700 text-[13px] mb-1">Địa chỉ email: <span class="text-rose-500">*</span></label>
+                                <input type="email" id="profile-email" required class="w-full px-3.5 py-2 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800 focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 text-[13px] mb-1">Ngày sinh:</label>
+                                <input type="date" id="profile-ngay-sinh" class="w-full px-3.5 py-2 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800 focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-slate-700 text-[13px] mb-1">Giới tính:</label>
+                                <select id="profile-gioi-tinh" class="w-full px-3.5 py-2 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800 focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
                                     <option value="NAM">Nam</option>
                                     <option value="NU">Nữ</option>
                                     <option value="KHAC">Khác</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 text-[10px] mb-1">Địa chỉ liên hệ:</label>
-                                <input type="text" id="profile-dia-chi" placeholder="Số nhà, đường, quận/huyện..." class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 transition">
+                                <label class="block font-bold text-slate-700 text-[13px] mb-1">Địa chỉ liên hệ:</label>
+                                <input type="text" id="profile-dia-chi" placeholder="Số nhà, đường, quận/huyện..." class="w-full px-3.5 py-2 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800 focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] transition">
                             </div>
                         </div>
 
                         <!-- Extra fields for Doctor -->
-                        <div id="profile-doctor-extra-fields" class="p-3.5 bg-sky-50/60 rounded-2xl border border-sky-100 space-y-3 hidden">
+                        <div id="profile-doctor-extra-fields" class="p-3.5 bg-sky-50/60 rounded-md border border-sky-100 space-y-3 hidden">
                             <h5 class="font-extrabold text-sky-900 text-xs flex items-center gap-1.5">
                                 <i class="fa-solid fa-user-doctor text-medical-600"></i>
-                                <span>Thông Tin Chuyên Môn Bác Sĩ</span>
+                                <span>Thông tin chuyên môn bác sĩ</span>
                             </h5>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Học vị:</label>
-                                    <input type="text" id="profile-doctor-hoc-vi" class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800">
+                                    <label class="block font-bold text-slate-600 text-[13px] mb-1">Học vị:</label>
+                                    <input type="text" id="profile-doctor-hoc-vi" class="w-full px-3 py-1.5 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800">
                                 </div>
                                 <div>
-                                    <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Phòng khám phụ trách:</label>
-                                    <input type="text" id="profile-doctor-phong" class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800">
+                                    <label class="block font-bold text-slate-600 text-[13px] mb-1">Phòng khám phụ trách:</label>
+                                    <input type="text" id="profile-doctor-phong" class="w-full px-3 py-1.5 bg-white border border-[#E3E8EE] rounded-md font-semibold text-slate-800">
                                 </div>
                             </div>
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Kinh nghiệm công tác:</label>
-                                <textarea id="profile-doctor-kinh-nghiem" rows="2" class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs"></textarea>
+                                <label class="block font-bold text-slate-600 text-[13px] mb-1">Kinh nghiệm công tác:</label>
+                                <textarea id="profile-doctor-kinh-nghiem" rows="2" class="w-full px-3 py-1.5 bg-white border border-[#E3E8EE] rounded-md text-slate-800 text-xs"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1730,12 +2030,12 @@
 
                 <!-- Footer Modal -->
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2 flex-shrink-0">
-                    <button type="button" onclick="dongModal('modal-ho-so-ca-nhan')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">
+                    <button type="button" onclick="dongModal('modal-ho-so-ca-nhan')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">
                         Đóng
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-xl shadow-md shadow-medical-600/20 transition flex items-center space-x-1.5">
+                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Lưu Thay Đổi</span>
+                        <span>Lưu thay đổi</span>
                     </button>
                 </div>
             </form>
@@ -1744,69 +2044,71 @@
 
     <!-- MODAL 1: ĐẶT LỊCH HẸN (BỆNH NHÂN) -->
     <div class="modal-backdrop" id="modal-dat-lich">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-lg w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-lg w-full overflow-hidden">
             <form id="form-dat-lich" onsubmit="event.preventDefault(); xacNhanDatLich();" autocomplete="off">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-calendar-plus text-medical-600"></i>
-                        <span>Đặt Lịch Hẹn Khám Bệnh Trực Tuyến</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-dat-lich')" class="text-slate-400 hover:text-slate-600 text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-calendar-plus" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Đặt lịch khám bệnh trực tuyến</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-dat-lich')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
                     <!-- BƯỚC 1 & 2: CHỌN CHUYÊN KHOA TRƯỚC, RỒI MỚI CHỌN BÁC SĨ THUỘC KHOA ĐÓ -->
-                    <div class="p-3.5 bg-slate-50/90 border border-slate-200 rounded-2xl space-y-3">
+                    <div class="p-3.5 bg-slate-50/90 border border-[#E3E8EE] rounded-md space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1 text-[11px] flex items-center gap-1.5">
-                                    <span class="w-4 h-4 rounded-full bg-medical-600 text-white text-[10px] inline-flex items-center justify-center font-bold">1</span>
-                                    <span>Chọn Chuyên Khoa:</span>
+                                <label class="block font-bold text-slate-700 mb-1 text-[13px] flex items-center gap-1.5">
+                                    <span class="w-4 h-4 rounded-full bg-medical-600 text-white text-[13px] inline-flex items-center justify-center font-bold">1</span>
+                                    <span>Chọn chuyên khoa:</span>
                                     <span class="text-rose-500">*</span>
                                 </label>
-                                <select id="modal-dl-chuyen-khoa" onchange="locBacSiTheoChuyenKhoaModal()" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-semibold text-xs transition shadow-xs">
-                                    <option value="">-- Tất Cả Chuyên Khoa --</option>
+                                <select id="modal-dl-chuyen-khoa" onchange="locBacSiTheoChuyenKhoaModal()" class="w-full px-3.5 py-2.5 bg-white border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-semibold text-xs transition shadow-xs">
+                                    <option value="">-- Tất cả chuyên khoa --</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1 text-[11px] flex items-center gap-1.5">
-                                    <span class="w-4 h-4 rounded-full bg-medical-600 text-white text-[10px] inline-flex items-center justify-center font-bold">2</span>
-                                    <span>Chọn Bác Sĩ Điều Trị:</span>
+                                <label class="block font-bold text-slate-700 mb-1 text-[13px] flex items-center gap-1.5">
+                                    <span class="w-4 h-4 rounded-full bg-medical-600 text-white text-[13px] inline-flex items-center justify-center font-bold">2</span>
+                                    <span>Chọn bác sĩ điều trị:</span>
                                     <span class="text-rose-500">*</span>
                                 </label>
-                                <select id="modal-dl-bac-si" onchange="capNhatGiaKhamModal(); taiSlotsKhaDungDatLich();" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-semibold text-xs transition shadow-xs">
+                                <select id="modal-dl-bac-si" onchange="capNhatGiaKhamModal(); taiSlotsKhaDungDatLich();" class="w-full px-3.5 py-2.5 bg-white border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-semibold text-xs transition shadow-xs">
                                     <!-- Dynamic lọc theo chuyên khoa đã chọn -->
                                 </select>
                             </div>
                         </div>
 
                         <!-- Doctor summary & price badge -->
-                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/70 text-xs">
+                        <div class="flex items-center justify-between pt-2 border-t border-[#E3E8EE] text-xs">
                             <div class="flex items-center space-x-2 text-slate-600">
                                 <i class="fa-solid fa-user-doctor text-medical-600"></i>
-                                <span id="modal-dl-bac-si-info" class="font-medium text-[11px]">Chuyên khoa: Đang chọn</span>
+                                <span id="modal-dl-bac-si-info" class="font-medium text-[13px]">Chuyên khoa: Đang chọn</span>
                             </div>
                             <div class="flex items-center space-x-1.5">
-                                <span class="text-slate-500 text-[11px]">Giá niêm yết:</span>
+                                <span class="text-slate-500 text-[13px]">Giá niêm yết:</span>
                                 <span id="modal-dl-gia-kham" class="font-black text-medical-700 text-xs bg-medical-100/70 px-2 py-0.5 rounded-lg border border-medical-200">200,000 đ</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- TÍNH NĂNG ĐẶT LỊCH CHO NGƯỜI THÂN (Medpro & YouMed Style) -->
-                    <div class="p-3 bg-sky-50/60 border border-sky-200/80 rounded-2xl space-y-2">
+                    <div class="p-3 bg-sky-50/60 border border-sky-200/80 rounded-md space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-sky-900 uppercase tracking-wider">
-                                <i class="fa-solid fa-people-roof text-sky-600 mr-1"></i> Đối Tượng Khám Bệnh:
+                            <span class="text-xs font-bold text-sky-900">
+                                <i class="fa-solid fa-people-roof text-sky-600 mr-1"></i> Đối tượng khám bệnh:
                             </span>
-                            <div class="inline-flex p-0.5 bg-sky-100 rounded-xl text-[11px] font-bold">
+                            <div class="inline-flex p-0.5 bg-sky-100 rounded-md text-[13px] font-bold">
                                 <button type="button" id="btn-tab-ban-than" onclick="chuyenDoiTuongKham('BAN_THAN')" class="px-2.5 py-1 rounded-lg bg-white text-sky-700 shadow-sm transition">
-                                    Bản Thân
+                                    Bản thân
                                 </button>
                                 <button type="button" id="btn-tab-nguoi-than" onclick="chuyenDoiTuongKham('NGUOI_THAN')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
-                                    Người Thân
+                                    Người thân
                                 </button>
                             </div>
                         </div>
@@ -1814,23 +2116,23 @@
                         <!-- Dropdown chọn hồ sơ gia đình -->
                         <div id="khu-vuc-nguoi-than" class="hidden pt-1.5 border-t border-sky-200/60 space-y-2">
                             <div class="flex items-center gap-2">
-                                <select id="modal-dl-chon-ho-so" onchange="chonHoSoGiaDinhDropdown(this.value)" class="w-full px-3 py-1.5 text-xs bg-white border border-sky-300 rounded-xl font-medium text-slate-800 focus:ring-2 focus:ring-sky-500">
-                                    <option value="MOI">+ Tạo hồ sơ người thân mới (Con cái, Bố/Mẹ...)</option>
+                                <select id="modal-dl-chon-ho-so" onchange="chonHoSoGiaDinhDropdown(this.value)" class="w-full px-3 py-1.5 text-xs bg-white border border-sky-300 rounded-md font-medium text-slate-800 focus:ring-2 focus:ring-sky-500">
+                                    <option value="MOI">+ Tạo hồ sơ người thân mới (con cái, bố/mẹ...)</option>
                                 </select>
                             </div>
                             <div id="form-nguoi-than-moi" class="grid grid-cols-2 gap-2 text-xs">
                                 <div>
-                                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Mối Quan Hệ:</label>
-                                    <select id="modal-dl-quan-he" onchange="capNhatNhanNguoiThan()" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold">
-                                        <option value="CON">Con cái (Bé nhỏ / Thanh thiếu niên)</option>
-                                        <option value="CHA_ME">Bố / Mẹ</option>
-                                        <option value="VO_CHONG">Vợ / Chồng</option>
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-0.5">Mối quan hệ:</label>
+                                    <select id="modal-dl-quan-he" onchange="capNhatNhanNguoiThan()" class="w-full px-2.5 py-1.5 bg-white border border-[#E3E8EE] rounded-lg text-slate-800 font-semibold">
+                                        <option value="CON">Con cái (bé nhỏ / thanh thiếu niên)</option>
+                                        <option value="CHA_ME">Bố / mẹ</option>
+                                        <option value="VO_CHONG">Vợ / chồng</option>
                                         <option value="NGUOI_THAN">Người thân khác</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Ngày Sinh Người Thân:</label>
-                                    <input type="date" id="modal-dl-ngay-sinh-nt" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800">
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-0.5">Ngày sinh người thân:</label>
+                                    <input type="date" id="modal-dl-ngay-sinh-nt" class="w-full px-2.5 py-1.5 bg-white border border-[#E3E8EE] rounded-lg text-slate-800">
                                 </div>
                             </div>
                         </div>
@@ -1838,46 +2140,46 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1" id="lbl-ho-ten-bn">Họ tên Bệnh nhân:</label>
-                            <input type="text" id="modal-dl-ho-ten" autocomplete="off" placeholder="Nhập họ tên..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1" id="lbl-ho-ten-bn">Họ tên bệnh nhân:</label>
+                            <input type="text" id="modal-dl-ho-ten" autocomplete="off" placeholder="Nhập họ tên..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số điện thoại:</label>
-                            <input type="text" id="modal-dl-sdt" autocomplete="off" placeholder="Nhập số điện thoại..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Số điện thoại:</label>
+                            <input type="text" id="modal-dl-sdt" autocomplete="off" placeholder="Nhập số điện thoại..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ngày khám:</label>
-                        <input type="date" id="modal-dl-ngay" onchange="taiSlotsKhaDungDatLich(); kiemTraCaTrucDatLich();" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                        <label class="block font-bold text-slate-700 mb-1">Ngày khám:</label>
+                        <input type="date" id="modal-dl-ngay" onchange="taiSlotsKhaDungDatLich(); kiemTraCaTrucDatLich();" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-medium">
                     </div>
 
                     <!-- THÔNG TIN CA TRỰC BÁC SĨ (LIÊN KẾT PHÂN HỆ ĐẶT LỊCH) -->
-                    <div id="modal-dl-ca-truc-box" class="p-3.5 rounded-2xl border text-xs transition-all hidden">
+                    <div id="modal-dl-ca-truc-box" class="p-3.5 rounded-md border text-xs transition-all hidden">
                         <!-- Dynamic rendered shift info -->
                     </div>
 
                     <!-- BỘ CHỌN KHUNG GIỜ KHÁM THỜI GIAN THỰC (Realtime Slots - BookingCare Style) -->
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="font-bold uppercase tracking-wider text-slate-700 text-xs">Khung Giờ Khám (Ca 30 phút):</label>
-                            <span id="modal-dl-slots-status" class="text-[11px] font-bold text-sky-600 flex items-center gap-1">
+                            <label class="font-bold text-slate-700 text-xs">Khung giờ khám (ca 30 phút):</label>
+                            <span id="modal-dl-slots-status" class="text-[13px] font-bold text-sky-600 flex items-center gap-1">
                                 <i class="fa-solid fa-bolt text-amber-500"></i> <span id="modal-dl-slots-count">Đang kiểm tra slot...</span>
                             </span>
                         </div>
 
-                        <div id="modal-dl-slots" class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                        <div id="modal-dl-slots" class="p-3 bg-slate-50 border border-[#E3E8EE] rounded-md space-y-2.5">
                             <div>
-                                <div class="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
-                                    <i class="fa-solid fa-sun text-amber-500"></i> Buổi Sáng (08:00 - 11:30)
+                                <div class="text-[13px] font-bold text-slate-500 flex items-center gap-1 mb-1.5">
+                                    <i class="fa-solid fa-sun text-amber-500"></i> Buổi sáng (08:00 - 11:30)
                                 </div>
                                 <div class="grid grid-cols-4 gap-2" id="modal-dl-slots-sang">
                                     <!-- Render động từ API slots-kha-dung -->
                                 </div>
                             </div>
-                            <div class="pt-2 border-t border-slate-200/70">
-                                <div class="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
-                                    <i class="fa-solid fa-cloud-sun text-sky-500"></i> Buổi Chiều (13:30 - 16:30)
+                            <div class="pt-2 border-t border-[#E3E8EE]">
+                                <div class="text-[13px] font-bold text-slate-500 flex items-center gap-1 mb-1.5">
+                                    <i class="fa-solid fa-cloud-sun text-sky-500"></i> Buổi chiều (13:30 - 16:30)
                                 </div>
                                 <div class="grid grid-cols-4 gap-2" id="modal-dl-slots-chieu">
                                     <!-- Render động từ API slots-kha-dung -->
@@ -1887,27 +2189,27 @@
                     </div>
 
                     <!-- BOX CAM KẾT PHIÊN KHÁM & QUY CHẾ TIẾP NHẬN TRÁNH DELAY DOMINO -->
-                    <div id="modal-dl-cam-ket-box" class="p-3.5 bg-gradient-to-r from-sky-50 via-indigo-50/50 to-emerald-50/60 border border-sky-200/80 rounded-2xl space-y-2.5 text-xs shadow-xs">
+                    <div id="modal-dl-cam-ket-box" class="p-3.5 bg-sky-50 border border-sky-200/80 rounded-md space-y-2.5 text-xs shadow-xs">
                         <div class="flex items-center justify-between pb-2 border-b border-sky-100">
                             <span class="font-extrabold text-sky-950 flex items-center gap-1.5">
                                 <i class="fa-solid fa-shield-heart text-sky-600 text-sm"></i>
-                                <span>Cam Kết Phiên Khám & Tiếp Nhận Ưu Tiên</span>
+                                <span>Cam kết phiên khám & tiếp nhận ưu tiên</span>
                             </span>
-                            <span id="badge-stt-du-kien" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-sky-200 text-sky-900 border border-sky-300">
-                                STT dự kiến: #01 (Ca Sáng)
+                            <span id="badge-stt-du-kien" class="px-2.5 py-0.5 rounded-full text-[13px] font-black bg-sky-200 text-sky-900 border border-sky-300">
+                                STT dự kiến: #01 (Ca sáng)
                             </span>
                         </div>
-                        <div class="text-[11px] text-slate-700 space-y-1.5">
+                        <div class="text-[13px] text-slate-700 space-y-1.5">
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-circle-check text-emerald-600 text-xs mt-0.5 flex-shrink-0"></i>
                                 <div>
-                                    <strong class="text-emerald-800">Cam kết khám xong trong buổi:</strong> Quý khách đăng ký <span id="lbl-phien-kham" class="font-bold text-sky-700">Buổi Sáng (08:00 - 11:30)</span> được phòng khám <strong>chắc chắn hoàn thành khám 100% trong buổi này</strong> (trước giờ nghỉ của ca).
+                                    <strong class="text-emerald-800">Cam kết khám xong trong buổi:</strong> Quý khách đăng ký <span id="lbl-phien-kham" class="font-bold text-sky-700">Buổi sáng (08:00 - 11:30)</span> được phòng khám <strong>chắc chắn hoàn thành khám 100% trong buổi này</strong> (trước giờ nghỉ của ca).
                                 </div>
                             </div>
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-clock-rotate-left text-amber-500 text-xs mt-0.5 flex-shrink-0"></i>
                                 <div>
-                                    <strong class="text-amber-800">Quy chế tiếp nhận linh hoạt (Giải tỏa trễ dây chuyền):</strong> Khung giờ <span id="lbl-khung-gio-chon" class="font-bold text-slate-900">08:00 - 08:30</span> là khung giờ có mặt để tiếp đón và đo sinh hiệu. Vì lý do chuyên môn (ca khám trước có thể cần hội chẩn kỹ hơn), giờ vào khám thực tế có thể dao động linh hoạt ±10-15 phút.
+                                    <strong class="text-amber-800">Quy chế tiếp nhận linh hoạt (giải tỏa trễ dây chuyền):</strong> Khung giờ <span id="lbl-khung-gio-chon" class="font-bold text-slate-900">08:00 - 08:30</span> là khung giờ có mặt để tiếp đón và đo sinh hiệu. Vì lý do chuyên môn (ca khám trước có thể cần hội chẩn kỹ hơn), giờ vào khám thực tế có thể dao động linh hoạt ±10-15 phút.
                                 </div>
                             </div>
                             <div class="flex items-start gap-2">
@@ -1920,16 +2222,16 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Lý do khám / Triệu chứng:</label>
-                        <input type="text" id="modal-dl-ly-do" autocomplete="off" placeholder="Khám tổng quát, nhức đầu, sốt..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                        <label class="block font-bold text-slate-700 mb-1">Lý do khám / triệu chứng:</label>
+                        <input type="text" id="modal-dl-ly-do" autocomplete="off" placeholder="Khám tổng quát, nhức đầu, sốt..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                     </div>
 
                     <!-- ACCORDION HỒ SƠ BỆNH ÁN ĐIỆN TỬ (BỆNH NHÂN ĐIỀN ĐỂ BÁC SĨ CHẨN ĐOÁN) -->
-                    <div class="border border-sky-200 rounded-2xl bg-sky-50/50 overflow-hidden">
+                    <div class="border border-sky-200 rounded-md bg-sky-50/50 overflow-hidden">
                         <button type="button" onclick="toggleDashboardEhrAccordion()" class="w-full px-4 py-2.5 text-left font-bold text-xs text-sky-900 flex justify-between items-center hover:bg-sky-100/60 transition">
                             <span class="flex items-center gap-1.5">
                                 <i class="fa-solid fa-notes-medical text-sky-600"></i>
-                                <span>Bệnh Án Điện Tử & Tiền Sử Bệnh (Bệnh nhân điền để Bác sĩ xem)</span>
+                                <span>Bệnh án điện tử & tiền sử bệnh (bệnh nhân điền để bác sĩ xem)</span>
                             </span>
                             <i id="dashboard-ehr-arrow" class="fa-solid fa-chevron-down text-sky-600 transition-transform"></i>
                         </button>
@@ -1937,8 +2239,8 @@
                         <div id="dashboard-ehr-accordion" class="p-3.5 pt-2 space-y-3 bg-white border-t border-sky-100 text-xs">
                             <div class="grid grid-cols-2 gap-2.5">
                                 <div>
-                                    <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Nhóm Máu:</label>
-                                    <select id="modal-dl-nhom-mau" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-semibold focus:bg-white">
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-1">Nhóm máu:</label>
+                                    <select id="modal-dl-nhom-mau" class="w-full px-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-lg text-slate-800 font-semibold focus:bg-white">
                                         <option value="">-- Chưa rõ --</option>
                                         <option value="A">Nhóm máu A</option>
                                         <option value="B">Nhóm máu B</option>
@@ -1947,58 +2249,58 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Số CCCD / CMND:</label>
-                                    <input type="text" id="modal-dl-cccd" autocomplete="off" placeholder="079xxxxxxxx" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800">
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-1">Số CCCD / CMND:</label>
+                                    <input type="text" id="modal-dl-cccd" autocomplete="off" placeholder="079xxxxxxxx" class="w-full px-3 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-lg text-slate-800">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                                <label class="block text-[13px] font-bold text-slate-500 mb-1">
                                     <i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i>
-                                    Tiền Sử Dị Ứng Thuốc / Kháng Sinh / Thức Ăn:
+                                    Tiền sử dị ứng thuốc / kháng sinh / thức ăn:
                                 </label>
-                                <textarea id="modal-dl-tien-su-di-ung" rows="2" placeholder="Ghi rõ: dị ứng Penicillin, Paracetamol, tôm cua, kháng sinh..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:bg-white"></textarea>
+                                <textarea id="modal-dl-tien-su-di-ung" rows="2" placeholder="Ghi rõ: dị ứng Penicillin, Paracetamol, tôm cua, kháng sinh..." class="w-full p-2 bg-slate-50 border border-[#E3E8EE] rounded-lg text-slate-800 focus:bg-white"></textarea>
                             </div>
 
                             <div>
-                                <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                                <label class="block text-[13px] font-bold text-slate-500 mb-1">
                                     <i class="fa-solid fa-heart-pulse text-sky-500 mr-1"></i>
-                                    Bệnh Lý Nền Mãn Tính (Tim mạch, tiểu đường, huyết áp...):
+                                    Bệnh lý nền mãn tính (tim mạch, tiểu đường, huyết áp...):
                                 </label>
-                                <textarea id="modal-dl-tien-su-benh" rows="2" placeholder="Ví dụ: Cao huyết áp 2 năm, viêm loét dạ dày, tiểu đường tuýp 2..." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:bg-white"></textarea>
+                                <textarea id="modal-dl-tien-su-benh" rows="2" placeholder="Ví dụ: Cao huyết áp 2 năm, viêm loét dạ dày, tiểu đường tuýp 2..." class="w-full p-2 bg-slate-50 border border-[#E3E8EE] rounded-lg text-slate-800 focus:bg-white"></textarea>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2.5 pt-1 border-t border-slate-100">
                                 <div>
-                                    <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Người Thân Khẩn Cấp:</label>
-                                    <input type="text" id="modal-dl-nguoi-than" autocomplete="off" placeholder="Họ tên người thân" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-1">Người thân khẩn cấp:</label>
+                                    <input type="text" id="modal-dl-nguoi-than" autocomplete="off" placeholder="Họ tên người thân" class="w-full px-2.5 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-lg">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">SĐT Khẩn Cấp:</label>
-                                    <input type="tel" id="modal-dl-sdt-khan-cap" autocomplete="off" placeholder="09xxxxxxxx" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono">
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-1">SĐT khẩn cấp:</label>
+                                    <input type="tel" id="modal-dl-sdt-khan-cap" autocomplete="off" placeholder="09xxxxxxxx" class="w-full px-2.5 py-1.5 bg-slate-50 border border-[#E3E8EE] rounded-lg font-mono">
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- TỆP / ẢNH Y TẾ ĐÍNH KÈM (ĐƠN THUỐC CŨ, KẾT QUẢ XÉT NGHIỆM) -->
-                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 text-[11px] flex items-center justify-between">
+                    <div class="p-3.5 bg-slate-50 border border-[#E3E8EE] rounded-md space-y-2">
+                        <label class="block font-bold text-slate-700 text-[13px] flex items-center justify-between">
                             <span class="flex items-center gap-1.5">
                                 <i class="fa-solid fa-paperclip text-medical-600"></i>
-                                <span>Đính Kèm Ảnh Y Tế (Đơn thuốc cũ, xét nghiệm, ảnh triệu chứng)</span>
+                                <span>Đính kèm ảnh Y tế (đơn thuốc cũ, xét nghiệm, ảnh triệu chứng)</span>
                             </span>
-                            <span class="text-[10px] text-slate-400 font-normal">Tùy chọn</span>
+                            <span class="text-[13px] text-slate-400 font-normal">Tùy chọn</span>
                         </label>
-                        <input type="file" id="modal-dl-files" multiple accept="image/*,.pdf" onchange="xuLyChonTepYTe(this)" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-medical-50 file:text-medical-700 hover:file:bg-medical-100 cursor-pointer">
+                        <input type="file" id="modal-dl-files" multiple accept="image/*,.pdf" onchange="xuLyChonTepYTe(this)" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3.5 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-medical-50 file:text-medical-700 hover:file:bg-medical-100 cursor-pointer">
                         <div id="modal-dl-file-preview" class="flex flex-wrap gap-2 pt-1 empty:hidden"></div>
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-dat-lich')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-xl shadow-md shadow-medical-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-dat-lich')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Xác Nhận Đặt Lịch</span>
+                        <span>Xác nhận đặt lịch</span>
                     </button>
                 </div>
             </form>
@@ -2007,63 +2309,65 @@
 
     <!-- MODAL DỜI LỊCH HẸN KHÁM (RESCHEDULE) -->
     <div class="modal-backdrop" id="modal-doi-lich">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-lg w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-lg w-full overflow-hidden">
             <form id="form-doi-lich" onsubmit="event.preventDefault(); xacNhanDoiLich();" autocomplete="off">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-clock-rotate-left text-sky-600"></i>
-                        <span>Dời Lịch Hẹn Khám Bệnh (Reschedule)</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-doi-lich')" class="text-slate-400 hover:text-slate-600 text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Dời ngày giờ khám bệnh</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-doi-lich')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
                     <input type="hidden" id="modal-doi-lich-id">
                     
-                    <div class="p-3.5 bg-sky-50/70 border border-sky-100 rounded-2xl space-y-1">
-                        <div class="text-[11px] font-bold text-sky-800 uppercase tracking-wider">Thông Tin Ca Khám Hiện Tại</div>
+                    <div class="p-3.5 bg-sky-50/70 border border-sky-100 rounded-md space-y-1">
+                        <div class="text-[13px] font-bold text-sky-800">Thông tin ca khám hiện tại</div>
                         <div class="text-slate-700">Mã ca: <strong id="modal-doi-lich-ma" class="font-mono text-sky-700 font-bold">#--</strong></div>
                         <div class="text-slate-700">Bác sĩ: <strong id="modal-doi-lich-bs">--</strong></div>
                         <div class="text-slate-700">Thời gian hẹn cũ: <strong id="modal-doi-lich-tg-cu" class="text-slate-900">--</strong></div>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Chọn Ngày Khám Mới:</label>
-                        <input type="date" id="modal-doi-lich-ngay" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                        <label class="block font-bold text-slate-700 mb-1">Chọn ngày khám mới:</label>
+                        <input type="date" id="modal-doi-lich-ngay" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-medium">
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1.5">Chọn Khung Giờ Mới (Ca 30 phút):</label>
+                        <label class="block font-bold text-slate-700 mb-1.5">Chọn khung giờ mới (ca 30 phút):</label>
                         <div class="grid grid-cols-4 gap-2" id="modal-doi-lich-slots">
-                            <button type="button" class="slot-btn-reschedule selected py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '08:00', '08:30')">08:00</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '08:30', '09:00')">08:30</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '09:00', '09:30')">09:00</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '09:30', '10:00')">09:30</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '10:00', '10:30')">10:00</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '14:00', '14:30')">14:00</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '14:30', '15:00')">14:30</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '15:00', '15:30')">15:00</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '15:30', '16:00')">15:30</button>
-                            <button type="button" class="slot-btn-reschedule py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] transition" onclick="chonSlotDoiLich(this, '16:00', '16:30')">16:00</button>
+                            <button type="button" class="slot-btn-reschedule selected py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '08:00', '08:30')">08:00</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '08:30', '09:00')">08:30</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '09:00', '09:30')">09:00</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '09:30', '10:00')">09:30</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '10:00', '10:30')">10:00</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '14:00', '14:30')">14:00</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '14:30', '15:00')">14:30</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '15:00', '15:30')">15:00</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '15:30', '16:00')">15:30</button>
+                            <button type="button" class="slot-btn-reschedule py-2 rounded-md bg-slate-100 border border-[#E3E8EE] text-slate-700 font-mono text-[13px] transition" onclick="chonSlotDoiLich(this, '16:00', '16:30')">16:00</button>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Lý do xin dời lịch:</label>
-                        <input type="text" id="modal-doi-lich-ly-do" autocomplete="off" placeholder="Bận công việc, trùng lịch cá nhân, kẹt xe..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                        <label class="block font-bold text-slate-700 mb-1">Lý do xin dời lịch:</label>
+                        <input type="text" id="modal-doi-lich-ly-do" autocomplete="off" placeholder="Bận công việc, trùng lịch cá nhân, kẹt xe..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                     </div>
 
-                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-[11px] flex items-start gap-2">
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-[13px] flex items-start gap-2">
                         <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
                         <span>Lịch dời sẽ được thuật toán tự động đối chiếu để đảm bảo không bị trùng slot của bác sĩ.</span>
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-doi-lich')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
-                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-md shadow-sky-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-doi-lich')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Đóng</button>
+                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Xác Nhận Dời Giờ</span>
+                        <span>Xác nhận dời giờ</span>
                     </button>
                 </div>
             </form>
@@ -2072,13 +2376,15 @@
 
     <!-- MODAL XEM TỆP / ẢNH Y TẾ ĐÍNH KÈM -->
     <div class="modal-backdrop" id="modal-xem-tep-y-te">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
-            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                    <i class="fa-solid fa-paperclip text-medical-600"></i>
-                    <span>Hồ Sơ Y Tế & Đơn Thuốc Đính Kèm</span>
-                </h3>
-                <button onclick="dongModal('modal-xem-tep-y-te')" class="text-slate-400 hover:text-slate-600 text-base">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-2xl w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Hồ sơ y tế &amp; tệp đính kèm</h3>
+                </div>
+                <button type="button" onclick="dongModal('modal-xem-tep-y-te')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -2088,7 +2394,7 @@
                 </div>
             </div>
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end">
-                <button onclick="dongModal('modal-xem-tep-y-te')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+                <button onclick="dongModal('modal-xem-tep-y-te')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Đóng</button>
             </div>
         </div>
     </div>
@@ -2096,39 +2402,44 @@
 
     <!-- MODAL 3: CHI TIẾT & THANH TOÁN HÓA ĐƠN (ADMIN) -->
     <div class="modal-backdrop" id="modal-chi-tiet-hoa-don">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-xl w-full overflow-hidden">
-            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <h3 class="text-sm font-extrabold text-slate-900" id="modal-cthd-title">Chi Tiết Hóa Đơn Viện Phí</h3>
-                <button onclick="dongModal('modal-chi-tiet-hoa-don')" class="text-slate-400 hover:text-slate-600 text-base">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-xl w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[16px] font-semibold text-slate-900 leading-tight" id="modal-cthd-title">Chi tiết hóa đơn viện phí</h3>
+                </div>
+                <button type="button" onclick="dongModal('modal-chi-tiet-hoa-don')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="p-6 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
-                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3.5 rounded-md border border-[#E3E8EE]">
                     <div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase">Bệnh Nhân</div>
+                        <div class="text-[13px] text-slate-400 font-bold">Bệnh nhân</div>
                         <div class="font-extrabold text-slate-800 mt-0.5" id="modal-cthd-benh-nhan">--</div>
                     </div>
                     <div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase">Ngày Lập</div>
+                        <div class="text-[13px] text-slate-400 font-bold">Ngày lập</div>
                         <div class="font-bold text-slate-800 mt-0.5" id="modal-cthd-ngay">--</div>
                     </div>
                     <div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase">Trạng Thái</div>
+                        <div class="text-[13px] text-slate-400 font-bold">Trạng thái</div>
                         <div class="mt-0.5" id="modal-cthd-trang-thai">--</div>
                     </div>
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-slate-700 uppercase tracking-wider mb-2">Bảng Kê Viện Phí Liên Dịch Vụ:</h4>
-                    <div class="rounded-2xl border border-slate-200 overflow-hidden">
+                    <h4 class="font-bold text-slate-700 mb-2">Bảng kê viện phí liên dịch vụ:</h4>
+                    <div class="rounded-md border border-[#E3E8EE] overflow-hidden">
                         <table class="w-full text-left">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
-                                    <th class="py-2 px-3">Hạng Mục</th>
+                                <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
+                                    <th class="py-2 px-3">Hạng mục</th>
                                     <th class="py-2 px-3 text-center">SL</th>
-                                    <th class="py-2 px-3">Đơn Giá</th>
-                                    <th class="py-2 px-3 text-right">Thành Tiền</th>
+                                    <th class="py-2 px-3">Đơn giá</th>
+                                    <th class="py-2 px-3 text-right">Thành tiền</th>
                                 </tr>
                             </thead>
                             <tbody id="modal-cthd-tbody-items" class="divide-y divide-slate-100 text-slate-700">
@@ -2148,44 +2459,44 @@
                 </div>
 
                 <div id="box-thanh-toan-actions" class="pt-3 border-t border-slate-100 space-y-2.5">
-                    <label class="block font-bold uppercase tracking-wider text-slate-700">Chọn Phương Thức Thanh Toán:</label>
+                    <label class="block font-bold text-slate-700">Chọn phương thức thanh toán:</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <button type="button" onclick="chonPhuongThuc(this, 'TIEN_MAT')" class="py-2.5 px-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-xl text-center text-xs transition">💵 Tiền Mặt</button>
-                        <button type="button" onclick="chonPhuongThuc(this, 'CHUYEN_KHOAN')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition">🏦 VietQR 24/7</button>
-                        <button type="button" onclick="chonPhuongThuc(this, 'VNPAY')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition">💳 VNPAY</button>
-                        <button type="button" onclick="chonPhuongThuc(this, 'MOMO')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition">📱 MoMo</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'TIEN_MAT')" class="py-2.5 px-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-md text-center text-xs transition">Tiền mặt</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'CHUYEN_KHOAN')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-[#E3E8EE] font-bold rounded-md text-center text-xs transition">VietQR 24/7</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'VNPAY')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-[#E3E8EE] font-bold rounded-md text-center text-xs transition">VNPAY</button>
+                        <button type="button" onclick="chonPhuongThuc(this, 'MOMO')" class="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-[#E3E8EE] font-bold rounded-md text-center text-xs transition">MoMo</button>
                     </div>
 
                     <!-- VietQR Dynamic Box -->
-                    <div id="box-vietqr-code" class="hidden p-3.5 bg-gradient-to-r from-sky-50 to-emerald-50 border border-sky-200 rounded-2xl flex flex-col sm:flex-row items-center gap-4 text-xs">
-                        <div class="bg-white p-2 rounded-xl shadow-xs border border-slate-200 flex-shrink-0 text-center">
+                    <div id="box-vietqr-code" class="hidden p-3.5 bg-sky-50 border border-sky-200 rounded-md flex flex-col sm:flex-row items-center gap-4 text-xs">
+                        <div class="bg-white p-2 rounded-md shadow-xs border border-[#E3E8EE] flex-shrink-0 text-center">
                             <img id="vietqr-img" src="" alt="VietQR" class="w-28 h-28 object-contain rounded-lg">
-                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter mt-1 block">Quét để trả</span>
+                            <span class="text-[13px] font-bold text-slate-500 tracking-tighter mt-1 block">Quét để trả</span>
                         </div>
                         <div class="space-y-1 text-slate-700 flex-1">
                             <div class="font-extrabold text-sky-800 text-[13px]" id="vietqr-title">Quét mã chuyển khoản ngân hàng:</div>
-                            <div id="vietqr-info" class="text-[11px] leading-relaxed">--</div>
-                            <div class="text-[10px] text-slate-400 italic mt-1">* Hệ thống tự động ghi nhận thanh toán ngay sau khi giao dịch thành công.</div>
+                            <div id="vietqr-info" class="text-[13px] leading-relaxed">--</div>
+                            <div class="text-[13px] text-slate-400 italic mt-1">* Hệ thống tự động ghi nhận thanh toán ngay sau khi giao dịch thành công.</div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                    <button type="button" onclick="inBienLaiHoaDonHienTai()" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-2xs transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí">
+                    <button type="button" onclick="inBienLaiHoaDonHienTai()" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold rounded-md shadow-2xs transition flex items-center space-x-1.5" title="In phiếu thu / Hóa đơn viện phí">
                         <i class="fa-solid fa-print text-sky-600"></i>
-                        <span>In Biên Lai</span>
+                        <span>In biên lai</span>
                     </button>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button type="button" onclick="dongModal('modal-chi-tiet-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
-                    <button id="btn-hoan-tien-hoa-don" onclick="moModalHoanTien()" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-chi-tiet-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Đóng</button>
+                    <button id="btn-hoan-tien-hoa-don" onclick="moModalHoanTien()" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-rotate-left"></i>
-                        <span>Hoàn Tiền</span>
+                        <span>Hoàn tiền</span>
                     </button>
-                    <button id="btn-xac-nhan-thanh-toan" onclick="xacNhanThanhToanHoaDonHienTai()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
+                    <button id="btn-xac-nhan-thanh-toan" onclick="xacNhanThanhToanHoaDonHienTai()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Xác Nhận Thu Tiền</span>
+                        <span>Xác nhận thu tiền</span>
                     </button>
                 </div>
             </div>
@@ -2194,32 +2505,34 @@
 
     <!-- MODAL HOÀN TIỀN HÓA ĐƠN (ADMIN) -->
     <div class="modal-backdrop" id="modal-hoan-tien-hoa-don">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-md w-full overflow-hidden">
-            <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center justify-between">
-                <h3 class="text-sm font-extrabold text-rose-900 flex items-center space-x-2">
-                    <i class="fa-solid fa-rotate-left text-rose-600"></i>
-                    <span>Hoàn Tiền Viện Phí</span>
-                </h3>
-                <button type="button" onclick="dongModal('modal-hoan-tien-hoa-don')" class="text-slate-400 hover:text-slate-600 text-base">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-md w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-[#FDF2F2] text-[#C0352B] flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Hoàn tiền viện phí</h3>
+                </div>
+                <button type="button" onclick="dongModal('modal-hoan-tien-hoa-don')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="p-6 space-y-4 text-xs">
                 <p class="text-slate-600">Thực hiện hoàn trả viện phí cho hóa đơn: <strong id="modal-ht-ma-hd" class="text-slate-900 font-mono">--</strong></p>
-                <div class="p-3 bg-rose-50/60 rounded-xl border border-rose-200 flex justify-between items-center">
-                    <span class="text-slate-600 font-bold uppercase text-[10px]">Số tiền hoàn lại:</span>
+                <div class="p-3 bg-rose-50/60 rounded-md border border-rose-200 flex justify-between items-center">
+                    <span class="text-slate-600 font-bold text-[13px]">Số tiền hoàn lại:</span>
                     <span id="modal-ht-so-tien" class="text-base font-black text-rose-600">0 đ</span>
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Lý do hoàn tiền (*):</label>
-                    <textarea id="modal-ht-ly-do" rows="3" placeholder="Nhập lý do hoàn trả viện phí (Ví dụ: Bác sĩ yêu cầu đổi xét nghiệm / Bệnh nhân yêu cầu hủy)..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-slate-800"></textarea>
+                    <label class="block font-bold text-slate-700 mb-1">Lý do hoàn tiền (*):</label>
+                    <textarea id="modal-ht-ly-do" rows="3" placeholder="Nhập lý do hoàn trả viện phí (Ví dụ: Bác sĩ yêu cầu đổi xét nghiệm / Bệnh nhân yêu cầu hủy)..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800"></textarea>
                 </div>
             </div>
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                <button type="button" onclick="dongModal('modal-hoan-tien-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy Bỏ</button>
-                <button type="button" onclick="xacNhanHoanTien()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition flex items-center space-x-1.5">
+                <button type="button" onclick="dongModal('modal-hoan-tien-hoa-don')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy bỏ</button>
+                <button type="button" onclick="xacNhanHoanTien()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                     <i class="fa-solid fa-check"></i>
-                    <span>Xác Nhận Hoàn Tiền</span>
+                    <span>Xác nhận hoàn tiền</span>
                 </button>
             </div>
         </div>
@@ -2228,63 +2541,65 @@
 
     <!-- MODAL 4: THÊM BÁC SĨ (ADMIN) -->
     <div class="modal-backdrop" id="modal-them-bac-si">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-lg w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-lg w-full overflow-hidden">
             <form id="form-them-bac-si" onsubmit="event.preventDefault(); xacNhanThemBacSi();" autocomplete="off">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-user-doctor text-medical-600"></i>
-                        <span>Thêm Bác Sĩ Mới (Admin)</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-them-bac-si')" class="text-slate-400 hover:text-slate-600 text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Thêm bác sĩ mới</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-them-bac-si')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-3.5 text-xs max-h-[75vh] overflow-y-auto">
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và tên Bác sĩ:</label>
-                        <input type="text" id="modal-tbs-ho-ten" autocomplete="off" placeholder="Ví dụ: BS. CKII Hoàng Minh Tuấn" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                        <label class="block font-bold text-slate-700 mb-1">Họ và tên bác sĩ:</label>
+                        <input type="text" id="modal-tbs-ho-ten" autocomplete="off" placeholder="Ví dụ: BS. CKII Hoàng Minh Tuấn" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Chuyên khoa:</label>
-                            <select id="modal-tbs-chuyen-khoa" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Chuyên khoa:</label>
+                            <select id="modal-tbs-chuyen-khoa" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-medium">
                                 <!-- Dynamic -->
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Học vị:</label>
-                            <input type="text" id="modal-tbs-hoc-vi" autocomplete="off" placeholder="Bác sĩ Chuyên khoa II" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Học vị:</label>
+                            <input type="text" id="modal-tbs-hoc-vi" autocomplete="off" placeholder="Bác sĩ Chuyên khoa II" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giá khám (VND):</label>
-                            <input type="number" id="modal-tbs-gia-kham" value="250000" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Giá khám (VND):</label>
+                            <input type="number" id="modal-tbs-gia-kham" value="250000" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số phòng khám:</label>
-                            <input type="text" id="modal-tbs-phong" autocomplete="off" placeholder="P302" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Số phòng khám:</label>
+                            <input type="text" id="modal-tbs-phong" autocomplete="off" placeholder="P302" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Tên đăng nhập:</label>
-                            <input type="text" id="modal-tbs-username" autocomplete="off" placeholder="bshminh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Tên đăng nhập:</label>
+                            <input type="text" id="modal-tbs-username" autocomplete="off" placeholder="bshminh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mật khẩu ban đầu:</label>
-                            <input type="password" id="modal-tbs-pass" autocomplete="new-password" placeholder="Mặc định: 123456" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Mật khẩu ban đầu:</label>
+                            <input type="password" id="modal-tbs-pass" autocomplete="new-password" placeholder="Mặc định: 123456" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-them-bac-si')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-xl shadow-md shadow-medical-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-them-bac-si')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Tạo Hồ Sơ Bác Sĩ</span>
+                        <span>Tạo hồ sơ bác sĩ</span>
                     </button>
                 </div>
             </form>
@@ -2293,36 +2608,38 @@
 
     <!-- MODAL 5: THÊM CHUYÊN KHOA (ADMIN) -->
     <div class="modal-backdrop" id="modal-them-chuyen-khoa">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-md w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-md w-full overflow-hidden">
             <form id="form-them-chuyen-khoa" onsubmit="event.preventDefault(); xacNhanThemChuyenKhoa();" autocomplete="off">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-folder-plus text-indigo-600"></i>
-                        <span>Thêm Chuyên Khoa Mới</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-them-chuyen-khoa')" class="text-slate-400 hover:text-slate-600 text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-folder-plus" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Thêm chuyên khoa mới</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-them-chuyen-khoa')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-3.5 text-xs">
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mã chuyên khoa:</label>
-                        <input type="text" id="modal-tck-ma" autocomplete="off" placeholder="Ví dụ: UNG_BUOU, DA_LIEU" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 uppercase">
+                        <label class="block font-bold text-slate-700 mb-1">Mã chuyên khoa:</label>
+                        <input type="text" id="modal-tck-ma" autocomplete="off" placeholder="Ví dụ: UNG_BUOU, DA_LIEU" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 uppercase">
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Tên chuyên khoa:</label>
-                        <input type="text" id="modal-tck-ten" autocomplete="off" placeholder="Ví dụ: Khoa Ung Bướu" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                        <label class="block font-bold text-slate-700 mb-1">Tên chuyên khoa:</label>
+                        <input type="text" id="modal-tck-ten" autocomplete="off" placeholder="Ví dụ: Khoa Ung Bướu" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mô tả nhiệm vụ:</label>
-                        <input type="text" id="modal-tck-mo-ta" autocomplete="off" placeholder="Khám, tầm soát và điều trị..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                        <label class="block font-bold text-slate-700 mb-1">Mô tả nhiệm vụ:</label>
+                        <input type="text" id="modal-tck-mo-ta" autocomplete="off" placeholder="Khám, tầm soát và điều trị..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-them-chuyen-khoa')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-them-chuyen-khoa')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Thêm Chuyên Khoa</span>
+                        <span>Thêm chuyên khoa</span>
                     </button>
                 </div>
             </form>
@@ -2333,14 +2650,16 @@
     <!-- MODAL BÁC SĨ KÊ TOA THUỐC & KẾT LUẬN KHÁM                     -->
     <!-- ============================================================= -->
     <div class="modal-backdrop" id="modal-ke-toa-thuoc">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-2xl w-full overflow-hidden">
             <form id="form-ke-toa-thuoc" onsubmit="event.preventDefault(); xacNhanKeToaThuoc();" autocomplete="off">
-                <div class="bg-gradient-to-r from-purple-700 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold flex items-center space-x-2">
-                        <i class="fa-solid fa-file-prescription text-amber-300 text-base"></i>
-                        <span>Kê Toa Thuốc & Kết Luận Chẩn Đoán Khám Bệnh</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-ke-toa-thuoc')" class="text-white/70 hover:text-white text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-file-prescription" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Kê toa thuốc &amp; kết luận chẩn đoán</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-ke-toa-thuoc')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -2348,47 +2667,47 @@
                     <input type="hidden" id="modal-kt-id">
 
                     <!-- Thông tin ca khám -->
-                    <div class="grid grid-cols-3 gap-2 bg-purple-50/70 p-3.5 rounded-2xl border border-purple-100">
+                    <div class="grid grid-cols-3 gap-2 bg-purple-50/70 p-3.5 rounded-md border border-purple-100">
                         <div>
-                            <div class="text-[10px] text-purple-700 font-bold uppercase">Mã Ca Khám</div>
+                            <div class="text-[13px] text-purple-700 font-bold">Mã ca khám</div>
                             <div class="font-extrabold text-slate-800 text-sm mt-0.5" id="modal-kt-ma-ca">#--</div>
                         </div>
                         <div>
-                            <div class="text-[10px] text-purple-700 font-bold uppercase">Bệnh Nhân</div>
+                            <div class="text-[13px] text-purple-700 font-bold">Bệnh nhân</div>
                             <div class="font-bold text-slate-800 text-xs mt-0.5" id="modal-kt-ten-bn">--</div>
                         </div>
                         <div>
-                            <div class="text-[10px] text-purple-700 font-bold uppercase">Lý Do Khám</div>
-                            <div class="text-slate-600 text-[11px] mt-0.5 truncate" id="modal-kt-ly-do">--</div>
+                            <div class="text-[13px] text-purple-700 font-bold">Lý do khám</div>
+                            <div class="text-slate-600 text-[13px] mt-0.5 truncate" id="modal-kt-ly-do">--</div>
                         </div>
                     </div>
 
                     <!-- Chẩn đoán bệnh -->
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
-                            <span>Chẩn Đoán Bệnh / Kết Luận Y Khoa:</span>
+                        <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span>Chẩn đoán bệnh / kết luận Y khoa:</span>
                             <span class="text-rose-500 font-normal">* Bắt buộc</span>
                         </label>
-                        <input type="text" id="modal-kt-chuan-doan" required placeholder="Ví dụ: Viêm phế quản cấp, Cảm cúm siêu vi..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800 font-semibold">
+                        <input type="text" id="modal-kt-chuan-doan" required placeholder="Ví dụ: Viêm phế quản cấp, Cảm cúm siêu vi..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800 font-semibold">
                     </div>
 
                     <!-- Danh sách thuốc kê đơn -->
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <label class="font-bold uppercase tracking-wider text-slate-700">Đơn Thuốc (Toa Thuốc Điều Trị):</label>
-                            <button type="button" onclick="themDongThuoc()" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold rounded-lg border border-purple-200 transition text-[11px] flex items-center gap-1">
+                            <label class="font-bold text-slate-700">Đơn thuốc (toa thuốc điều trị):</label>
+                            <button type="button" onclick="themDongThuoc()" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold rounded-lg border border-purple-200 transition text-[13px] flex items-center gap-1">
                                 <i class="fa-solid fa-plus text-xs"></i>
-                                <span>Thêm Thuốc</span>
+                                <span>Thêm thuốc</span>
                             </button>
                         </div>
-                        <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                        <div class="border border-[#E3E8EE] rounded-lg overflow-hidden">
                             <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px]">
+                                <thead class="bg-slate-50 text-slate-600 font-bold text-[13px]">
                                     <tr>
-                                        <th class="py-2 px-3">Tên Thuốc & Biệt Dược</th>
-                                        <th class="py-2 px-2 w-28">Hàm Lượng</th>
-                                        <th class="py-2 px-2 w-20 text-center">Số Lượng</th>
-                                        <th class="py-2 px-2">Cách Dùng & Liều Dùng</th>
+                                        <th class="py-2 px-3">Tên thuốc & biệt dược</th>
+                                        <th class="py-2 px-2 w-28">Hàm lượng</th>
+                                        <th class="py-2 px-2 w-20 text-center">Số lượng</th>
+                                        <th class="py-2 px-2">Cách dùng & liều dùng</th>
                                         <th class="py-2 px-2 w-8 text-center"></th>
                                     </tr>
                                 </thead>
@@ -2402,24 +2721,24 @@
                     <!-- Lời khuyên và hẹn tái khám -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Lời Dặn Bác Sĩ:</label>
-                            <textarea id="modal-kt-loi-khuyen" rows="2" placeholder="Uống nhiều nước, kiêng đồ chua cay..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800"></textarea>
+                            <label class="block font-bold text-slate-700 mb-1">Lời dặn bác sĩ:</label>
+                            <textarea id="modal-kt-loi-khuyen" rows="2" placeholder="Uống nhiều nước, kiêng đồ chua cay..." class="w-full px-3 py-2 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800"></textarea>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ngày Hẹn Tái Khám (nếu có):</label>
-                            <input type="date" id="modal-kt-ngay-tai-kham" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Ngày hẹn tái khám (nếu có):</label>
+                            <input type="date" id="modal-kt-ngay-tai-kham" class="w-full px-3 py-2 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 text-slate-800">
                             <div class="mt-2 flex items-center gap-2">
                                 <input type="checkbox" id="modal-kt-hoan-thanh-ngay" checked class="rounded text-purple-600 focus:ring-purple-500 h-4 w-4">
-                                <label for="modal-kt-hoan-thanh-ngay" class="text-[11px] font-semibold text-slate-600">Đánh dấu ca khám hoàn thành luôn</label>
+                                <label for="modal-kt-hoan-thanh-ngay" class="text-[13px] font-semibold text-slate-600">Đánh dấu ca khám hoàn thành luôn</label>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-ke-toa-thuoc')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
-                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md shadow-purple-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-ke-toa-thuoc')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Đóng</button>
+                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Lưu Toa Thuốc & Hoàn Tất</span>
+                        <span>Lưu toa thuốc & hoàn tất</span>
                     </button>
                 </div>
             </form>
@@ -2430,13 +2749,17 @@
     <!-- MODAL XEM PHIẾU KHÁM & TOA THUỐC ĐIỆN TỬ (BỆNH NHÂN XEM)      -->
     <!-- ============================================================= -->
     <div class="modal-backdrop" id="modal-xem-toa-thuoc">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
-            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 text-white flex items-center justify-between">
-                <h3 class="text-sm font-extrabold flex items-center space-x-2">
-                    <i class="fa-solid fa-notes-medical text-amber-300"></i>
-                    <span>Phiếu Khám Bệnh & Đơn Thuốc Điện Tử</span>
-                </h3>
-                <button type="button" onclick="dongModal('modal-xem-toa-thuoc')" class="text-white/70 hover:text-white text-base">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-2xl w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[16px] font-semibold text-slate-900">
+                        Phiếu khám bệnh và đơn thuốc
+                    </h3>
+                </div>
+                <button type="button" onclick="dongModal('modal-xem-toa-thuoc')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -2444,22 +2767,22 @@
                 <!-- Tiêu đề phòng khám chuẩn y tế -->
                 <div class="border-b-2 border-slate-800 pb-3 flex justify-between items-start">
                     <div>
-                        <div class="text-xs font-black uppercase text-medical-700 tracking-wider">HỆ THỐNG PHÒNG KHÁM ĐA KHOA QUỐC TẾ</div>
-                        <div class="text-[11px] text-slate-500">Địa chỉ: 123 Đường Sức Khỏe, Quận Y Tế, TP.HCM | Hotline: 1900 6868</div>
-                        <div class="text-[11px] text-slate-500">Giấy phép hoạt động số: 2026/BYT-GPHĐ</div>
+                        <div class="text-xs font-black text-medical-700">HỆ THỐNG PHÒNG KHÁM ĐA KHOA QUỐC TẾ</div>
+                        <div class="text-[13px] text-slate-500">Địa chỉ: 123 Đường sức khỏe, quận Y tế, TP.HCM | Hotline: 1900 6868</div>
+                        <div class="text-[13px] text-slate-500">Giấy phép hoạt động số: 2026/BYT-GPHĐ</div>
                     </div>
                     <div class="text-right">
                         <div class="font-mono font-black text-slate-900 text-sm" id="view-toa-ma-ca">LK#--</div>
-                        <div class="text-[10px] text-slate-400" id="view-toa-ngay-kham">Ngày: --/--/----</div>
+                        <div class="text-[13px] text-slate-400" id="view-toa-ngay-kham">Ngày: --/--/----</div>
                     </div>
                 </div>
 
                 <div class="text-center py-1">
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">PHIẾU KHÁM BỆNH & TOA THUỐC ĐIỆN TỬ</h2>
+                    <h2 class="text-base font-black text-slate-900">PHIẾU KHÁM BỆNH & TOA THUỐC ĐIỆN TỬ</h2>
                 </div>
 
                 <!-- Thông tin Bệnh nhân -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-50 p-3.5 rounded-md border border-[#E3E8EE] grid grid-cols-2 gap-2 text-xs">
                     <div>Họ và tên: <strong class="text-slate-900 font-extrabold" id="view-toa-ten-bn">--</strong></div>
                     <div>Số điện thoại: <span class="font-mono text-slate-700 font-bold" id="view-toa-sdt-bn">--</span></div>
                     <div>Nhóm máu: <span class="font-bold text-rose-600" id="view-toa-nhom-mau">--</span></div>
@@ -2469,31 +2792,31 @@
 
                 <!-- Chẩn đoán & Lời khuyên -->
                 <div class="space-y-2">
-                    <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl">
-                        <div class="text-[10px] font-bold text-emerald-800 uppercase">Chẩn Đoán Bệnh:</div>
+                    <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-md">
+                        <div class="text-[13px] font-bold text-emerald-800">Chẩn đoán bệnh:</div>
                         <div class="text-xs font-bold text-slate-900 mt-0.5" id="view-toa-chuan-doan">Chưa có kết luận</div>
                     </div>
-                    <div class="p-3 bg-sky-50/70 border border-sky-200 rounded-xl">
-                        <div class="text-[10px] font-bold text-sky-800 uppercase">Lời Dặn Của Bác Sĩ:</div>
+                    <div class="p-3 bg-sky-50/70 border border-sky-200 rounded-md">
+                        <div class="text-[13px] font-bold text-sky-800">Lời dặn của bác sĩ:</div>
                         <div class="text-xs text-slate-800 mt-0.5 whitespace-pre-line" id="view-toa-loi-khuyen">Theo dõi sức khỏe và tái khám theo chỉ định.</div>
                     </div>
                 </div>
 
                 <!-- Danh mục thuốc kê đơn -->
                 <div class="space-y-1.5">
-                    <div class="font-bold uppercase tracking-wider text-slate-800 text-[11px] flex items-center justify-between">
-                        <span>Đơn Thuốc Điều Trị:</span>
+                    <div class="font-bold text-slate-800 text-[13px] flex items-center justify-between">
+                        <span>Đơn thuốc điều trị:</span>
                         <span class="text-slate-400 font-normal italic">(Uống theo đúng chỉ định)</span>
                     </div>
-                    <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                    <div class="border border-[#E3E8EE] rounded-lg overflow-hidden">
                         <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px]">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-[13px]">
                                 <tr>
                                     <th class="py-2 px-3">STT</th>
-                                    <th class="py-2 px-3">Tên Thuốc & Biệt Dược</th>
-                                    <th class="py-2 px-2">Hàm Lượng</th>
-                                    <th class="py-2 px-2 text-center">Số Lượng</th>
-                                    <th class="py-2 px-3">Cách Dùng</th>
+                                    <th class="py-2 px-3">Tên thuốc & biệt dược</th>
+                                    <th class="py-2 px-2">Hàm lượng</th>
+                                    <th class="py-2 px-2 text-center">Số lượng</th>
+                                    <th class="py-2 px-3">Cách dùng</th>
                                 </tr>
                             </thead>
                             <tbody id="view-toa-tbody-thuoc" class="divide-y divide-slate-100 bg-white">
@@ -2508,18 +2831,18 @@
                         Hẹn ngày tái khám: <strong class="text-rose-600 font-bold" id="view-toa-tai-kham">Không có hẹn</strong>
                     </div>
                     <div class="text-center">
-                        <div class="text-[11px] text-slate-400">Bác sĩ khám bệnh</div>
-                        <div class="font-script text-base text-medical-800 font-bold italic mt-2" id="view-toa-chu-ky">BS. Phụ Trách</div>
+                        <div class="text-[13px] text-slate-400">Bác sĩ khám bệnh</div>
+                        <div class="font-script text-base text-medical-800 font-bold italic mt-2" id="view-toa-chu-ky">BS. Phụ trách</div>
                         <div class="text-xs font-bold text-slate-800 mt-1" id="view-toa-bs-ten">--</div>
                     </div>
                 </div>
             </div>
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between">
-                <button type="button" onclick="inPhieuKhamToaThuoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+                <button type="button" onclick="inPhieuKhamToaThuoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center gap-1.5">
                     <i class="fa-solid fa-print"></i>
-                    <span>In Phiếu Khám / Lưu PDF</span>
+                    <span>In phiếu khám / lưu PDF</span>
                 </button>
-                <button type="button" onclick="dongModal('modal-xem-toa-thuoc')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+                <button type="button" onclick="dongModal('modal-xem-toa-thuoc')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Đóng</button>
             </div>
         </div>
     </div>
@@ -2528,38 +2851,44 @@
     <!-- MODAL: HỒ SƠ BỆNH ÁN ĐIỆN TỬ TOÀN DIỆN (EHR / EMR TIMELINE)   -->
     <!-- ============================================================= -->
     <div class="modal-backdrop" id="modal-chi-tiet-benh-nhan-ehr">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
             <!-- Header Modal -->
-            <div class="bg-gradient-to-r from-rose-50 via-white to-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-rose-500/20">
-                        <i class="fa-solid fa-notes-medical"></i>
+            <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                            <span>Hồ Sơ Bệnh Án Điện Tử Toàn Diện (EHR)</span>
-                            <span id="ehr-badge-ma-bn" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-rose-100 text-rose-700 border border-rose-200">BN-XXXX</span>
+                        <h3 class="text-[16px] font-semibold text-slate-900 flex items-center gap-2 leading-tight">
+                            <span>Hồ sơ bệnh án điện tử</span>
+                            <span id="ehr-badge-ma-bn" class="badge badge-info">BN-XXXX</span>
                         </h3>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Lịch sử khám chữa bệnh, bác sĩ phụ trách, chẩn đoán y khoa & toa thuốc điện tử</p>
+                        <p class="text-[13px] text-slate-500 mt-0.5">Lịch sử khám chữa bệnh, bác sĩ phụ trách, chẩn đoán y khoa &amp; toa thuốc điện tử</p>
                     </div>
                 </div>
-                <button type="button" onclick="dongModal('modal-chi-tiet-benh-nhan-ehr')" class="text-slate-400 hover:text-slate-600 text-base p-1">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="inBenhAnDienTuHienTai()" class="btn btn-secondary text-xs">
+                        <i class="fa-solid fa-print"></i>
+                        <span>In bệnh án</span>
+                    </button>
+                    <button type="button" onclick="dongModal('modal-chi-tiet-benh-nhan-ehr')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Body Modal (Scrollable) -->
             <div class="p-6 space-y-6 overflow-y-auto flex-1 text-xs">
                 <!-- Patient Demographic & Health Banner -->
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
+                <div class="p-4 bg-slate-50 rounded-md border border-[#E3E8EE] space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E8EE]">
                         <div class="flex items-center space-x-3">
-                            <div id="ehr-patient-avatar" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex items-center justify-center text-lg font-black shadow-sm">
+                            <div id="ehr-patient-avatar" class="w-10 h-10 rounded-md bg-rose-500 text-white flex items-center justify-center text-lg font-black shadow-sm">
                                 BN
                             </div>
                             <div>
                                 <h4 id="ehr-patient-name" class="text-base font-extrabold text-slate-900">--</h4>
-                                <div class="flex items-center gap-2 text-slate-500 text-[11px] mt-0.5">
+                                <div class="flex items-center gap-2 text-slate-500 text-[13px] mt-0.5">
                                     <span id="ehr-patient-gender">--</span>
                                     <span>•</span>
                                     <span id="ehr-patient-dob">--</span>
@@ -2569,14 +2898,14 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span id="ehr-badge-blood" class="px-3 py-1 bg-rose-100 text-rose-700 font-extrabold rounded-xl text-xs border border-rose-200 flex items-center gap-1">
+                            <span id="ehr-badge-blood" class="px-3 py-1 bg-rose-100 text-rose-700 font-extrabold rounded-md text-xs border border-rose-200 flex items-center gap-1">
                                 <i class="fa-solid fa-droplet"></i> Nhóm máu: --
                             </span>
                         </div>
                     </div>
 
                     <!-- Contact & Identity Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-600 text-[11px]">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-600 text-[13px]">
                         <div><strong>SĐT:</strong> <span id="ehr-patient-phone">--</span></div>
                         <div><strong>CCCD / CMND:</strong> <span id="ehr-patient-cccd">--</span></div>
                         <div><strong>Địa chỉ:</strong> <span id="ehr-patient-address">--</span></div>
@@ -2584,22 +2913,22 @@
 
                     <!-- Medical Alerts: Allergy & Chronic Diseases -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <div class="p-3 bg-rose-50/80 border border-rose-200 rounded-xl space-y-1">
-                            <span class="font-extrabold text-rose-900 flex items-center gap-1.5 text-[11px]">
-                                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Tiền Sử Dị Ứng:
+                        <div class="p-3 bg-rose-50/80 border border-rose-200 rounded-md space-y-1">
+                            <span class="font-extrabold text-rose-900 flex items-center gap-1.5 text-[13px]">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Tiền sử dị ứng:
                             </span>
-                            <p id="ehr-patient-allergy" class="text-rose-800 text-[11px] font-medium">Chưa ghi nhận dị ứng</p>
+                            <p id="ehr-patient-allergy" class="text-rose-800 text-[13px] font-medium">Chưa ghi nhận dị ứng</p>
                         </div>
-                        <div class="p-3 bg-amber-50/80 border border-amber-200 rounded-xl space-y-1">
-                            <span class="font-extrabold text-amber-900 flex items-center gap-1.5 text-[11px]">
-                                <i class="fa-solid fa-heart-pulse text-amber-600"></i> Bệnh Lý Nền & Mãn Tính:
+                        <div class="p-3 bg-amber-50/80 border border-amber-200 rounded-md space-y-1">
+                            <span class="font-extrabold text-amber-900 flex items-center gap-1.5 text-[13px]">
+                                <i class="fa-solid fa-heart-pulse text-amber-600"></i> Bệnh lý nền & mãn tính:
                             </span>
-                            <p id="ehr-patient-history" class="text-amber-800 text-[11px] font-medium">Chưa ghi nhận bệnh nền</p>
+                            <p id="ehr-patient-history" class="text-amber-800 text-[13px] font-medium">Chưa ghi nhận bệnh nền</p>
                         </div>
                     </div>
 
                     <!-- Emergency Contact -->
-                    <div class="p-2.5 bg-sky-50/70 border border-sky-200 rounded-xl text-[11px] text-sky-900 flex items-center justify-between">
+                    <div class="p-2.5 bg-sky-50/70 border border-sky-200 rounded-md text-[13px] text-sky-900 flex items-center justify-between">
                         <div>
                             <i class="fa-solid fa-phone-volume text-sky-600 mr-1.5"></i>
                             <strong>Liên hệ khẩn cấp:</strong> <span id="ehr-patient-emergency-contact">--</span>
@@ -2615,9 +2944,9 @@
                     <div class="flex items-center justify-between">
                         <h4 class="font-extrabold text-slate-800 text-xs flex items-center gap-2">
                             <i class="fa-solid fa-clock-rotate-left text-rose-600"></i>
-                            <span>Dòng Thời Gian Các Ca Khám & Điều Trị (EMR Timeline)</span>
+                            <span>Dòng thời gian các ca khám & điều trị (EMR timeline)</span>
                         </h4>
-                        <span id="ehr-total-visits" class="text-[11px] font-bold text-slate-500">0 lượt khám</span>
+                        <span id="ehr-total-visits" class="text-[13px] font-bold text-slate-500">0 lượt khám</span>
                     </div>
 
                     <div id="ehr-timeline-container" class="space-y-4">
@@ -2629,8 +2958,8 @@
 
             <!-- Footer Modal -->
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between flex-shrink-0">
-                <span class="text-[11px] text-slate-500">Hệ thống Hồ sơ Bệnh án Điện tử liên thông nội bộ Phòng khám</span>
-                <button type="button" onclick="dongModal('modal-chi-tiet-benh-nhan-ehr')" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">
+                <span class="text-[13px] text-slate-500">Hệ thống hồ sơ bệnh án điện tử liên thông nội bộ phòng khám</span>
+                <button type="button" onclick="dongModal('modal-chi-tiet-benh-nhan-ehr')" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">
                     Đóng
                 </button>
             </div>
@@ -2641,21 +2970,21 @@
     <!-- MODAL: THÊM / CẬP NHẬT HỒ SƠ BỆNH NHÂN (ADMIN / LỄ TÂN)       -->
     <!-- ============================================================= -->
     <div class="modal-backdrop" id="modal-them-sua-benh-nhan">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-2xl w-full overflow-hidden">
             <form id="form-them-sua-benh-nhan" onsubmit="event.preventDefault(); luuThongTinBenhNhan();" autocomplete="off">
                 <input type="hidden" id="form-bn-id">
                 
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 font-bold">
-                            <i class="fa-solid fa-user-plus"></i>
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h3 id="modal-bn-title" class="text-sm font-extrabold text-slate-900">Thêm Hồ Sơ Bệnh Nhân Mới</h3>
-                            <p class="text-[11px] text-slate-500">Quản lý hồ sơ định danh và tiền sử y tế bệnh nhân</p>
+                            <h3 id="modal-bn-title" class="text-[16px] font-semibold text-slate-900 leading-tight">Thêm hồ sơ bệnh nhân mới</h3>
+                            <p class="text-[13px] text-slate-500 mt-0.5">Quản lý hồ sơ định danh và tiền sử y tế bệnh nhân</p>
                         </div>
                     </div>
-                    <button type="button" onclick="dongModal('modal-them-sua-benh-nhan')" class="text-slate-400 hover:text-slate-600 text-base">
+                    <button type="button" onclick="dongModal('modal-them-sua-benh-nhan')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -2663,31 +2992,31 @@
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và Tên Bệnh Nhân: <span class="text-rose-500">*</span></label>
-                            <input type="text" id="form-bn-hoten" required placeholder="Nguyễn Văn A" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Họ và tên bệnh nhân: <span class="text-rose-500">*</span></label>
+                            <input type="text" id="form-bn-hoten" required placeholder="Nguyễn Văn A" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số Điện Thoại: <span class="text-rose-500">*</span></label>
-                            <input type="tel" id="form-bn-sdt" required placeholder="0901234567" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium font-mono">
+                            <label class="block font-bold text-slate-700 mb-1">Số điện thoại: <span class="text-rose-500">*</span></label>
+                            <input type="tel" id="form-bn-sdt" required placeholder="0901234567" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium font-mono">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ngày Sinh:</label>
-                            <input type="date" id="form-bn-ngaysinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Ngày sinh:</label>
+                            <input type="date" id="form-bn-ngaysinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giới Tính:</label>
-                            <select id="form-bn-gioitinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Giới tính:</label>
+                            <select id="form-bn-gioitinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                                 <option value="NAM">Nam</option>
                                 <option value="NU">Nữ</option>
                                 <option value="KHAC">Khác</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Nhóm Máu:</label>
-                            <select id="form-bn-nhommau" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Nhóm máu:</label>
+                            <select id="form-bn-nhommau" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                                 <option value="">-- Chưa rõ --</option>
                                 <option value="A">Nhóm máu A</option>
                                 <option value="B">Nhóm máu B</option>
@@ -2699,46 +3028,46 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số CCCD / CMND:</label>
-                            <input type="text" id="form-bn-cccd" placeholder="001200000001" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Số CCCD / CMND:</label>
+                            <input type="text" id="form-bn-cccd" placeholder="001200000001" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Địa Chỉ Thường Trú:</label>
-                            <input type="text" id="form-bn-diachi" placeholder="Quận 1, TP. Hồ Chí Minh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Địa chỉ thường trú:</label>
+                            <input type="text" id="form-bn-diachi" placeholder="Quận 1, TP. Hồ Chí Minh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-                            <i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i> Tiền Sử Dị Ứng Thuốc / Thức Ăn:
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i> Tiền sử dị ứng thuốc / thức ăn:
                         </label>
-                        <textarea id="form-bn-diung" rows="2" placeholder="Ví dụ: Dị ứng Penicillin, Paracetamol, Hải sản..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium"></textarea>
+                        <textarea id="form-bn-diung" rows="2" placeholder="Ví dụ: Dị ứng Penicillin, Paracetamol, Hải sản..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium"></textarea>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-                            <i class="fa-solid fa-heart-pulse text-amber-500 mr-1"></i> Bệnh Lý Nền & Tiền Sử Bệnh Mãn Tính:
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-heart-pulse text-amber-500 mr-1"></i> Bệnh lý nền & tiền sử bệnh mãn tính:
                         </label>
-                        <textarea id="form-bn-tiensubenh" rows="2" placeholder="Ví dụ: Cao huyết áp, Đái tháo đường type 2, Hen suyễn..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium"></textarea>
+                        <textarea id="form-bn-tiensubenh" rows="2" placeholder="Ví dụ: Cao huyết áp, Đái tháo đường type 2, Hen suyễn..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ Tên Người Thân Khẩn Cấp:</label>
-                            <input type="text" id="form-bn-nguoithan" placeholder="Người bảo hộ / Vợ / Chồng" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Họ tên người thân khẩn cấp:</label>
+                            <input type="text" id="form-bn-nguoithan" placeholder="Người bảo hộ / Vợ / Chồng" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">SĐT Người Thân Khẩn Cấp:</label>
-                            <input type="tel" id="form-bn-sdtnguoithan" placeholder="0987654321" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">SĐT người thân khẩn cấp:</label>
+                            <input type="tel" id="form-bn-sdtnguoithan" placeholder="0987654321" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 text-slate-800 font-medium">
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-them-sua-benh-nhan')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy Bỏ</button>
-                    <button type="submit" id="btn-submit-bn" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-500/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-them-sua-benh-nhan')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy bỏ</button>
+                    <button type="submit" id="btn-submit-bn" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-floppy-disk"></i>
-                        <span>Lưu Hồ Sơ</span>
+                        <span>Lưu hồ sơ</span>
                     </button>
                 </div>
             </form>
@@ -2749,21 +3078,21 @@
     <!-- MODAL: THÊM / CẬP NHẬT HỒ SƠ NGƯỜI THÂN GIA ĐÌNH              -->
     <!-- ============================================================= -->
     <div class="modal-backdrop" id="modal-them-sua-nguoi-than">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-2xl w-full overflow-hidden">
             <form id="form-them-sua-nguoi-than" onsubmit="event.preventDefault(); luuHoSoNguoiThan();" autocomplete="off">
                 <input type="hidden" id="modal-nt-id">
                 
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 font-bold">
-                            <i class="fa-solid fa-people-roof"></i>
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-people-roof" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h3 id="modal-nt-title" class="text-sm font-extrabold text-slate-900">Thêm Hồ Sơ Người Thân Mới</h3>
-                            <p class="text-[11px] text-slate-500">Quản lý hồ sơ khám bệnh cho con cái, cha mẹ, người trong nhà</p>
+                            <h3 id="modal-nt-title" class="text-[16px] font-semibold text-slate-900 leading-tight">Thêm hồ sơ người thân</h3>
+                            <p class="text-[13px] text-slate-500 mt-0.5">Quản lý hồ sơ khám bệnh cho con cái, cha mẹ, người thân trong nhà</p>
                         </div>
                     </div>
-                    <button type="button" onclick="dongModal('modal-them-sua-nguoi-than')" class="text-slate-400 hover:text-slate-600 text-base">
+                    <button type="button" onclick="dongModal('modal-them-sua-nguoi-than')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -2771,36 +3100,36 @@
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mối Quan Hệ Với Bạn: <span class="text-rose-500">*</span></label>
-                            <select id="modal-nt-quanhe" required onchange="capNhatNhanModalNguoiThan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-bold">
-                                <option value="CON">Con cái (Trẻ em / Hậu bối)</option>
-                                <option value="CHA_ME">Bố / Mẹ (Phụ mẫu)</option>
-                                <option value="VO_CHONG">Vợ / Chồng</option>
+                            <label class="block font-bold text-slate-700 mb-1">Mối quan hệ với bạn: <span class="text-rose-500">*</span></label>
+                            <select id="modal-nt-quanhe" required onchange="capNhatNhanModalNguoiThan()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-bold">
+                                <option value="CON">Con cái (trẻ em / hậu bối)</option>
+                                <option value="CHA_ME">Bố / mẹ (phụ mẫu)</option>
+                                <option value="VO_CHONG">Vợ / chồng</option>
                                 <option value="NGUOI_THAN">Người thân khác</option>
                             </select>
                         </div>
                         <div>
-                            <label id="lbl-modal-nt-hoten" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và Tên Người Thân: <span class="text-rose-500">*</span></label>
-                            <input type="text" id="modal-nt-hoten" required placeholder="Ví dụ: Nguyễn Gia Bảo" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label id="lbl-modal-nt-hoten" class="block font-bold text-slate-700 mb-1">Họ và tên người thân: <span class="text-rose-500">*</span></label>
+                            <input type="text" id="modal-nt-hoten" required placeholder="Ví dụ: Nguyễn Gia Bảo" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Ngày Sinh:</label>
-                            <input type="date" id="modal-nt-ngaysinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Ngày sinh:</label>
+                            <input type="date" id="modal-nt-ngaysinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giới Tính:</label>
-                            <select id="modal-nt-gioitinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Giới tính:</label>
+                            <select id="modal-nt-gioitinh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                                 <option value="NAM">Nam</option>
                                 <option value="NU">Nữ</option>
                                 <option value="KHAC">Khác</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Nhóm Máu:</label>
-                            <select id="modal-nt-nhommau" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Nhóm máu:</label>
+                            <select id="modal-nt-nhommau" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                                 <option value="">-- Chưa rõ --</option>
                                 <option value="A">Nhóm máu A</option>
                                 <option value="B">Nhóm máu B</option>
@@ -2812,51 +3141,51 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label id="lbl-modal-nt-sdt" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số Điện Thoại:</label>
-                            <input type="tel" id="modal-nt-sdt" placeholder="Để trống nếu là trẻ em" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium font-mono">
+                            <label id="lbl-modal-nt-sdt" class="block font-bold text-slate-700 mb-1">Số điện thoại:</label>
+                            <input type="tel" id="modal-nt-sdt" placeholder="Để trống nếu là trẻ em" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium font-mono">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số CCCD / Mã Định Danh:</label>
-                            <input type="text" id="modal-nt-cccd" placeholder="Mã định danh cá nhân" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Số CCCD / mã định danh:</label>
+                            <input type="text" id="modal-nt-cccd" placeholder="Mã định danh cá nhân" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Địa Chỉ Thường Trú:</label>
-                        <input type="text" id="modal-nt-diachi" placeholder="Nơi ở hiện tại" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                        <label class="block font-bold text-slate-700 mb-1">Địa chỉ thường trú:</label>
+                        <input type="text" id="modal-nt-diachi" placeholder="Nơi ở hiện tại" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-                            <i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i> Tiền Sử Dị Ứng Thuốc / Thực Phẩm:
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i> Tiền sử dị ứng thuốc / thực phẩm:
                         </label>
-                        <textarea id="modal-nt-diung" rows="2" placeholder="Ví dụ: Dị ứng Amoxicillin, thức ăn có vỏ..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium"></textarea>
+                        <textarea id="modal-nt-diung" rows="2" placeholder="Ví dụ: Dị ứng Amoxicillin, thức ăn có vỏ..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium"></textarea>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-                            <i class="fa-solid fa-heart-pulse text-amber-500 mr-1"></i> Tiền Sử Bệnh & Bệnh Mãn Tính:
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-heart-pulse text-amber-500 mr-1"></i> Tiền sử bệnh & bệnh mãn tính:
                         </label>
-                        <textarea id="modal-nt-tiensubenh" rows="2" placeholder="Ví dụ: Hen phế quản, viêm tai giữa tái phát..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium"></textarea>
+                        <textarea id="modal-nt-tiensubenh" rows="2" placeholder="Ví dụ: Hen phế quản, viêm tai giữa tái phát..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Người Liên Hệ Khẩn Cấp:</label>
-                            <input type="text" id="modal-nt-nguoithan" placeholder="Họ tên người giám hộ" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Người liên hệ khẩn cấp:</label>
+                            <input type="text" id="modal-nt-nguoithan" placeholder="Họ tên người giám hộ" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">SĐT Khẩn Cấp:</label>
-                            <input type="tel" id="modal-nt-sdtnguoithan" placeholder="0901234567" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">SĐT khẩn cấp:</label>
+                            <input type="tel" id="modal-nt-sdtnguoithan" placeholder="0901234567" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-slate-800 font-medium">
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-them-sua-nguoi-than')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy Bỏ</button>
-                    <button type="submit" id="btn-submit-nt" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-500/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-them-sua-nguoi-than')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy bỏ</button>
+                    <button type="submit" id="btn-submit-nt" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-floppy-disk"></i>
-                        <span>Lưu Hồ Sơ Người Thân</span>
+                        <span>Lưu hồ sơ người thân</span>
                     </button>
                 </div>
             </form>
@@ -2865,39 +3194,41 @@
 
     <!-- MODAL: SỬA BÁC SĨ (ADMIN) -->
     <div class="modal-backdrop" id="modal-sua-bac-si">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-lg w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-lg w-full overflow-hidden">
             <form id="form-sua-bac-si" onsubmit="event.preventDefault(); xacNhanSuaBacSi();" autocomplete="off">
                 <input type="hidden" id="modal-sbs-id">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-user-doctor text-amber-600"></i>
-                        <span>Cập Nhật Thông Tin Bác Sĩ</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-sua-bac-si')" class="text-slate-400 hover:text-slate-600 text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Cập nhật thông tin bác sĩ</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-sua-bac-si')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Họ và tên bác sĩ: <span class="text-rose-500">*</span></label>
-                        <input type="text" id="modal-sbs-ho-ten" required autocomplete="off" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-bold">
+                        <label class="block font-bold text-slate-700 mb-1">Họ và tên bác sĩ: <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-sbs-ho-ten" required autocomplete="off" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-bold">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Học hàm / Học vị:</label>
-                            <select id="modal-sbs-hoc-vi" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Học hàm / học vị:</label>
+                            <select id="modal-sbs-hoc-vi" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-medium">
                                 <option value="Bác sĩ CKI">Bác sĩ CKI</option>
                                 <option value="Bác sĩ CKII">Bác sĩ CKII</option>
                                 <option value="Thạc sĩ">Thạc sĩ</option>
                                 <option value="Tiến sĩ">Tiến sĩ</option>
-                                <option value="Phó Giáo sư">Phó Giáo sư</option>
+                                <option value="Phó Giáo sư">Phó giáo sư</option>
                                 <option value="Giáo sư">Giáo sư</option>
-                                <option value="Bác sĩ Đa khoa">Bác sĩ Đa khoa</option>
+                                <option value="Bác sĩ Đa khoa">Bác sĩ đa khoa</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Chuyên khoa: <span class="text-rose-500">*</span></label>
-                            <select id="modal-sbs-chuyen-khoa" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Chuyên khoa: <span class="text-rose-500">*</span></label>
+                            <select id="modal-sbs-chuyen-khoa" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-medium">
                                 <!-- Dynamic -->
                             </select>
                         </div>
@@ -2905,39 +3236,39 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giá khám niêm yết (VNĐ):</label>
-                            <input type="number" id="modal-sbs-gia-kham" min="0" step="10000" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-bold text-amber-600">
+                            <label class="block font-bold text-slate-700 mb-1">Giá khám niêm yết (VNĐ):</label>
+                            <input type="number" id="modal-sbs-gia-kham" min="0" step="10000" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-bold text-amber-600">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số phòng khám:</label>
-                            <input type="text" id="modal-sbs-phong" placeholder="P101, P202..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Số phòng khám:</label>
+                            <input type="text" id="modal-sbs-phong" placeholder="P101, P202..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Số điện thoại:</label>
-                            <input type="text" id="modal-sbs-sdt" autocomplete="off" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800">
+                            <label class="block font-bold text-slate-700 mb-1">Số điện thoại:</label>
+                            <input type="text" id="modal-sbs-sdt" autocomplete="off" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Trạng thái làm việc:</label>
-                            <select id="modal-sbs-trang-thai" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-medium">
+                            <label class="block font-bold text-slate-700 mb-1">Trạng thái làm việc:</label>
+                            <select id="modal-sbs-trang-thai" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-medium">
                                 <option value="DANG_LAM_VIEC">Đang làm việc</option>
-                                <option value="NGHI_VIEC">Nghỉ việc / Tạm dừng</option>
+                                <option value="NGHI_VIEC">Nghỉ việc / tạm dừng</option>
                             </select>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Kinh nghiệm / Giới thiệu:</label>
-                        <textarea id="modal-sbs-kinh-nghiem" rows="2" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800" placeholder="Số năm kinh nghiệm hoặc quá trình công tác..."></textarea>
+                        <label class="block font-bold text-slate-700 mb-1">Kinh nghiệm / giới thiệu:</label>
+                        <textarea id="modal-sbs-kinh-nghiem" rows="2" class="w-full px-3.5 py-2 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800" placeholder="Số năm kinh nghiệm hoặc quá trình công tác..."></textarea>
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-sua-bac-si')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-md shadow-amber-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-sua-bac-si')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Lưu Thay Đổi</span>
+                        <span>Lưu thay đổi</span>
                     </button>
                 </div>
             </form>
@@ -2946,44 +3277,46 @@
 
     <!-- MODAL: SỬA CHUYÊN KHOA (ADMIN) -->
     <div class="modal-backdrop" id="modal-sua-chuyen-khoa">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-md w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-md w-full overflow-hidden">
             <form id="form-sua-chuyen-khoa" onsubmit="event.preventDefault(); xacNhanSuaChuyenKhoa();" autocomplete="off">
                 <input type="hidden" id="modal-sck-id">
-                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-pen-to-square text-amber-600"></i>
-                        <span>Sửa Thông Tin Chuyên Khoa</span>
-                    </h3>
-                    <button type="button" onclick="dongModal('modal-sua-chuyen-khoa')" class="text-slate-400 hover:text-slate-600 text-base">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Cập nhật tên chuyên khoa</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-sua-chuyen-khoa')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-4 text-xs">
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mã chuyên khoa: <span class="text-rose-500">*</span></label>
-                        <input type="text" id="modal-sck-ma" required autocomplete="off" placeholder="Ví dụ: NOI, DA_LIEU" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-mono font-bold uppercase">
+                        <label class="block font-bold text-slate-700 mb-1">Mã chuyên khoa: <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-sck-ma" required autocomplete="off" placeholder="Ví dụ: NOI, DA_LIEU" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-mono font-bold uppercase">
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Tên chuyên khoa: <span class="text-rose-500">*</span></label>
-                        <input type="text" id="modal-sck-ten" required autocomplete="off" placeholder="Ví dụ: Khoa Nội Tổng Quát" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-bold">
+                        <label class="block font-bold text-slate-700 mb-1">Tên chuyên khoa: <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-sck-ten" required autocomplete="off" placeholder="Ví dụ: Khoa Nội Tổng Quát" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-bold">
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Trạng thái hoạt động:</label>
-                        <select id="modal-sck-trang-thai" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800 font-bold">
+                        <label class="block font-bold text-slate-700 mb-1">Trạng thái hoạt động:</label>
+                        <select id="modal-sck-trang-thai" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-bold">
                             <option value="HOAT_DONG">Đang hoạt động</option>
                             <option value="TAM_DUNG">Tạm ngưng tiếp nhận</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Mô tả tóm tắt:</label>
-                        <textarea id="modal-sck-mo-ta" rows="3" placeholder="Mô tả chức năng nhiệm vụ khoa..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-800"></textarea>
+                        <label class="block font-bold text-slate-700 mb-1">Mô tả tóm tắt:</label>
+                        <textarea id="modal-sck-mo-ta" rows="3" placeholder="Mô tả chức năng nhiệm vụ khoa..." class="w-full px-3.5 py-2 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800"></textarea>
                     </div>
                 </div>
                 <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-sua-chuyen-khoa')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-md shadow-amber-600/20 transition flex items-center space-x-1.5">
+                    <button type="button" onclick="dongModal('modal-sua-chuyen-khoa')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
-                        <span>Cập Nhật Khoa</span>
+                        <span>Cập nhật khoa</span>
                     </button>
                 </div>
             </form>
@@ -2992,52 +3325,52 @@
 
     <!-- MODAL: SỬA ĐƠN GIÁ KHÁM BÁC SĨ (ADMIN) -->
     <div class="modal-backdrop" id="modal-sua-gia-kham">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-md w-full overflow-hidden">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-md w-full overflow-hidden">
             <form id="form-sua-gia-kham" onsubmit="event.preventDefault(); xacNhanSuaGiaKham();" autocomplete="off">
                 <input type="hidden" id="modal-sgk-id">
-                <div class="bg-gradient-to-r from-slate-900 to-sky-950 px-6 py-4 text-white flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold flex items-center space-x-2">
-                        <i class="fa-solid fa-hand-holding-dollar text-amber-400"></i>
-                        <span>Điều Chỉnh Đơn Giá Khám Bác Sĩ</span>
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <h3 class="text-[16px] font-semibold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-holding-dollar text-[#1F6FB2]" aria-hidden="true"></i>
+                        <span>Điều chỉnh đơn giá khám</span>
                     </h3>
-                    <button type="button" onclick="dongModal('modal-sua-gia-kham')" class="text-slate-400 hover:text-white text-base">
+                    <button type="button" onclick="dongModal('modal-sua-gia-kham')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 <div class="p-6 space-y-4 text-xs">
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-medical-500/10 text-medical-600 font-bold text-base flex items-center justify-center flex-shrink-0">
+                    <div class="p-3.5 rounded-md bg-slate-50 border border-[#E3E8EE] flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-md bg-medical-500/10 text-medical-600 font-bold text-base flex items-center justify-center flex-shrink-0">
                             <i class="fa-solid fa-user-doctor"></i>
                         </div>
                         <div class="min-w-0 flex-1">
                             <p id="modal-sgk-ho-ten" class="font-extrabold text-slate-900 text-sm truncate">Bác sĩ...</p>
-                            <p id="modal-sgk-khoa-hocvi" class="text-slate-500 text-[11px] truncate">Chuyên khoa • Học vị</p>
+                            <p id="modal-sgk-khoa-hocvi" class="text-slate-500 text-[13px] truncate">Chuyên khoa • học vị</p>
                         </div>
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Giá khám hiện tại:</label>
-                        <div id="modal-sgk-gia-hien-tai" class="px-3.5 py-2.5 bg-slate-100 rounded-xl font-mono font-extrabold text-slate-600 text-sm">
+                        <label class="block font-bold text-slate-700 mb-1">Giá khám hiện tại:</label>
+                        <div id="modal-sgk-gia-hien-tai" class="px-3.5 py-2.5 bg-slate-100 rounded-md font-mono font-extrabold text-slate-600 text-sm">
                             0 VNĐ
                         </div>
                     </div>
                     <div>
-                        <label class="block font-bold uppercase tracking-wider text-slate-700 mb-1">Đơn giá khám mới (VNĐ): <span class="text-rose-500">*</span></label>
-                        <input type="number" id="modal-sgk-gia-moi" required min="0" step="10000" placeholder="Ví dụ: 250000" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600 text-slate-900 font-mono font-extrabold text-base">
+                        <label class="block font-bold text-slate-700 mb-1">Đơn giá khám mới (VNĐ): <span class="text-rose-500">*</span></label>
+                        <input type="number" id="modal-sgk-gia-moi" required min="0" step="10000" placeholder="Ví dụ: 250000" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-900 font-mono font-extrabold text-base">
                         <div class="flex flex-wrap gap-1.5 mt-2">
-                            <span class="text-[10px] text-slate-400 font-bold self-center">Gợi ý:</span>
-                            <button type="button" onclick="datGiaKhamGoiY(150000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition">150.000đ</button>
-                            <button type="button" onclick="datGiaKhamGoiY(200000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition">200.000đ</button>
-                            <button type="button" onclick="datGiaKhamGoiY(250000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition">250.000đ</button>
-                            <button type="button" onclick="datGiaKhamGoiY(300000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition">300.000đ</button>
-                            <button type="button" onclick="datGiaKhamGoiY(500000)" class="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[10px] font-bold transition">500.000đ (VIP)</button>
+                            <span class="text-[13px] text-slate-400 font-bold self-center">Gợi ý:</span>
+                            <button type="button" onclick="datGiaKhamGoiY(150000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-bold transition">150.000đ</button>
+                            <button type="button" onclick="datGiaKhamGoiY(200000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-bold transition">200.000đ</button>
+                            <button type="button" onclick="datGiaKhamGoiY(250000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-bold transition">250.000đ</button>
+                            <button type="button" onclick="datGiaKhamGoiY(300000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-bold transition">300.000đ</button>
+                            <button type="button" onclick="datGiaKhamGoiY(500000)" class="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[13px] font-bold transition">500.000đ (VIP)</button>
                         </div>
                     </div>
                 </div>
-                <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
-                    <button type="button" onclick="dongModal('modal-sua-gia-kham')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Hủy</button>
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-check"></i>
-                        <span>Lưu Thay Đổi</span>
+                <div class="bg-slate-50 px-6 py-3.5 border-t border-[#E3E8EE] flex items-center justify-end gap-2">
+                    <button type="button" onclick="dongModal('modal-sua-gia-kham')" class="btn btn-secondary">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check" aria-hidden="true"></i>
+                        <span>Lưu thay đổi</span>
                     </button>
                 </div>
             </form>
@@ -3046,95 +3379,101 @@
 
     <!-- MODAL: LỊCH TRỰC / CA LÀM VIỆC CỦA BÁC SĨ -->
     <div class="modal-backdrop" id="modal-lich-truc-bac-si">
-        <div class="modal-box bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-2xl w-full overflow-hidden">
-            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 px-6 py-4 text-white flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400">
-                        <i class="fa-solid fa-calendar-week"></i>
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-2xl w-full overflow-hidden">
+            <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-calendar-week" aria-hidden="true"></i>
                     </div>
-                    <div>
-                        <h3 class="text-sm font-extrabold flex items-center space-x-2">
-                            <span>Lịch Trực / Ca Làm Việc Của Bác Sĩ</span>
+                    <div class="min-w-0">
+                        <h3 id="modal-lt-title" class="text-[16px] font-semibold text-slate-900 leading-tight">
+                            Lịch trực bác sĩ
                         </h3>
-                        <p id="modal-lt-bac-si-name" class="text-xs text-sky-300 font-bold">BS. Nguyễn Anh Tuấn</p>
+                        <p id="modal-lt-bac-si-name" class="text-[13px] text-slate-500 font-medium leading-tight mt-0.5 truncate">Đang tải thông tin...</p>
                     </div>
                 </div>
-                <button type="button" onclick="dongModal('modal-lich-truc-bac-si')" class="text-slate-400 hover:text-white text-base">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <div id="modal-lt-select-bs-wrapper" class="hidden">
+                        <select id="modal-lt-select-bs" onchange="doiBacSiXemLichTruc(this.value)" class="text-xs px-2.5 py-1.5 border border-slate-300 rounded-md bg-white font-medium text-slate-700" title="Chọn bác sĩ để xem và phân ca trực">
+                        </select>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-lich-truc-bac-si')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs">
                 <!-- Add/Edit Shift Form -->
-                <form id="form-them-ca-truc" onsubmit="event.preventDefault(); xacNhanLuuCaTruc();" class="p-4 bg-sky-50/70 rounded-2xl border border-sky-200/80 space-y-3">
+                <form id="form-them-ca-truc" onsubmit="event.preventDefault(); xacNhanLuuCaTruc();" class="p-4 bg-sky-50/70 rounded-md border border-sky-200/80 space-y-3">
                     <input type="hidden" id="modal-lt-bac-si-id">
                     <input type="hidden" id="modal-lt-ca-id">
                     <div class="font-extrabold text-slate-800 flex items-center justify-between pb-1 border-b border-sky-100">
-                        <span id="modal-lt-form-title" class="flex items-center gap-1.5"><i class="fa-solid fa-plus-circle text-sky-600"></i> Đăng Ký / Cập Nhật Ca Trực</span>
-                        <span class="text-[11px] text-slate-500 font-medium">Bấm <i class="fa-solid fa-pen-to-square text-sky-600"></i> bên dưới để sửa ca</span>
+                        <span id="modal-lt-form-title" class="flex items-center gap-1.5"><i class="fa-solid fa-plus-circle text-sky-600"></i> Đăng ký / cập nhật ca trực</span>
+                        <span class="text-[13px] text-slate-500 font-medium">Bấm <i class="fa-solid fa-pen-to-square text-sky-600"></i> bên dưới để sửa ca</span>
                     </div>
 
                     <!-- Banner quy tắc 1 ca/ngày & Admin duyệt -->
-                    <div class="bg-amber-50/90 border border-amber-200/90 rounded-xl p-3 text-[11px] text-amber-900 flex items-start gap-2.5">
+                    <div class="bg-amber-50/90 border border-amber-200/90 rounded-md p-3 text-[13px] text-amber-900 flex items-start gap-2.5">
                         <i class="fa-solid fa-circle-exclamation text-amber-600 mt-0.5 text-xs"></i>
                         <div>
-                            <span class="font-extrabold">Quy định ca trực:</span> Mỗi bác sĩ chỉ được đăng ký tối đa <strong>1 ca trực trong 1 ngày</strong> (Sáng, Chiều, Tối hoặc Cả Ngày). Khi Bác Sĩ đăng ký mới hoặc đổi ca, yêu cầu sẽ ở trạng thái <strong class="text-amber-700">Chờ Admin Duyệt</strong> và chỉ có hiệu lực sau khi Quản trị viên (Admin) phê duyệt.
+                            <span class="font-extrabold">Quy định ca trực:</span> Mỗi bác sĩ chỉ được đăng ký tối đa <strong>1 ca trực trong 1 ngày</strong> (Sáng, chiều, tối hoặc cả ngày). Khi bác sĩ đăng ký mới hoặc đổi ca, yêu cầu sẽ ở trạng thái <strong class="text-amber-700">Chờ admin duyệt</strong> và chỉ có hiệu lực sau khi quản trị viên (admin) phê duyệt.
                         </div>
                     </div>
 
                     <!-- Alert cảnh báo động khi chọn thứ đã có ca -->
-                    <div id="modal-lt-cung-ngay-alert" class="hidden p-2.5 rounded-xl border text-[11px] font-bold"></div>
+                    <div id="modal-lt-cung-ngay-alert" class="hidden p-2.5 rounded-md border text-[13px] font-bold"></div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Thứ trong tuần:</label>
-                            <select id="modal-lt-thu" onchange="tuDongDienGioCaTruc(); kiemTraCaCungNgayModal();" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
-                                <option value="2">Thứ Hai</option>
-                                <option value="3">Thứ Ba</option>
-                                <option value="4">Thứ Tư</option>
-                                <option value="5">Thứ Năm</option>
-                                <option value="6">Thứ Sáu</option>
-                                <option value="7">Thứ Bảy</option>
-                                <option value="8">Chủ Nhật</option>
+                            <label class="block font-bold text-slate-600 text-[13px] mb-1">Thứ trong tuần:</label>
+                            <select id="modal-lt-thu" onchange="tuDongDienGioCaTruc(); kiemTraCaCungNgayModal();" class="w-full px-3 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
+                                <option value="2">Thứ hai</option>
+                                <option value="3">Thứ ba</option>
+                                <option value="4">Thứ tư</option>
+                                <option value="5">Thứ năm</option>
+                                <option value="6">Thứ sáu</option>
+                                <option value="7">Thứ bảy</option>
+                                <option value="8">Chủ nhật</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Ca trực:</label>
-                            <select id="modal-lt-ca" onchange="tuDongDienGioCaTruc(); kiemTraCaCungNgayModal();" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
-                                <option value="CA_SANG">Ca Sáng (07:30 - 11:30)</option>
-                                <option value="CA_CHIEU">Ca Chiều (13:30 - 17:00)</option>
-                                <option value="CA_TOI">Ca Tối (17:30 - 20:30)</option>
-                                <option value="CA_NGAY">Cả Ngày (07:30 - 17:00)</option>
+                            <label class="block font-bold text-slate-600 text-[13px] mb-1">Ca trực:</label>
+                            <select id="modal-lt-ca" onchange="tuDongDienGioCaTruc(); kiemTraCaCungNgayModal();" class="w-full px-3 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
+                                <option value="CA_SANG">Ca sáng (07:30 - 11:30)</option>
+                                <option value="CA_CHIEU">Ca chiều (13:30 - 17:00)</option>
+                                <option value="CA_TOI">Ca tối (17:30 - 20:30)</option>
+                                <option value="CA_NGAY">Cả ngày (07:30 - 17:00)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Số khám tối đa:</label>
-                            <input type="number" id="modal-lt-so-luong" value="20" min="1" max="100" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
+                            <label class="block font-bold text-slate-600 text-[13px] mb-1">Số khám tối đa:</label>
+                            <input type="number" id="modal-lt-so-luong" value="20" min="1" max="100" class="w-full px-3 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Giờ bắt đầu:</label>
-                            <input type="time" id="modal-lt-gio-bd" value="07:30" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
+                            <label class="block font-bold text-slate-600 text-[13px] mb-1">Giờ bắt đầu:</label>
+                            <input type="time" id="modal-lt-gio-bd" value="07:30" class="w-full px-3 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Giờ kết thúc:</label>
-                            <input type="time" id="modal-lt-gio-kt" value="11:30" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
+                            <label class="block font-bold text-slate-600 text-[13px] mb-1">Giờ kết thúc:</label>
+                            <input type="time" id="modal-lt-gio-kt" value="11:30" class="w-full px-3 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
                         </div>
                         <div>
-                            <label class="block font-bold uppercase tracking-wider text-slate-600 text-[10px] mb-1">Phòng khám:</label>
-                            <input type="text" id="modal-lt-phong" placeholder="P201" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
+                            <label class="block font-bold text-slate-600 text-[13px] mb-1">Phòng khám:</label>
+                            <input type="text" id="modal-lt-phong" placeholder="P201" class="w-full px-3 py-2 bg-white border border-[#E3E8EE] rounded-md font-bold text-slate-800 focus:ring-2 focus:ring-sky-500/20">
                         </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-1">
-                        <button type="button" id="btn-huy-sua-ca-truc" onclick="datLaiFormCaTruc()" class="hidden px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl transition">
-                            Hủy Sửa
+                        <button type="button" id="btn-huy-sua-ca-truc" onclick="datLaiFormCaTruc()" class="hidden px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-md transition">
+                            Hủy sửa
                         </button>
-                        <button type="submit" id="btn-submit-ca-truc" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center space-x-1.5">
+                        <button type="submit" id="btn-submit-ca-truc" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-md shadow-sm transition flex items-center space-x-1.5">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span id="lbl-submit-ca-truc">Lưu Ca Trực</span>
+                            <span id="lbl-submit-ca-truc">Lưu ca trực</span>
                         </button>
                     </div>
                 </form>
@@ -3143,19 +3482,19 @@
                 <div class="space-y-2">
                     <h4 class="font-extrabold text-slate-800 flex items-center space-x-2">
                         <i class="fa-solid fa-list-check text-medical-600"></i>
-                        <span>Danh Sách Ca Trực Đang Đăng Ký Trong Tuần</span>
+                        <span>Danh sách ca trực đang đăng ký trong tuần</span>
                     </h4>
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <div class="overflow-x-auto rounded-lg border border-[#E3E8EE]">
                         <table class="w-full text-left text-xs">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] border-b border-slate-200">
+                                <tr class="bg-slate-50 text-slate-600 font-bold text-[13px] border-b border-[#E3E8EE]">
                                     <th class="py-2.5 px-3">Ngày</th>
                                     <th class="py-2.5 px-3">Ca</th>
-                                    <th class="py-2.5 px-3">Khung Giờ</th>
+                                    <th class="py-2.5 px-3">Khung giờ</th>
                                     <th class="py-2.5 px-3">Phòng</th>
-                                    <th class="py-2.5 px-3">Khám Tối Đa</th>
-                                    <th class="py-2.5 px-3">Trạng Thái</th>
-                                    <th class="py-2.5 px-3 text-center">Thao Tác</th>
+                                    <th class="py-2.5 px-3">Khám tối đa</th>
+                                    <th class="py-2.5 px-3">Trạng thái</th>
+                                    <th class="py-2.5 px-3 text-center">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-modal-lich-truc" class="divide-y divide-slate-100 text-slate-700">
@@ -3167,7 +3506,7 @@
             </div>
 
             <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end">
-                <button type="button" onclick="dongModal('modal-lich-truc-bac-si')" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Đóng</button>
+                <button type="button" onclick="dongModal('modal-lich-truc-bac-si')" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Đóng</button>
             </div>
         </div>
     </div>
@@ -3195,17 +3534,153 @@
             hoaDonDangXemId: null,
             danhSachBenhNhan: [],
             benhNhanDangXem: null,
-            benhNhanDangSuaId: null
+            benhNhanDangSuaId: null,
+            cacCaDaGuiThuNgan: new Set()
         };
+
+        // HÀM TIỆN ÍCH LẤY NGÀY HIỆN TẠI (ĐỊNH DẠNG YYYY-MM-DD THEO GIỜ ĐỊA PHƯƠNG)
+        function getNgayHienTai() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function datNgayCaKhamHomNay() {
+            const filterInput = document.getElementById('filter-ca-kham-ngay');
+            if (filterInput) {
+                filterInput.value = getNgayHienTai();
+                renderCaKhamBacSi(AppState.danhSachLichHen);
+            }
+        }
+
+        function datNgayLichSuHomNay() {
+            const filterInput = document.getElementById('filter-bac-si-lich-su-ngay');
+            if (filterInput) {
+                filterInput.value = getNgayHienTai();
+                renderBacSiLichSu(AppState.danhSachLichHen);
+            }
+        }
+
+        function datNgayLichSuTatCa() {
+            const filterInput = document.getElementById('filter-bac-si-lich-su-ngay');
+            if (filterInput) {
+                filterInput.value = '';
+                renderBacSiLichSu(AppState.danhSachLichHen);
+            }
+        }
+
+        // KHÓA TOÀN BỘ BÀN KHÁM KHI ĐÃ LƯU CHỈ ĐỊNH & GỬI THU NGÂN
+        function capNhatTrangThaiKhoaBanKham(daKhoa) {
+            const btnLuu = document.getElementById('btn-luu-chi-dinh-cls');
+            const inputChanDoan = document.getElementById('input-chan-doan');
+            const cbs = document.querySelectorAll('.cb-dich-vu-cls');
+            const bannerKhoa = document.getElementById('banner-khoa-chi-dinh');
+
+            if (daKhoa) {
+                if (inputChanDoan) {
+                    inputChanDoan.disabled = true;
+                    inputChanDoan.classList.add('bg-slate-100', 'cursor-not-allowed', 'text-slate-500');
+                }
+                cbs.forEach(cb => {
+                    cb.disabled = true;
+                    cb.classList.add('cursor-not-allowed');
+                });
+                if (btnLuu) {
+                    btnLuu.disabled = true;
+                    btnLuu.className = 'px-5 py-2.5 bg-slate-200 text-slate-500 font-bold text-xs rounded-md cursor-not-allowed flex items-center space-x-2 border border-slate-300 shadow-none';
+                    btnLuu.innerHTML = '<i class="fa-solid fa-lock text-slate-500"></i><span>Đã gửi thu ngân (Đã khóa chỉ định)</span>';
+                }
+                if (bannerKhoa) {
+                    bannerKhoa.classList.remove('hidden');
+                }
+            } else {
+                if (inputChanDoan) {
+                    inputChanDoan.disabled = false;
+                    inputChanDoan.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-500');
+                }
+                cbs.forEach(cb => {
+                    cb.disabled = false;
+                    cb.classList.remove('cursor-not-allowed');
+                });
+                if (btnLuu) {
+                    btnLuu.disabled = false;
+                    btnLuu.className = 'px-5 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-md shadow-lg transition flex items-center space-x-2';
+                    btnLuu.innerHTML = '<i class="fa-solid fa-floppy-disk"></i><span>Lưu chỉ định & gửi thu ngân</span>';
+                }
+                if (bannerKhoa) {
+                    bannerKhoa.classList.add('hidden');
+                }
+            }
+        }
+
+        // LÀM MỚI BÀN KHÁM BÁC SĨ (SAU KHI LƯU HOẶC KHI BẤM NÚT LÀM MỚI)
+        function lamMoiBanKham(thongBao = false) {
+            AppState.caKhamDangChon = null;
+
+            const boxInfo = document.getElementById('box-chon-ca-kham-thong-tin');
+            if (boxInfo) {
+                boxInfo.innerHTML = `
+                    <div class="py-1 text-slate-500">
+                        <i class="fa-solid fa-circle-info text-sky-600 mr-1.5"></i>
+                        <em>Hãy bấm nút <strong>"Tiếp nhận"</strong> trên danh sách hàng đợi bên trái để nạp thông tin bệnh nhân.</em>
+                    </div>
+                `;
+            }
+
+            const inputCd = document.getElementById('input-chan-doan');
+            if (inputCd) {
+                inputCd.value = '';
+                inputCd.disabled = false;
+                inputCd.placeholder = 'Ví dụ: Đau đầu kéo dài, nghi rối loạn tiền đình...';
+                inputCd.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-500');
+            }
+
+            document.querySelectorAll('.cb-dich-vu-cls').forEach(c => {
+                c.checked = false;
+                c.disabled = false;
+                c.classList.remove('cursor-not-allowed');
+            });
+            if (typeof tinhTongTienCLS === 'function') {
+                tinhTongTienCLS();
+            }
+
+            const bannerKhoa = document.getElementById('banner-khoa-chi-dinh');
+            if (bannerKhoa) bannerKhoa.classList.add('hidden');
+
+            const btnLuu = document.getElementById('btn-luu-chi-dinh-cls');
+            if (btnLuu) {
+                btnLuu.disabled = false;
+                btnLuu.className = 'px-5 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-md shadow-lg transition flex items-center space-x-2';
+                btnLuu.innerHTML = '<i class="fa-solid fa-floppy-disk"></i><span>Lưu chỉ định & gửi thu ngân</span>';
+            }
+
+            // Bỏ highlight ca khám trên hàng đợi bên trái
+            if (typeof renderCaKhamBacSi === 'function' && AppState.danhSachLichHen) {
+                renderCaKhamBacSi(AppState.danhSachLichHen);
+            }
+
+            if (thongBao) {
+                showToast('info', 'Làm mới bàn khám', 'Bàn khám đã được làm mới, sẵn sàng tiếp nhận bệnh nhân tiếp theo.');
+            }
+        }
 
         // KHỞI ĐỘNG KHI TẢI TRANG (AUTH GUARD)
         document.addEventListener('DOMContentLoaded', async () => {
-            // Ngày khám mặc định: ngày mai
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const dateStr = tomorrow.toISOString().split('T')[0];
+            // Ngày khám mặc định: hôm nay
+            const todayStr = getNgayHienTai();
             const dateInput = document.getElementById('modal-dl-ngay');
-            if (dateInput) dateInput.value = dateStr;
+            if (dateInput) {
+                dateInput.value = todayStr;
+                dateInput.min = todayStr;
+            }
+
+            const filterCaKham = document.getElementById('filter-ca-kham-ngay');
+            if (filterCaKham) filterCaKham.value = todayStr;
+
+            const filterLichSu = document.getElementById('filter-bac-si-lich-su-ngay');
+            if (filterLichSu) filterLichSu.value = todayStr;
 
             const savedToken = sessionStorage.getItem('token') || localStorage.getItem('token');
             const savedUserStr = sessionStorage.getItem('user_info') || localStorage.getItem('user_info');
@@ -3215,7 +3690,7 @@
                     icon: 'warning',
                     title: 'Yêu cầu đăng nhập',
                     text: 'Bạn cần đăng nhập để truy cập vào hệ thống phòng khám!',
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 }).then(() => {
                     window.location.href = '/dang-nhap';
                 });
@@ -3268,6 +3743,16 @@
         });
 
 
+        // Hàm chuẩn hóa tên hiển thị bác sĩ (tránh lặp tiền tố BS. BS. ...)
+        function formatTenBacSi(hoTen) {
+            if (!hoTen) return 'Bác sĩ';
+            const s = String(hoTen).trim();
+            if (/^(BS\.|BS\b|Bác sĩ|ThS\.|TS\.|PGS\.|GS\.)/i.test(s)) {
+                return s;
+            }
+            return 'BS. ' + s;
+        }
+
         // BẢNG QUY ĐỊNH PHÂN QUYỀN TRUY CẬP CÁC TAB
         const ROLE_PERMISSIONS = {
             'ADMIN': [
@@ -3288,14 +3773,12 @@
                 'tab-bac-si',
                 'tab-bac-si-lich-su',
                 'tab-benh-nhan-lich',
-                'tab-bang-gia-kham',
                 'tab-ho-so-gia-dinh',
                 'tab-admin-benh-nhan'
             ],
             'BENH_NHAN': [
                 'tab-benh-nhan-lich',
                 'tab-benh-nhan',
-                'tab-bang-gia-kham',
                 'tab-ho-so-gia-dinh',
                 'tab-benh-nhan-vien-phi'
             ]
@@ -3339,14 +3822,10 @@
             
             const roleEl = document.getElementById('header-user-role');
             if (roleEl) {
-                roleEl.textContent = role;
-                if (role === 'ADMIN') {
-                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 inline-block leading-none mt-0.5';
-                } else if (role === 'BAC_SI') {
-                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200 inline-block leading-none mt-0.5';
-                } else {
-                    roleEl.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 inline-block leading-none mt-0.5';
-                }
+                // Hiển thị tên vai trò bằng tiếng Việt thay cho mã kỹ thuật
+                const tenVaiTro = { 'ADMIN': 'Quản trị viên', 'BAC_SI': 'Bác sĩ', 'BENH_NHAN': 'Bệnh nhân' };
+                roleEl.textContent = tenVaiTro[role] || role;
+                roleEl.className = 'text-[13px] text-slate-500 leading-tight';
             }
 
             // Cập nhật Avatar người dùng đồng bộ
@@ -3368,9 +3847,9 @@
             // Cập nhật Brand Title / Subtitle
             const brandSub = document.getElementById('brand-subtitle');
             if (brandSub) {
-                if (role === 'ADMIN') brandSub.textContent = 'Cổng Quản Trị Hệ Thống Toàn Viện';
-                else if (role === 'BAC_SI') brandSub.textContent = 'Bàn Khám Chuyên Môn Bác Sĩ';
-                else brandSub.textContent = 'Cổng Dịch Vụ Dành Cho Bệnh Nhân';
+                if (role === 'ADMIN') brandSub.textContent = 'Phòng khám đa khoa · Quản trị';
+                else if (role === 'BAC_SI') brandSub.textContent = 'Phòng khám đa khoa · Bác sĩ';
+                else brandSub.textContent = 'Phòng khám đa khoa';
             }
 
             // Ẩn / Hiện các nhóm menu sidebar theo vai trò
@@ -3404,14 +3883,28 @@
             const navLabelLich = document.getElementById('nav-label-benh-nhan-lich');
             const titleLichKham = document.getElementById('title-danh-sach-lich-kham');
             if (role === 'BENH_NHAN') {
-                if (navLabelLich) navLabelLich.textContent = 'Lịch Khám Của Tôi';
-                if (titleLichKham) titleLichKham.textContent = 'Lịch Khám Của Tôi';
+                if (navLabelLich) navLabelLich.textContent = 'Lịch hẹn của tôi';
+                if (titleLichKham) titleLichKham.textContent = 'Lịch hẹn của tôi';
             } else if (role === 'BAC_SI') {
-                if (navLabelLich) navLabelLich.textContent = 'Lịch Hẹn Phòng Khám';
-                if (titleLichKham) titleLichKham.textContent = 'Lịch Hẹn Phòng Khám';
+                if (navLabelLich) navLabelLich.textContent = 'Lịch hẹn';
+                if (titleLichKham) titleLichKham.textContent = 'Lịch hẹn của phòng khám';
             } else {
-                if (navLabelLich) navLabelLich.textContent = 'Quản Lý Lịch Khám';
-                if (titleLichKham) titleLichKham.textContent = 'Quản Lý Toàn Bộ Lịch Khám';
+                if (navLabelLich) navLabelLich.textContent = 'Lịch khám';
+                if (titleLichKham) titleLichKham.textContent = 'Tất cả lịch khám';
+            }
+
+            // Tùy chỉnh nhãn lịch trực theo vai trò
+            const navLabelLichTruc = document.getElementById('nav-label-lich-truc-bac-si');
+            const btnBannerLichTruc = document.getElementById('btn-banner-lich-truc-label');
+            const bannerDoctorName = document.getElementById('banner-doctor-name');
+            if (role === 'ADMIN') {
+                if (navLabelLichTruc) navLabelLichTruc.textContent = 'Lịch trực bác sĩ';
+                if (btnBannerLichTruc) btnBannerLichTruc.textContent = 'Lịch trực bác sĩ';
+                if (bannerDoctorName) bannerDoctorName.textContent = 'Bàn khám & Ca trực (Quản trị viên)';
+            } else if (role === 'BAC_SI') {
+                if (navLabelLichTruc) navLabelLichTruc.textContent = 'Lịch trực của tôi';
+                if (btnBannerLichTruc) btnBannerLichTruc.textContent = 'Lịch trực của tôi';
+                if (bannerDoctorName) bannerDoctorName.textContent = formatTenBacSi(AppState.currentUser?.ho_ten || 'Khám bệnh');
             }
 
             if (document.getElementById('label-active-token')) {
@@ -3441,9 +3934,9 @@
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Từ Chối Truy Cập!',
+                        title: 'Từ chối truy cập!',
                         text: `Tài khoản vai trò [${role}] không có quyền truy cập vào chức năng này. Vui lòng liên hệ Quản trị viên (ADMIN).`,
-                        confirmButtonColor: '#0284c7'
+                        confirmButtonColor: '#1F6FB2'
                     });
                 }
                 const fallbackTab = DEFAULT_TAB_BY_ROLE[role] || 'tab-benh-nhan-lich';
@@ -3479,22 +3972,23 @@
 
             // Cập nhật tiêu đề trên thanh điều hướng đầu trang
             const titles = {
-                'tab-admin-giam-sat': { icon: 'fa-solid fa-chart-pie text-purple-600', text: 'Tổng Quan & Giám Sát Hệ Thống' },
-                'tab-benh-nhan-lich': { icon: 'fa-solid fa-calendar-days text-sky-600', text: 'Quản Lý Lịch Khám Bệnh' },
-                'tab-benh-nhan': { icon: 'fa-regular fa-calendar-plus text-medical-600', text: 'Tra Cứu Bác Sĩ & Đặt Lịch Khám' },
-                'tab-bang-gia-kham': { icon: 'fa-solid fa-receipt text-amber-500', text: 'Bảng Giá Khám Bệnh Niêm Yết' },
-                'tab-ho-so-gia-dinh': { icon: 'fa-solid fa-people-roof text-emerald-600', text: 'Quản Lý Hồ Sơ Sức Khỏe Gia Đình' },
-                'tab-admin-benh-nhan': { icon: 'fa-solid fa-hospital-user text-rose-500', text: 'Quản Lý Bệnh Nhân & Hồ Sơ Bệnh Án (EHR)' },
-                'tab-bac-si': { icon: 'fa-solid fa-stethoscope text-teal-600', text: 'Bàn Khám Bác Sĩ & Cận Lâm Sàng' },
-                'tab-bac-si-lich-su': { icon: 'fa-solid fa-clipboard-user text-emerald-600', text: 'Danh Sách Ca Khám Hôm Nay' },
-                'tab-admin-thu-ngan': { icon: 'fa-solid fa-file-invoice-dollar text-amber-600', text: 'Thu Ngân & Quản Lý Viện Phí' },
-                'tab-admin-bac-si': { icon: 'fa-solid fa-user-doctor text-blue-600', text: 'Quản Trị Bác Sĩ & Chuyên Khoa' },
-                'tab-admin-tai-khoan': { icon: 'fa-solid fa-users-gear text-indigo-600', text: 'Quản Trị Tài Khoản Người Dùng' },
+                'tab-admin-giam-sat': { text: 'Thống kê tổng quan' },
+                'tab-benh-nhan-lich': { text: role === 'BENH_NHAN' ? 'Lịch hẹn của tôi' : 'Lịch khám' },
+                'tab-benh-nhan': { text: 'Đặt lịch khám' },
+                'tab-bang-gia-kham': { text: 'Bảng giá khám bệnh' },
+                'tab-ho-so-gia-dinh': { text: 'Hồ sơ gia đình' },
+                'tab-admin-benh-nhan': { text: 'Bệnh nhân và hồ sơ bệnh án' },
+                'tab-bac-si': { text: 'Bàn khám' },
+                'tab-bac-si-lich-su': { text: 'Ca khám hôm nay' },
+                'tab-admin-thu-ngan': { text: 'Thu ngân và viện phí' },
+                'tab-admin-bac-si': { text: 'Bác sĩ và chuyên khoa' },
+                'tab-admin-tai-khoan': { text: 'Tài khoản người dùng' },
+                'tab-benh-nhan-vien-phi': { text: 'Viện phí của tôi' },
             };
 
             const pageTitle = document.getElementById('current-page-title');
             if (pageTitle && titles[tabId]) {
-                pageTitle.innerHTML = `<i class="${titles[tabId].icon}"></i><span>${titles[tabId].text}</span>`;
+                pageTitle.innerHTML = `<span>${titles[tabId].text}</span>`;
             }
 
             if (tabId === 'tab-bang-gia-kham') {
@@ -3502,6 +3996,9 @@
             }
             if (tabId === 'tab-ho-so-gia-dinh') {
                 taiVaRenderHoSoGiaDinh();
+            }
+            if (tabId === 'tab-benh-nhan-vien-phi') {
+                taiDanhSachHoaDon();
             }
             if (tabId === 'tab-admin-bac-si') {
                 taiVaRenderDanhSachDuyetCaTruc();
@@ -3624,8 +4121,8 @@
                 const gia = Number(bs.gia_kham || 200000).toLocaleString('vi-VN');
                 const hoTenEsc = (bs.ho_ten || '').replace(/'/g, "\\'");
                 const avatarHtml = bs.avatar 
-                    ? `<img src="${bs.avatar}" alt="${bs.ho_ten}" class="w-14 h-14 rounded-2xl object-cover border-2 border-sky-300 shadow-md">`
-                    : `<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-50 to-medical-100 text-medical-700 border border-medical-200 flex items-center justify-center font-extrabold text-base shadow-sm">
+                    ? `<img src="${bs.avatar}" alt="${bs.ho_ten}" class="w-12 h-12 rounded-full object-cover border border-[#E3E8EE]">`
+                    : `<div class="w-12 h-12 rounded-full bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center font-semibold text-sm">
                         ${bs.ho_ten.substring(0, 2).toUpperCase()}
                        </div>`;
 
@@ -3639,45 +4136,43 @@
                 if (coCaSang || coCaChieu || coCaToi || coCaNgay) {
                     caBadgesHtml = `
                         <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                            ${coCaSang ? '<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80 flex items-center gap-1"><i class="fa-solid fa-sun text-amber-500"></i> Ca Sáng</span>' : ''}
-                            ${coCaChieu ? '<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200/80 flex items-center gap-1"><i class="fa-solid fa-cloud-sun text-sky-500"></i> Ca Chiều</span>' : ''}
-                            ${coCaToi ? '<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/80 flex items-center gap-1"><i class="fa-solid fa-moon text-purple-500"></i> Ca Tối</span>' : ''}
-                            ${coCaNgay ? '<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1"><i class="fa-solid fa-star text-emerald-500"></i> Cả Ngày</span>' : ''}
+                            ${coCaSang ? '<span class="px-2 py-0.5 rounded text-[13px] font-medium bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1"><i class="fa-solid fa-sun text-amber-500"></i> Ca sáng</span>' : ''}
+                            ${coCaChieu ? '<span class="px-2 py-0.5 rounded text-[13px] font-medium bg-sky-50 text-sky-700 border border-sky-200 flex items-center gap-1"><i class="fa-solid fa-cloud-sun text-sky-500"></i> Ca chiều</span>' : ''}
+                            ${coCaToi ? '<span class="px-2 py-0.5 rounded text-[13px] font-medium bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1"><i class="fa-solid fa-moon text-purple-500"></i> Ca tối</span>' : ''}
+                            ${coCaNgay ? '<span class="px-2 py-0.5 rounded text-[13px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1"><i class="fa-solid fa-star text-emerald-500"></i> Cả ngày</span>' : ''}
                         </div>
                     `;
                 }
 
                 return `
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 hover:border-medical-500 hover:shadow-xl hover:shadow-medical-600/10 transition-all flex flex-col justify-between">
+                    <div class="bg-white border border-[#E3E8EE] rounded-lg p-5 hover:border-[#1F6FB2] transition-colors flex flex-col justify-between">
                         <div>
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center space-x-3">
-                                    ${avatarHtml}
-                                    <div>
-                                        <h4 class="font-extrabold text-slate-900 text-sm leading-tight">${bs.ho_ten}</h4>
-                                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
-                                            ${tenKhoa}
-                                        </span>
-                                    </div>
+                            <div class="flex items-start gap-3">
+                                ${avatarHtml}
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-semibold text-slate-900 text-[15px] leading-snug">${bs.ho_ten}</h4>
+                                    <span class="inline-block mt-1 px-2 py-0.5 rounded text-[13px] font-medium bg-[#EEF5FB] text-[#1F6FB2]">
+                                        ${tenKhoa}
+                                    </span>
                                 </div>
                             </div>
 
-                            <div class="mt-4 space-y-1.5 text-xs text-slate-500">
-                                <div><i class="fa-solid fa-graduation-cap text-medical-500 w-4"></i> ${bs.hoc_vi || 'Bác sĩ chuyên khoa'}</div>
-                                <div><i class="fa-solid fa-door-open text-slate-400 w-4"></i> Phòng khám: <strong class="text-slate-700">${bs.phong_kham || 'P201'}</strong></div>
-                                <div><i class="fa-solid fa-phone text-emerald-500 w-4"></i> ${bs.so_dien_thoai || '0901234567'}</div>
+                            <div class="mt-4 space-y-1.5 text-[13px] text-slate-600">
+                                <div><i class="fa-solid fa-graduation-cap text-slate-400 w-4" aria-hidden="true"></i> ${bs.hoc_vi || 'Bác sĩ chuyên khoa'}</div>
+                                <div><i class="fa-solid fa-door-open text-slate-400 w-4" aria-hidden="true"></i> Phòng: <span class="font-medium text-slate-800">${bs.phong_kham || 'P201'}</span></div>
+                                <div><i class="fa-solid fa-phone text-slate-400 w-4" aria-hidden="true"></i> ${bs.so_dien_thoai || '0901234567'}</div>
                                 ${caBadgesHtml}
                             </div>
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                             <div>
-                                <div class="text-[10px] text-slate-400 font-bold uppercase">Giá khám</div>
-                                <div class="text-base font-black text-medical-600">${gia} đ</div>
+                                <div class="text-[13px] text-slate-500">Giá khám</div>
+                                <div class="text-[16px] font-semibold text-[#1F6FB2]">${gia} đ</div>
                             </div>
-                            <button onclick="moModalDatLich(${bs.id})" class="px-4 py-2 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-xl shadow-md shadow-medical-600/20 transition flex items-center space-x-1.5">
-                                <i class="fa-regular fa-calendar-check"></i>
-                                <span>Đặt Lịch</span>
+                            <button type="button" onclick="moModalDatLich(${bs.id})" class="btn btn-primary" style="min-height:36px; padding:6px 14px; font-size:13px;">
+                                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                                <span>Đặt lịch</span>
                             </button>
                         </div>
                     </div>
@@ -3739,11 +4234,11 @@
 
                     const isImage = file.type.startsWith('image/');
                     const item = document.createElement('div');
-                    item.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 rounded-xl text-slate-700 shadow-xs';
+                    item.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#E3E8EE] rounded-md text-slate-700 shadow-xs';
                     item.innerHTML = `
                         <i class="fa-solid ${isImage ? 'fa-image text-medical-600' : 'fa-file-lines text-amber-500'}"></i>
                         <span class="max-w-[120px] truncate font-medium">${file.name}</span>
-                        <span class="text-[10px] text-slate-400 font-mono">(${(file.size / 1024).toFixed(0)}KB)</span>
+                        <span class="text-[13px] text-slate-400 font-mono">(${(file.size / 1024).toFixed(0)}KB)</span>
                     `;
                     preview.appendChild(item);
                 };
@@ -3768,8 +4263,8 @@
             const preview = document.getElementById('modal-dl-file-preview');
             if (preview) preview.innerHTML = '';
 
-            // Fix #7: Chặn chọn ngày quá khứ & Reset ngày khám mặc định
-            const today = new Date().toISOString().split('T')[0];
+            // Chặn chọn ngày quá khứ & Reset ngày khám mặc định (giờ địa phương)
+            const today = getNgayHienTai();
             const dateInput = document.getElementById('modal-dl-ngay');
             if (dateInput) {
                 dateInput.min = today;
@@ -3813,7 +4308,7 @@
             // BƯỚC 1: Nạp danh sách chuyên khoa vào Bước 1
             const ckSelect = document.getElementById('modal-dl-chuyen-khoa');
             if (ckSelect) {
-                let ckOpts = '<option value="">-- Tất Cả Chuyên Khoa --</option>';
+                let ckOpts = '<option value="">-- Tất cả chuyên khoa --</option>';
                 (AppState.danhSachChuyenKhoa || []).forEach(ck => {
                     const ten = ck.ten_khoa || ck.ten_chuyen_khoa;
                     ckOpts += `<option value="${ck.id}">${ten}</option>`;
@@ -3985,7 +4480,7 @@
             const originalBtnHtml = btnSubmit ? btnSubmit.innerHTML : '';
             if (btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> <span>Đang Đặt Lịch...</span>';
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> <span>Đang đặt lịch...</span>';
             }
 
             try {
@@ -4032,23 +4527,23 @@
 
                     Swal.fire({
                         icon: 'success',
-                        title: 'Đặt Lịch Khám Thành Công!',
+                        title: 'Đặt lịch khám thành công!',
                         html: `
-                            <div class="text-left text-xs space-y-2.5 mt-2 p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="text-left text-xs space-y-2.5 mt-2 p-3.5 bg-slate-50 rounded-md border border-[#E3E8EE]">
                                 <div><strong>Bác sĩ khám:</strong> <span class="text-slate-900 font-bold">${tenBs}</span></div>
                                 <div><strong>Chuyên khoa:</strong> <span class="text-sky-700 font-semibold">${tenKhoa}</span></div>
                                 <div><strong>Ngày khám:</strong> <span class="font-bold text-slate-800">${ngayFormatted}</span></div>
                                 <div><strong>Khung giờ hẹn tiếp nhận:</strong> <span class="text-rose-600 font-extrabold text-sm">${gioBatDau} - ${(lh.gio_ket_thuc || '').substring(0, 5)}</span></div>
-                                <div class="p-2.5 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-[11px] leading-relaxed">
-                                    <strong><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Cam kết ca khám:</strong> Phòng khám cam kết Quý khách <strong>chắc chắn được hoàn thành khám 100% trong ${tenBuoi}</strong>.
+                                <div class="p-2.5 bg-emerald-50 text-emerald-800 rounded-md border border-emerald-200 text-[13px] leading-relaxed">
+                                    <strong><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Cam kết ca khám:</strong> Phòng khám cam kết quý khách <strong>chắc chắn được hoàn thành khám 100% trong ${tenBuoi}</strong>.
                                 </div>
-                                <div class="text-[11px] text-slate-500 italic">
+                                <div class="text-[13px] text-slate-500 italic">
                                     * Giờ vào phòng khám có thể dao động linh hoạt ±10-15 phút do tính chất chuyên môn của các ca khám trước. Vui lòng đến trước 10-15 phút để lấy số tiếp nhận ưu tiên.
                                 </div>
                             </div>
                         `,
-                        confirmButtonColor: '#0284c7',
-                        confirmButtonText: 'Đã Hiểu & Xem Lịch Khám'
+                        confirmButtonColor: '#1F6FB2',
+                        confirmButtonText: 'Đã hiểu & xem lịch khám'
                     });
                     dongModal('modal-dat-lich');
                     await taiDanhSachLichHen();
@@ -4058,9 +4553,9 @@
                 } else if (res.status === 409) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Trùng lịch khám (409 Conflict)',
+                        title: 'Trùng lịch khám (409 conflict)',
                         text: res.data.thong_diep || 'Bác sĩ đã có ca khám trong khung giờ này, vui lòng chọn giờ khác!',
-                        confirmButtonColor: '#0284c7'
+                        confirmButtonColor: '#1F6FB2'
                     });
                 } else {
                     showToast('error', 'Thất bại', res.data.thong_diep || 'Không thể tạo lịch hẹn.');
@@ -4083,6 +4578,12 @@
         }
 
         function moModalDoiLich(id) {
+            // Bác sĩ không thể dời lịch khám của bệnh nhân
+            if (AppState.currentUser && AppState.currentUser.vai_tro === 'BAC_SI') {
+                showToast('error', 'Không có quyền', 'Bác sĩ không thể dời lịch khám của bệnh nhân.');
+                return;
+            }
+
             const lh = AppState.danhSachLichHen.find(l => l.id == id);
             if (!lh) return;
 
@@ -4124,18 +4625,18 @@
             if (res.ok) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Dời Lịch Thành Công!',
+                    title: 'Dời lịch thành công!',
                     text: res.data.thong_diep || 'Lịch hẹn đã được cập nhật sang thời gian mới.',
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 });
                 dongModal('modal-doi-lich');
                 await taiDanhSachLichHen();
             } else if (res.status === 409) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Trùng Lịch Bác Sĩ (409)',
+                    title: 'Trùng lịch bác sĩ (409)',
                     text: res.data.thong_diep || 'Khung giờ này đã có bệnh nhân khác đặt. Vui lòng chọn khung giờ khác!',
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 });
             } else {
                 showToast('error', 'Lỗi dời lịch', res.data.thong_diep || 'Không thể dời lịch hẹn.');
@@ -4160,21 +4661,21 @@
                 const isImage = typeof fileUrl === 'string' && (fileUrl.startsWith('data:image') || fileUrl.match(/\.(jpeg|jpg|gif|png|webp)/i));
                 if (isImage) {
                     return `
-                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 shadow-xs">
-                            <div class="text-[11px] font-bold text-slate-700 truncate flex items-center justify-between">
+                        <div class="p-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md space-y-2 shadow-xs">
+                            <div class="text-[13px] font-bold text-slate-700 truncate flex items-center justify-between">
                                 <span>Ảnh đính kèm #${idx + 1}</span>
-                                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">Đã nạp</span>
+                                <span class="text-[13px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">Đã nạp</span>
                             </div>
-                            <img src="${fileUrl}" alt="Hồ sơ y tế #${idx + 1}" class="w-full h-48 object-contain bg-slate-900/5 rounded-xl border border-slate-100 cursor-pointer hover:opacity-90 transition" onclick="window.open('${fileUrl}', '_blank')">
+                            <img src="${fileUrl}" alt="Hồ sơ y tế #${idx + 1}" class="w-full h-48 object-contain bg-slate-900/5 rounded-md border border-slate-100 cursor-pointer hover:opacity-90 transition" onclick="window.open('${fileUrl}', '_blank')">
                             <a href="${fileUrl}" target="_blank" class="block text-center text-xs font-bold text-medical-600 hover:text-medical-700 pt-1"><i class="fa-solid fa-up-right-from-square mr-1"></i> Mở xem toàn màn hình</a>
                         </div>
                     `;
                 } else {
                     return `
-                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col items-center justify-center space-y-2">
+                        <div class="p-4 bg-slate-50 border border-[#E3E8EE] rounded-md flex flex-col items-center justify-center space-y-2">
                             <i class="fa-solid fa-file-pdf text-rose-500 text-3xl"></i>
                             <span class="text-xs font-bold text-slate-800">Tệp hồ sơ #${idx + 1}</span>
-                            <a href="${fileUrl}" target="_blank" class="px-3 py-1.5 bg-medical-600 text-white rounded-xl text-xs font-bold hover:bg-medical-700 transition"><i class="fa-solid fa-download mr-1"></i> Tải / Mở tệp</a>
+                            <a href="${fileUrl}" target="_blank" class="px-3 py-1.5 bg-medical-600 text-white rounded-md text-xs font-bold hover:bg-medical-700 transition"><i class="fa-solid fa-download mr-1"></i> Tải / mở tệp</a>
                         </div>
                     `;
                 }
@@ -4187,6 +4688,12 @@
             const res = await goiApi('GET', '/api/v1/lich-hen?per_page=50');
             if (res.ok && res.data && res.data.du_lieu) {
                 AppState.danhSachLichHen = res.data.du_lieu;
+                AppState.cacCaDaTiepNhan = AppState.cacCaDaTiepNhan || new Set();
+                AppState.danhSachLichHen.forEach(l => {
+                    if (l.trang_thai === 'DANG_KHAM') {
+                        AppState.cacCaDaTiepNhan.add(Number(l.id));
+                    }
+                });
                 renderLichHenBenhNhan(AppState.danhSachLichHen);
                 renderCaKhamBacSi(AppState.danhSachLichHen);
                 renderBacSiLichSu(AppState.danhSachLichHen);
@@ -4239,12 +4746,13 @@
                 const tenBn = lh.benh_nhan ? (lh.benh_nhan.ho_ten || '') : (lh.ho_ten_benh_nhan || (`Bệnh nhân #${lh.benh_nhan_id}`));
                 const sdtBn = lh.benh_nhan ? (lh.benh_nhan.so_dien_thoai || '') : (lh.so_dien_thoai || '');
 
-                // Fix #5: Only valid appointment statuses can be rescheduled/cancelled by patient
-                const canManage = ['CHO_XAC_NHAN', 'DA_XAC_NHAN'].includes(lh.trang_thai);
+                // Bác sĩ KHÔNG THỂ dời lịch và hủy lịch của bệnh nhân (Chỉ bệnh nhân hoặc quản trị viên)
+                const isBacSi = u && u.vai_tro === 'BAC_SI';
+                const canManage = !isBacSi && ['CHO_XAC_NHAN', 'DA_XAC_NHAN'].includes(lh.trang_thai);
                 
                 let actionBtns = [];
                 if (canManage) {
-                    actionBtns.push(`<button onclick="moModalDoiLich(${lh.id})" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Dời Giờ / Ngày Khám"><i class="fa-solid fa-clock-rotate-left"></i> Dời Lịch</button>`);
+                    actionBtns.push(`<button onclick="moModalDoiLich(${lh.id})" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Dời Giờ / Ngày Khám"><i class="fa-solid fa-clock-rotate-left"></i> Dời lịch</button>`);
                     actionBtns.push(`<button onclick="huyLichHenBenhNhan(${lh.id})" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Hủy Ca Khám"><i class="fa-solid fa-ban"></i> Hủy</button>`);
                 }
                 if (lh.tep_dinh_kem && (Array.isArray(lh.tep_dinh_kem) ? lh.tep_dinh_kem.length > 0 : true)) {
@@ -4253,7 +4761,7 @@
                 }
                 const actionHtml = actionBtns.length > 0 ? `<div class="flex items-center justify-center gap-1.5 flex-wrap">${actionBtns.join('')}</div>` : `<span class="text-slate-400 text-xs">--</span>`;
 
-                const soLanDoi = lh.so_lan_doi_lich ? `<span class="text-[10px] text-sky-600 block">(Đã dời ${lh.so_lan_doi_lich} lần)</span>` : '';
+                const soLanDoi = lh.so_lan_doi_lich ? `<span class="text-[13px] text-sky-600 block">(Đã dời ${lh.so_lan_doi_lich} lần)</span>` : '';
 
                 return `
                     <tr class="hover:bg-slate-50/70 transition">
@@ -4262,12 +4770,12 @@
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <button type="button" onclick="moModalXemEhrHoacGiaDinh(${lh.benh_nhan_id || (lh.benh_nhan ? lh.benh_nhan.id : 0)})" class="font-bold text-slate-900 hover:text-medical-600 transition flex items-center gap-1 text-left group" title="Nhấp để xem hồ sơ bệnh án">
                                     <span>${tenBn}</span>
-                                    <i class="fa-solid fa-address-card text-[11px] text-slate-400 group-hover:text-medical-600 transition"></i>
+                                    <i class="fa-solid fa-address-card text-[13px] text-slate-400 group-hover:text-medical-600 transition"></i>
                                 </button>
                                 ${lh.benh_nhan && lh.benh_nhan.quan_he_chu_tai_khoan && lh.benh_nhan.quan_he_chu_tai_khoan !== 'BAN_THAN' ? 
-                                    `<button type="button" onclick="chuyenTab('tab-ho-so-gia-dinh')" class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-200 transition" title="Xem trong Hồ Sơ Gia Đình">${lh.benh_nhan.quan_he_chu_tai_khoan === 'CON' ? 'Con cái' : (lh.benh_nhan.quan_he_chu_tai_khoan === 'CHA_ME' ? 'Bố/Mẹ' : 'Người thân')}</button>` : ''}
+                                    `<button type="button" onclick="chuyenTab('tab-ho-so-gia-dinh')" class="px-1.5 py-0.5 rounded text-[13px] font-bold bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-200 transition" title="Xem trong Hồ Sơ Gia Đình">${lh.benh_nhan.quan_he_chu_tai_khoan === 'CON' ? 'Con cái' : (lh.benh_nhan.quan_he_chu_tai_khoan === 'CHA_ME' ? 'Bố/Mẹ' : 'Người thân')}</button>` : ''}
                             </div>
-                            ${sdtBn ? `<span class="text-[11px] text-slate-400 font-mono block">${sdtBn}</span>` : ''}
+                            ${sdtBn ? `<span class="text-[13px] text-slate-400 font-mono block">${sdtBn}</span>` : ''}
                         </td>
                         <td class="py-3 px-4 font-extrabold text-slate-900">${tenBs}</td>
                         <td class="py-3 px-4 text-slate-600">${tenKhoa}</td>
@@ -4278,7 +4786,7 @@
                         </td>
                         <td class="py-3 px-4 text-slate-500">${lh.ly_do_kham || 'Khám tổng quát'}</td>
                         <td class="py-3 px-4">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">${lh.trang_thai || 'CHO_KHAM'}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lh.trang_thai || 'CHO_KHAM'}</span>
                         </td>
                         <td class="py-3 px-4 text-center">${actionHtml}</td>
                     </tr>
@@ -4287,6 +4795,12 @@
         }
 
         async function huyLichHenBenhNhan(id) {
+            // Bác sĩ không thể hủy lịch khám của bệnh nhân
+            if (AppState.currentUser && AppState.currentUser.vai_tro === 'BAC_SI') {
+                showToast('error', 'Không có quyền', 'Bác sĩ không thể hủy lịch khám của bệnh nhân.');
+                return;
+            }
+
             const confirm = await Swal.fire({
                 title: 'Hủy lịch hẹn?',
                 text: 'Bạn có chắc chắn muốn hủy lịch khám bệnh này không?',
@@ -4302,20 +4816,20 @@
 
             const res = await goiApi('PUT', `/api/v1/lich-hen/${id}/huy`, { ly_do: 'Bệnh nhân chủ động hủy' });
             if (res.ok) {
-                showToast('success', 'Đã Hủy Lịch', 'Lịch hẹn đã được hủy thành công.');
+                showToast('success', 'Đã hủy lịch', 'Lịch hẹn đã được hủy thành công.');
                 await taiDanhSachLichHen();
             } else if (res.status === 422 && res.data.ma_loi === 'KHONG_THE_HUY_SAT_GIO') {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Chặn Hủy Sát Giờ (< 2 tiếng)',
+                    title: 'Chặn hủy sát giờ (< 2 tiếng)',
                     html: `<div class="text-left text-xs space-y-2">
                         <p class="text-rose-600 font-bold">${res.data.thong_diep}</p>
-                        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-slate-700">
+                        <div class="p-3 bg-amber-50 rounded-md border border-amber-200 text-slate-700">
                             <strong>Quy định phòng khám:</strong> Để đảm bảo lịch trực của y bác sĩ và công bằng cho các bệnh nhân chờ khám, hệ thống không cho phép tự hủy ca khám dưới 2 tiếng trước giờ hẹn.
                         </div>
-                        <p class="font-bold text-sky-700 text-center text-sm pt-1">📞 Hotline tiếp đón: 1900 6868 (Trực 24/7)</p>
+                        <p class="font-bold text-sky-700 text-center text-sm pt-1">Hotline tiếp đón: 1900 6868 (Trực 24/7)</p>
                     </div>`,
-                    confirmButtonColor: '#0284c7',
+                    confirmButtonColor: '#1F6FB2',
                     confirmButtonText: 'Đã hiểu'
                 });
             } else {
@@ -4343,7 +4857,7 @@
             container.innerHTML = AppState.danhSachDichVuCLS.map(dv => {
                 const gia = Number(dv.don_gia || dv.gia_dich_vu || 100000).toLocaleString('vi-VN');
                 return `
-                    <label class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-sky-50/50 border border-slate-200 rounded-xl cursor-pointer transition">
+                    <label class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-sky-50/50 border border-[#E3E8EE] rounded-md cursor-pointer transition">
                         <span class="flex items-center space-x-2 text-xs text-slate-700 font-medium">
                             <input type="checkbox" class="cb-dich-vu-cls w-4 h-4 text-medical-600 rounded focus:ring-medical-500 border-slate-300" value="${dv.id}" data-gia="${dv.don_gia || dv.gia_dich_vu || 100000}" onchange="tinhTongTienCLS()">
                             <span>${dv.ten_dich_vu}</span>
@@ -4371,41 +4885,111 @@
             if (u && u.vai_tro === 'BAC_SI') {
                 const bs = AppState.danhSachBacSi.find(b => 
                     b.id == u.id || 
+                    b.tai_khoan_id == u.id ||
                     (b.ho_ten && u.ho_ten && b.ho_ten.toLowerCase().includes(u.ho_ten.toLowerCase())) ||
                     (u.ten_dang_nhap && b.ma_bac_si && b.ma_bac_si.toLowerCase().includes(u.ten_dang_nhap.toLowerCase()))
                 );
                 if (bs) docList = list.filter(lh => lh.bac_si_id == bs.id);
             }
 
-            const waitingList = docList.filter(l => l.trang_thai !== 'HOAN_THANH' && l.trang_thai !== 'DA_HUY');
+            const today = getNgayHienTai();
+            const filterInput = document.getElementById('filter-ca-kham-ngay');
+            if (filterInput && !filterInput.value) {
+                filterInput.value = today;
+            }
+            const targetDate = (filterInput && filterInput.value) ? filterInput.value : today;
+
+            // NGUYÊN TẮC CA KHÁM: Đến ngày thì mới hiển thị lên, chưa đến ngày thì không hiện để tránh nhầm lẫn
+            const waitingList = docList.filter(l => {
+                if (l.trang_thai === 'HOAN_THANH' || l.trang_thai === 'DA_HUY') return false;
+                // Chỉ hiển thị ca khám của ngày đã chọn (mặc định hôm nay), loại bỏ hoàn toàn các ngày tương lai
+                return l.ngay_kham === targetDate;
+            });
 
             if (waitingList.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400 italic">Không có ca khám nào đang chờ.</td></tr>';
+                const ngayHienThi = (targetDate === today) ? `hôm nay (${today})` : `ngày ${targetDate}`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400 italic">Không có ca khám nào đang chờ trong ${ngayHienThi}.</td></tr>`;
                 return;
             }
 
+            // SẮP XẾP THEO THỜI GIAN: Giờ bắt đầu tăng dần (ca sớm nhất lên đầu hàng đợi)
+            waitingList.sort((a, b) => {
+                const dateComp = (a.ngay_kham || '').localeCompare(b.ngay_kham || '');
+                if (dateComp !== 0) return dateComp;
+                return (a.gio_bat_dau || '').localeCompare(b.gio_bat_dau || '');
+            });
+
             tbody.innerHTML = waitingList.map(lh => {
                 const bnName = lh.benh_nhan ? lh.benh_nhan.ho_ten : (lh.ho_ten_benh_nhan || 'Bệnh nhân');
+                const isDaGuiThuNgan = (AppState.cacCaDaGuiThuNgan && AppState.cacCaDaGuiThuNgan.has(Number(lh.id))) || 
+                                       (AppState.danhSachHoaDon && AppState.danhSachHoaDon.some(hd => Number(hd.lich_hen_id) === Number(lh.id)));
+                const isDaTiepNhan = (AppState.cacCaDaTiepNhan && AppState.cacCaDaTiepNhan.has(Number(lh.id))) || 
+                                     (AppState.caKhamDangChon && AppState.caKhamDangChon.id == lh.id) || 
+                                     lh.trang_thai === 'DANG_KHAM';
+                const isDangChon = AppState.caKhamDangChon && AppState.caKhamDangChon.id == lh.id;
+
+                let btnThaoTac = '';
+                if (isDaGuiThuNgan) {
+                    btnThaoTac = `
+                        <button type="button" onclick="chuyenSangKhamCaNay(${lh.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs rounded-md shadow-xs transition" title="Đã lưu chỉ định & chuyển sang thu ngân - Nhấp để xem lại">
+                            <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i>
+                            <span>Đã gửi thu ngân</span>
+                        </button>
+                    `;
+                } else if (isDaTiepNhan) {
+                    btnThaoTac = `
+                        <button type="button" onclick="chuyenSangKhamCaNay(${lh.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-bold text-xs rounded-md shadow-xs transition" title="Đang tiếp nhận - Nhấp để nạp lại hồ sơ">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Đã tiếp nhận</span>
+                        </button>
+                    `;
+                } else {
+                    btnThaoTac = `
+                        <button type="button" onclick="chuyenSangKhamCaNay(${lh.id})" class="px-3.5 py-1.5 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-md shadow-sm transition inline-flex items-center gap-1 justify-center">
+                            <span>Tiếp nhận</span>
+                        </button>
+                    `;
+                }
+
                 return `
-                    <tr class="hover:bg-slate-50/70 transition">
+                    <tr class="hover:bg-slate-50/70 transition ${isDangChon ? 'bg-sky-50/70 border-l-4 border-medical-600' : ''}">
                         <td class="py-2.5 px-3 font-bold text-slate-700">#${lh.id}</td>
                         <td class="py-2.5 px-3 font-extrabold text-slate-900">${bnName}</td>
-                        <td class="py-2.5 px-3 font-mono text-medical-600 font-semibold">${lh.gio_bat_dau}</td>
+                        <td class="py-2.5 px-3 font-mono text-medical-600 font-semibold">
+                            ${lh.gio_bat_dau}
+                            ${lh.ngay_kham ? `<span class="text-[11px] text-slate-400 block font-sans">${lh.ngay_kham}</span>` : ''}
+                        </td>
                         <td class="py-2.5 px-3 text-center">
-                            <button onclick="chuyenSangKhamCaNay(${lh.id})" class="px-3 py-1 bg-medical-600 hover:bg-medical-700 text-white font-bold text-xs rounded-lg shadow-sm transition">
-                                Tiếp Nhận
-                            </button>
+                            ${btnThaoTac}
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function chuyenSangKhamCaNay(lichHenId) {
+        async function chuyenSangKhamCaNay(lichHenId) {
             const lh = AppState.danhSachLichHen.find(l => l.id == lichHenId);
             if (!lh) return;
 
+            // Đánh dấu ca khám đã tiếp nhận vào State
+            AppState.cacCaDaTiepNhan = AppState.cacCaDaTiepNhan || new Set();
+            AppState.cacCaDaTiepNhan.add(Number(lichHenId));
             AppState.caKhamDangChon = lh;
+            lh.trang_thai = 'DANG_KHAM';
+
+            // Đồng bộ trạng thái Bắt đầu khám lên API Service
+            try {
+                goiApi('PUT', `/api/v1/lich-hen/${lichHenId}/bat-dau-kham`, {
+                    bac_si_id: lh.bac_si_id
+                }).catch(e => console.warn('Lỗi gọi bat-dau-kham:', e));
+            } catch (e) {
+                console.warn('Lỗi gọi bat-dau-kham:', e);
+            }
+
+            // Tức thì cập nhật nút Tiếp nhận -> Đã tiếp nhận và đồng bộ danh sách
+            renderCaKhamBacSi(AppState.danhSachLichHen);
+            renderBacSiLichSu(AppState.danhSachLichHen);
+
             const bn = lh.benh_nhan || {};
             const bnName = bn.ho_ten || (lh.ho_ten_benh_nhan || 'Bệnh nhân');
             const nhomMau = bn.nhom_mau ? `<span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-bold">Nhóm máu: ${bn.nhom_mau}</span>` : '';
@@ -4413,7 +4997,7 @@
             const benhNen = bn.tien_su_benh ? `<div class="text-sky-700 font-medium"><i class="fa-solid fa-heart-pulse mr-1"></i> Bệnh nền: <strong>${bn.tien_su_benh}</strong></div>` : '';
             const nguoiThan = bn.nguoi_lien_he_khan_cap ? `<div class="text-slate-500"><i class="fa-solid fa-phone mr-1"></i> Liên hệ khẩn cấp: ${bn.nguoi_lien_he_khan_cap} (${bn.sdt_khan_cap || ''})</div>` : '';
             const tepBtn = (lh.tep_dinh_kem && (Array.isArray(lh.tep_dinh_kem) ? lh.tep_dinh_kem.length > 0 : true))
-                ? `<div class="pt-2"><button type="button" onclick="moModalXemTepYTe(${lh.id})" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition hover:scale-102"><i class="fa-solid fa-paperclip text-indigo-600"></i> Xem Hồ Sơ / Đơn Thuốc Cũ Đính Kèm</button></div>`
+                ? `<div class="pt-2"><button type="button" onclick="moModalXemTepYTe(${lh.id})" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-md font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition"><i class="fa-solid fa-paperclip text-indigo-600"></i> Xem hồ sơ / đơn thuốc cũ đính kèm</button></div>`
                 : '';
 
             document.getElementById('box-chon-ca-kham-thong-tin').innerHTML = `
@@ -4428,19 +5012,70 @@
                     ${nguoiThan}
                     <div class="pt-2 flex flex-wrap items-center gap-2">
                         ${tepBtn}
-                        <button type="button" onclick="inHoaDonKhamBenhCaHienTai()" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition hover:scale-102">
-                            <i class="fa-solid fa-file-invoice-dollar text-sky-600"></i> Xem / In Hóa Đơn Khám
+                        <button type="button" onclick="inHoaDonKhamBenhCaHienTai()" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-md font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition">
+                            <i class="fa-solid fa-file-invoice-dollar text-sky-600"></i> Xem / in hóa đơn khám
                         </button>
                     </div>
                 </div>
             `;
 
-            showToast('info', 'Tiếp Nhận Ca Khám', `Đã nạp hồ sơ bệnh án của bệnh nhân: ${bnName}.`);
+            // KIỂM TRA TRẠNG THÁI ĐÃ LƯU CHỈ ĐỊNH VÀ GỬI THU NGÂN:
+            let isDaGui = (AppState.cacCaDaGuiThuNgan && AppState.cacCaDaGuiThuNgan.has(Number(lichHenId))) ||
+                          (AppState.danhSachHoaDon && AppState.danhSachHoaDon.some(hd => Number(hd.lich_hen_id) === Number(lichHenId)));
+
+            try {
+                const resCls = await goiApi('GET', `/api/v1/dich-vu/lich-hen/${lichHenId}`);
+                if (resCls.ok && resCls.data && resCls.data.du_lieu && resCls.data.du_lieu.length > 0) {
+                    isDaGui = true;
+                    AppState.cacCaDaGuiThuNgan = AppState.cacCaDaGuiThuNgan || new Set();
+                    AppState.cacCaDaGuiThuNgan.add(Number(lichHenId));
+
+                    const dvIds = resCls.data.du_lieu.map(d => Number(d.dich_vu_id));
+                    document.querySelectorAll('.cb-dich-vu-cls').forEach(cb => {
+                        cb.checked = dvIds.includes(Number(cb.value));
+                    });
+                    tinhTongTienCLS();
+
+                    const cd = resCls.data.du_lieu[0].chan_doan_so_bo || resCls.data.du_lieu[0].ghi_chu;
+                    if (cd && document.getElementById('input-chan-doan')) {
+                        document.getElementById('input-chan-doan').value = cd;
+                    }
+                } else if (!isDaGui) {
+                    document.querySelectorAll('.cb-dich-vu-cls').forEach(c => c.checked = false);
+                    tinhTongTienCLS();
+                    const inputCd = document.getElementById('input-chan-doan');
+                    if (inputCd) inputCd.value = lh.chuan_doan || lh.ly_do_kham || '';
+                }
+            } catch(e) {
+                console.warn('Lỗi kiểm tra chỉ định cũ:', e);
+            }
+
+            // Cập nhật giao diện khóa / mở khóa bàn khám (khi đã lưu gửi thu ngân thì không được thêm thao tác gì nữa)
+            capNhatTrangThaiKhoaBanKham(isDaGui);
+
+            showToast('info', 'Tiếp nhận ca khám', `Đã tiếp nhận hồ sơ bệnh nhân: ${bnName}. ${isDaGui ? '(Phiếu chỉ định đã khóa do đã gửi thu ngân)' : ''}`);
         }
 
         async function luuChiDinhCanLamSang() {
             if (!AppState.caKhamDangChon) {
                 showToast('error', 'Chưa chọn ca khám', 'Vui lòng bấm "Tiếp Nhận" 1 ca khám từ danh sách chờ bên trái.');
+                return;
+            }
+
+            const currentLhId = Number(AppState.caKhamDangChon.id);
+
+            // NGUYÊN TẮC: Đã lưu chỉ định gửi thu ngân rồi thì KHÔNG ĐƯỢC thêm thao tác gì nữa
+            const isDaGui = (AppState.cacCaDaGuiThuNgan && AppState.cacCaDaGuiThuNgan.has(currentLhId)) ||
+                            (AppState.danhSachHoaDon && AppState.danhSachHoaDon.some(hd => Number(hd.lich_hen_id) === currentLhId));
+
+            if (isDaGui) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chỉ định đã được khóa!',
+                    text: 'Ca khám này đã được lưu chỉ định và chuyển sang bàn Thu Ngân. Không thể thực hiện thêm thao tác kê thêm chỉ định để tránh trùng lặp viện phí.',
+                    confirmButtonColor: '#1F6FB2'
+                });
+                capNhatTrangThaiKhoaBanKham(true);
                 return;
             }
 
@@ -4453,7 +5088,7 @@
             const chanDoan = (document.getElementById('input-chan-doan')?.value || '').trim() || 'Theo dõi lâm sàng';
 
             const payload = {
-                lich_hen_id: Number(AppState.caKhamDangChon.id),
+                lich_hen_id: currentLhId,
                 benh_nhan_id: Number(AppState.caKhamDangChon.benh_nhan_id || AppState.caKhamDangChon.benh_nhan?.id || 1),
                 bac_si_id: Number(AppState.caKhamDangChon.bac_si_id || AppState.currentUser?.bac_si?.id || 1),
                 danh_sach_dich_vu_id: checked,
@@ -4463,10 +5098,17 @@
             const res = await goiApi('POST', '/api/v1/dich-vu/chi-dinh', payload);
 
             if (res.ok) {
+                // Đánh dấu ca khám đã gửi thu ngân
+                AppState.cacCaDaGuiThuNgan = AppState.cacCaDaGuiThuNgan || new Set();
+                AppState.cacCaDaGuiThuNgan.add(currentLhId);
+
+                // KHÓA BÀN KHÁM NGAY LẬP TỨC: Không được thêm thao tác gì nữa
+                capNhatTrangThaiKhoaBanKham(true);
+
                 // Tự động chuyển chỉ định sang Thu Ngân lập / đồng bộ hóa đơn
                 try {
                     await goiApi('POST', '/api/v1/hoa-don/tao-tu-dong', {
-                        lich_hen_id: Number(AppState.caKhamDangChon.id),
+                        lich_hen_id: currentLhId,
                         giam_gia: 0,
                         ghi_chu: `Chỉ định cận lâm sàng (${chanDoan})`
                     });
@@ -4476,24 +5118,24 @@
 
                 // Cập nhật trạng thái lịch hẹn sang Đang Khám nếu ca mới tiếp nhận
                 try {
-                    if (AppState.caKhamDangChon.trang_thai !== 'DANG_KHAM' && AppState.caKhamDangChon.trang_thai !== 'DA_HOAN_THANH') {
-                        await goiApi('PUT', `/api/v1/lich-hen/${AppState.caKhamDangChon.id}/trang-thai`, {
-                            trang_thai: 'DANG_KHAM'
-                        });
+                    if (AppState.caKhamDangChon.trang_thai !== 'DANG_KHAM' && AppState.caKhamDangChon.trang_thai !== 'HOAN_THANH') {
+                        await goiApi('PUT', `/api/v1/lich-hen/${currentLhId}/bat-dau-kham`);
                         AppState.caKhamDangChon.trang_thai = 'DANG_KHAM';
                     }
                 } catch (e) {
                     console.warn('Lỗi cập nhật trạng thái lịch hẹn:', e);
                 }
 
+                // LÀM MỚI BÀN KHÁM NGAY LẬP TỨC để sẵn sàng đón ca tiếp theo và tránh hiểu nhầm là chưa thao tác
+                lamMoiBanKham();
+
                 Swal.fire({
                     icon: 'success',
-                    title: 'Lưu & Gửi Thu Ngân thành công!',
-                    text: `Đã lưu ${checked.length} dịch vụ cận lâm sàng cho ca #${AppState.caKhamDangChon.id} và tự động chuyển viện phí sang bàn Thu Ngân.`,
-                    confirmButtonColor: '#0284c7'
+                    title: 'Lưu & gửi thu ngân thành công!',
+                    text: `Đã lưu ${checked.length} dịch vụ cận lâm sàng cho ca #${currentLhId} và tự động chuyển viện phí sang bàn Thu Ngân. Bàn khám đã được làm mới để tiếp nhận bệnh nhân tiếp theo.`,
+                    confirmButtonColor: '#1F6FB2'
                 });
-                document.querySelectorAll('.cb-dich-vu-cls').forEach(c => c.checked = false);
-                tinhTongTienCLS();
+
                 await taiDanhSachLichHen();
                 if (typeof taiDanhSachHoaDon === 'function') {
                     await taiDanhSachHoaDon();
@@ -4513,27 +5155,76 @@
             if (u && u.vai_tro === 'BAC_SI') {
                 const bs = AppState.danhSachBacSi.find(b => 
                     b.id == u.id || 
-                    (b.ho_ten && u.ho_ten && b.ho_ten.toLowerCase().includes(u.ho_ten.toLowerCase()))
+                    b.tai_khoan_id == u.id ||
+                    (b.ho_ten && u.ho_ten && b.ho_ten.toLowerCase().includes(u.ho_ten.toLowerCase())) ||
+                    (u.ten_dang_nhap && b.ma_bac_si && b.ma_bac_si.toLowerCase().includes(u.ten_dang_nhap.toLowerCase()))
                 );
                 if (bs) docList = list.filter(lh => lh.bac_si_id == bs.id);
             }
 
+            const today = getNgayHienTai();
+            const filterInput = document.getElementById('filter-bac-si-lich-su-ngay');
+            if (filterInput && !filterInput.dataset.initialized) {
+                filterInput.value = today;
+                filterInput.dataset.initialized = 'true';
+            }
+            const selectedDate = filterInput ? filterInput.value : today;
+
+            // Loại bỏ các ca đã hủy (DA_HUY)
+            docList = (docList || []).filter(lh => lh.trang_thai !== 'DA_HUY');
+
+            // NGUYÊN TẮC CA KHÁM: Đến ngày mới hiển thị lên, chưa đến ngày thì không hiện để tránh nhầm lẫn
+            if (selectedDate) {
+                docList = docList.filter(lh => lh.ngay_kham === selectedDate);
+            } else {
+                // Nếu chọn xem tất cả: Tuyệt đối chỉ xem các ca ĐÃ ĐẾN NGÀY (<= today)
+                docList = docList.filter(lh => lh.ngay_kham <= today);
+            }
+
             if (docList.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-400">Chưa có ca khám nào được ghi nhận hôm nay.</td></tr>';
+                const msg = selectedDate 
+                    ? `Không có ca khám nào được ghi nhận cho ${selectedDate === today ? 'hôm nay (' + today + ')' : 'ngày ' + selectedDate}.` 
+                    : 'Không có ca khám nào đã đến ngày.';
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-medium">${msg}</td></tr>`;
                 return;
             }
 
+            // SẮP XẾP THEO NGÀY VÀ THEO GIỜ:
+            // Ngày mới nhất / hôm nay lên đầu, cùng ngày thì xếp theo giờ sáng -> chiều
+            docList.sort((a, b) => {
+                const dateComp = (b.ngay_kham || '').localeCompare(a.ngay_kham || '');
+                if (dateComp !== 0) return dateComp;
+                return (a.gio_bat_dau || '').localeCompare(b.gio_bat_dau || '');
+            });
+
             tbody.innerHTML = docList.map(lh => {
                 const bnName = lh.benh_nhan ? lh.benh_nhan.ho_ten : (lh.ho_ten_benh_nhan || 'Bệnh nhân');
+                const sdt = lh.benh_nhan ? (lh.benh_nhan.so_dien_thoai || lh.so_dien_thoai || '--') : (lh.so_dien_thoai || '--');
+                const isDaTiepNhan = (AppState.cacCaDaTiepNhan && AppState.cacCaDaTiepNhan.has(Number(lh.id))) || 
+                                     (AppState.caKhamDangChon && AppState.caKhamDangChon.id == lh.id) || 
+                                     lh.trang_thai === 'DANG_KHAM';
+                const isDangChon = AppState.caKhamDangChon && AppState.caKhamDangChon.id == lh.id;
+
+                let badgeHtml = '';
+                if (lh.trang_thai === 'HOAN_THANH') {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200"><i class="fa-solid fa-check-double text-blue-600"></i> Hoàn thành</span>`;
+                } else if (isDaTiepNhan) {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300"><i class="fa-solid fa-circle-check text-emerald-600"></i> Đã tiếp nhận</span>`;
+                } else if (lh.trang_thai === 'DA_XAC_NHAN') {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">Đã xác nhận</span>`;
+                } else {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">Chờ tiếp nhận</span>`;
+                }
+
                 return `
-                    <tr class="hover:bg-slate-50/70 transition">
+                    <tr class="hover:bg-slate-50/70 transition ${isDangChon ? 'bg-sky-50/60 font-medium' : ''}">
                         <td class="py-3 px-4 font-bold text-slate-800">#${lh.id}</td>
                         <td class="py-3 px-4 font-extrabold text-slate-900">${bnName}</td>
-                        <td class="py-3 px-4 text-slate-600">${lh.so_dien_thoai || '--'}</td>
-                        <td class="py-3 px-4 text-slate-600">${lh.ngay_kham}</td>
+                        <td class="py-3 px-4 text-slate-600">${sdt}</td>
+                        <td class="py-3 px-4 text-slate-700 font-medium">${lh.ngay_kham}</td>
                         <td class="py-3 px-4 font-mono font-semibold text-medical-600">${lh.gio_bat_dau} - ${lh.gio_ket_thuc}</td>
                         <td class="py-3 px-4 text-slate-500">${lh.ly_do_kham || 'Khám bệnh'}</td>
-                        <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-sky-50 text-sky-700 border border-sky-200">${lh.trang_thai || 'CHO_KHAM'}</span></td>
+                        <td class="py-3 px-4">${badgeHtml}</td>
                     </tr>
                 `;
             }).join('');
@@ -4556,7 +5247,7 @@
                 const hoTenEsc = (b.ho_ten || '').replace(/'/g, "\\'");
                 const avatarThumb = b.avatar 
                     ? `<img src="${b.avatar}" class="w-7 h-7 rounded-lg object-cover border border-sky-300 shadow-xs">` 
-                    : `<div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-[10px]">${(b.ho_ten || 'BS').substring(0, 2).toUpperCase()}</div>`;
+                    : `<div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-[13px]">${(b.ho_ten || 'BS').substring(0, 2).toUpperCase()}</div>`;
 
                 return `
                     <tr class="hover:bg-slate-50/70 transition">
@@ -4571,26 +5262,26 @@
                         <td class="py-2.5 px-3">
                             <button type="button" onclick="moModalSuaGiaKham(${b.id})" class="font-bold text-emerald-600 hover:text-emerald-700 hover:underline inline-flex items-center gap-1 group/p" title="Nhấn để đổi giá khám">
                                 <span>${Number(b.gia_kham || 0).toLocaleString('vi-VN')} đ</span>
-                                <i class="fa-solid fa-pen text-[9px] text-slate-400 group-hover/p:text-amber-600 transition"></i>
+                                <i class="fa-solid fa-pen text-[13px] text-slate-400 group-hover/p:text-amber-600 transition"></i>
                             </button>
                         </td>
                         <td class="py-2.5 px-3 font-medium text-slate-700">${b.phong_kham || 'P201'}</td>
                         <td class="py-2.5 px-3 text-center">
                             <div class="inline-flex items-center space-x-1.5">
                                 <button onclick="moModalSuaGiaKham(${b.id})" class="px-2 py-1 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Sửa đơn giá khám">
-                                    <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i>
+                                    <i class="fa-solid fa-hand-holding-dollar text-[13px]"></i>
                                     <span>Giá</span>
                                 </button>
                                 <button onclick="moModalLichTrucBacSi(${b.id}, '${hoTenEsc}')" class="px-2 py-1 border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Quản lý ca trực / lịch trực">
-                                    <i class="fa-solid fa-calendar-days text-[10px]"></i>
+                                    <i class="fa-solid fa-calendar-days text-[13px]"></i>
                                     <span>Lịch trực</span>
                                 </button>
                                 <button onclick="moModalSuaBacSi(${b.id})" class="px-2 py-1 border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Sửa thông tin bác sĩ">
-                                    <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                    <i class="fa-solid fa-pen-to-square text-[13px]"></i>
                                     <span>Sửa</span>
                                 </button>
                                 <button onclick="xacNhanXoaBacSi(${b.id}, '${hoTenEsc}')" class="px-2 py-1 border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Xóa bác sĩ">
-                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    <i class="fa-solid fa-trash-can text-[13px]"></i>
                                     <span>Xóa</span>
                                 </button>
                             </div>
@@ -4620,11 +5311,11 @@
                         <td class="py-2.5 px-3 text-center">
                             <div class="inline-flex items-center space-x-1.5">
                                 <button onclick="moModalSuaChuyenKhoa(${ck.id})" class="px-2 py-1 border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Sửa chuyên khoa">
-                                    <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                    <i class="fa-solid fa-pen-to-square text-[13px]"></i>
                                     <span>Sửa</span>
                                 </button>
                                 <button onclick="xacNhanXoaChuyenKhoa(${ck.id}, '${tenKhoaEsc}')" class="px-2 py-1 border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Xóa chuyên khoa">
-                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    <i class="fa-solid fa-trash-can text-[13px]"></i>
                                     <span>Xóa</span>
                                 </button>
                             </div>
@@ -4655,10 +5346,10 @@
                 const vaiTro = tk.vai_tro ? (tk.vai_tro.ma_vai_tro || tk.vai_tro.ten_vai_tro) : 'BENH_NHAN';
                 const isLocked = tk.trang_thai === 'BI_KHOA' || tk.trang_thai === 'KHOA';
                 const statusBadge = isLocked
-                    ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ KHÓA</span>'
-                    : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">HOẠT ĐỘNG</span>';
+                    ? '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ KHÓA</span>'
+                    : '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">HOẠT ĐỘNG</span>';
 
-                const lockBtnText = isLocked ? '🔓 Mở Khóa' : '🔒 Khóa';
+                const lockBtnText = isLocked ? 'Mở Khóa' : 'Khóa';
                 const lockBtnClass = isLocked ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100';
                 const newStatus = isLocked ? 'HOAT_DONG' : 'BI_KHOA';
                 const usernameEsc = (tk.ten_dang_nhap || '').replace(/'/g, "\\'");
@@ -4667,7 +5358,7 @@
                 // Bắt buộc: Tài khoản ADMIN tuyệt đối KHÔNG có nút xóa tài khoản
                 const deleteBtnHtml = vaiTro !== 'ADMIN' ? `
                     <button onclick="xacNhanXoaTaiKhoan(${tk.id}, '${usernameEsc}')" class="px-2.5 py-1 border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Xóa tài khoản người dùng">
-                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        <i class="fa-solid fa-trash-can text-[13px]"></i>
                         <span>Xóa</span>
                     </button>
                 ` : '';
@@ -4679,7 +5370,7 @@
                     </button>
                 ` : (isLocked ? `
                     <button onclick="doiTrangThaiTaiKhoan(${tk.id}, 'HOAT_DONG')" class="px-2.5 py-1 border rounded-lg text-xs font-bold transition inline-flex items-center space-x-1 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" title="Mở khóa tài khoản Quản trị">
-                        <span>🔓 Mở Khóa</span>
+                        <span>Mở khóa</span>
                     </button>
                 ` : '');
 
@@ -4690,12 +5381,12 @@
                         <td class="py-3 px-4 font-bold text-slate-900">${tk.ho_ten || '--'}</td>
                         <td class="py-3 px-4 text-slate-500">${tk.email || '--'}</td>
                         <td class="py-3 px-4 text-slate-600">${tk.so_dien_thoai || '--'}</td>
-                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">${vaiTro}</span></td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-slate-100 text-slate-700 border border-[#E3E8EE]">${vaiTro}</span></td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4 text-center">
                             <div class="inline-flex items-center space-x-1.5">
                                 <button onclick="moModalDoiMatKhauAdmin(${tk.id}, '${usernameEsc}', '${fullnameEsc}')" class="px-2.5 py-1 border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-bold transition inline-flex items-center space-x-1" title="Đổi / Đặt lại mật khẩu">
-                                    <i class="fa-solid fa-key text-[10px]"></i>
+                                    <i class="fa-solid fa-key text-[13px]"></i>
                                     <span>Đổi MK</span>
                                 </button>
                                 ${lockBtnHtml}
@@ -4714,7 +5405,7 @@
             }
 
             const confirm = await Swal.fire({
-                title: 'Xóa Tài Khoản?',
+                title: 'Xóa tài khoản?',
                 html: `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản <strong class="text-rose-600 font-mono">${username}</strong>?<br><span class="text-xs text-rose-500 font-bold">Lưu ý: Hành động này sẽ gỡ bỏ dữ liệu liên kết và không thể hoàn tác!</span>`,
                 icon: 'warning',
                 showCancelButton: true,
@@ -4727,7 +5418,7 @@
             if (confirm.isConfirmed) {
                 const res = await goiApi('DELETE', `/api/v1/tai-khoan/${id}`);
                 if (res.ok) {
-                    showToast('success', 'Đã Xóa', `Đã xóa tài khoản "${username}".`);
+                    showToast('success', 'Đã xóa', `Đã xóa tài khoản "${username}".`);
                     await taiDanhSachTaiKhoan();
                     await taiDanhSachBacSi();
                 } else {
@@ -4803,7 +5494,7 @@
             const res = await goiApi('PUT', `/api/v1/bac-si/${id}`, payload);
             if (res.ok) {
                 dongModal('modal-sua-bac-si');
-                showToast('success', 'Thành Công', `Đã cập nhật thông tin bác sĩ ${hoTen}!`);
+                showToast('success', 'Thành công', `Đã cập nhật thông tin bác sĩ ${hoTen}!`);
                 await taiDanhSachBacSi();
                 await taiDanhSachTaiKhoan();
             } else {
@@ -4818,7 +5509,7 @@
             }
 
             const confirm = await Swal.fire({
-                title: 'Xóa Bác Sĩ?',
+                title: 'Xóa bác sĩ?',
                 html: `Bạn có chắc chắn muốn xóa hồ sơ bác sĩ <strong class="text-rose-600">${hoTen}</strong>?<br><span class="text-xs text-slate-500">Tài khoản đăng nhập của bác sĩ cũng sẽ được gỡ bỏ khỏi hệ thống.</span>`,
                 icon: 'warning',
                 showCancelButton: true,
@@ -4831,7 +5522,7 @@
             if (confirm.isConfirmed) {
                 const res = await goiApi('DELETE', `/api/v1/bac-si/${id}`);
                 if (res.ok) {
-                    showToast('success', 'Đã Xóa', `Đã xóa thành công bác sĩ ${hoTen}.`);
+                    showToast('success', 'Đã xóa', `Đã xóa thành công bác sĩ ${hoTen}.`);
                     await taiDanhSachBacSi();
                     await taiDanhSachTaiKhoan();
                 } else {
@@ -4895,7 +5586,7 @@
             const res = await goiApi('PUT', `/api/v1/chuyen-khoa/${id}`, payload);
             if (res.ok) {
                 dongModal('modal-sua-chuyen-khoa');
-                showToast('success', 'Thành Công', `Đã cập nhật chuyên khoa ${ten}!`);
+                showToast('success', 'Thành công', `Đã cập nhật chuyên khoa ${ten}!`);
                 await taiDanhSachChuyenKhoa();
                 await taiDanhSachBacSi();
                 if (typeof taiBangGiaKham === 'function') {
@@ -4913,7 +5604,7 @@
             }
 
             const confirm = await Swal.fire({
-                title: 'Xóa Chuyên Khoa?',
+                title: 'Xóa chuyên khoa?',
                 html: `Bạn có chắc muốn xóa chuyên khoa <strong class="text-rose-600">${tenKhoa}</strong>?<br><span class="text-xs text-slate-500">Lưu ý: Chỉ có thể xóa khi chuyên khoa này chưa được phân bổ bác sĩ nào.</span>`,
                 icon: 'warning',
                 showCancelButton: true,
@@ -4926,7 +5617,7 @@
             if (confirm.isConfirmed) {
                 const res = await goiApi('DELETE', `/api/v1/chuyen-khoa/${id}`);
                 if (res.ok) {
-                    showToast('success', 'Đã Xóa', `Đã xóa chuyên khoa ${tenKhoa}.`);
+                    showToast('success', 'Đã xóa', `Đã xóa chuyên khoa ${tenKhoa}.`);
                     await taiDanhSachChuyenKhoa();
                     if (typeof taiBangGiaKham === 'function') {
                         await taiBangGiaKham();
@@ -5016,16 +5707,16 @@
 
             tbody.innerHTML = danhSach.map((bs, index) => {
                 const avatar = bs.avatar
-                    ? `<img src="${bs.avatar}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-xs">`
-                    : `<div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-xs"><i class="fa-solid fa-user-doctor"></i></div>`;
+                    ? `<img src="${bs.avatar}" class="w-9 h-9 rounded-md object-cover border border-[#E3E8EE] shadow-xs">`
+                    : `<div class="w-9 h-9 rounded-md bg-sky-500 flex items-center justify-center text-white font-bold text-xs shadow-xs"><i class="fa-solid fa-user-doctor"></i></div>`;
 
-                let badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">${bs.phan_khuc}</span>`;
+                let badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[13px] font-bold bg-slate-100 text-slate-700 border border-[#E3E8EE]">${bs.phan_khuc}</span>`;
                 if (bs.phan_khuc.includes('Giáo Sư') || bs.phan_khuc.includes('Đầu Ngành')) {
-                    badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1 w-max"><i class="fa-solid fa-crown text-amber-500 text-[10px]"></i> ${bs.phan_khuc}</span>`;
+                    badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1 w-max"><i class="fa-solid fa-crown text-amber-500 text-[13px]"></i> ${bs.phan_khuc}</span>`;
                 } else if (bs.phan_khuc.includes('Chuyên Gia') || bs.phan_khuc.includes('CKII')) {
-                    badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-50 text-sky-700 border border-sky-200 flex items-center gap-1 w-max"><i class="fa-solid fa-star text-amber-400 text-[10px]"></i> ${bs.phan_khuc}</span>`;
+                    badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-sky-50 text-sky-700 border border-sky-200 flex items-center gap-1 w-max"><i class="fa-solid fa-star text-amber-400 text-[13px]"></i> ${bs.phan_khuc}</span>`;
                 } else if (bs.phan_khuc.includes('VIP')) {
-                    badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1 w-max"><i class="fa-solid fa-gem text-amber-600 text-[10px]"></i> ${bs.phan_khuc}</span>`;
+                    badgePhanKhuc = `<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1 w-max"><i class="fa-solid fa-gem text-amber-600 text-[13px]"></i> ${bs.phan_khuc}</span>`;
                 }
 
                 const hoTenEsc = (bs.ho_ten || '').replace(/'/g, "\\'");
@@ -5034,49 +5725,49 @@
                 if (isAdmin) {
                     actionHtml = `
                         <div class="inline-flex items-center space-x-1.5">
-                            <button onclick="moModalSuaGiaKham(${bs.bac_si_id})" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Cập nhật biểu phí khám">
-                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                            <button onclick="moModalSuaGiaKham(${bs.bac_si_id})" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-md text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Cập nhật biểu phí khám">
+                                <i class="fa-solid fa-pen-to-square text-[13px]"></i>
                                 <span>Sửa giá</span>
                             </button>
-                            <button onclick="datLichTuBangGia(${bs.bac_si_id})" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center space-x-1" title="Đặt lịch thử">
-                                <i class="fa-regular fa-calendar-check text-[11px]"></i>
+                            <button onclick="datLichTuBangGia(${bs.bac_si_id})" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-bold transition flex items-center space-x-1" title="Đặt lịch thử">
+                                <i class="fa-regular fa-calendar-check text-[13px]"></i>
                                 <span>Đặt lịch</span>
                             </button>
                         </div>
                     `;
                 } else {
                     actionHtml = `
-                        <button onclick="datLichTuBangGia(${bs.bac_si_id})" class="px-3 py-1.5 bg-medical-600 hover:bg-medical-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm shadow-medical-600/20" title="Đặt lịch khám ngay với bác sĩ này">
-                            <i class="fa-regular fa-calendar-check text-[11px]"></i>
-                            <span>Đặt Lịch Ngay</span>
+                        <button onclick="datLichTuBangGia(${bs.bac_si_id})" class="px-3 py-1.5 bg-medical-600 hover:bg-medical-700 text-white rounded-md text-xs font-bold transition flex items-center space-x-1.5 shadow-sm" title="Đặt lịch khám ngay với bác sĩ này">
+                            <i class="fa-regular fa-calendar-check text-[13px]"></i>
+                            <span>Đặt lịch ngay</span>
                         </button>
                     `;
                 }
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3 px-3.5 text-center text-slate-400 font-mono text-[11px]">${index + 1}</td>
+                        <td class="py-3 px-3.5 text-center text-slate-400 font-mono text-[13px]">${index + 1}</td>
                         <td class="py-3 px-3.5">
                             <div class="flex items-center space-x-3">
                                 ${avatar}
                                 <div>
                                     <p class="font-extrabold text-slate-900 text-xs">${bs.ho_ten}</p>
-                                    <span class="font-mono text-[10px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100">${bs.ma_bac_si}</span>
+                                    <span class="font-mono text-[13px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100">${bs.ma_bac_si}</span>
                                 </div>
                             </div>
                         </td>
                         <td class="py-3 px-3.5">
-                            <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1.5 w-max">
-                                <i class="fa-solid fa-stethoscope text-[11px]"></i>
+                            <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1.5 w-max">
+                                <i class="fa-solid fa-stethoscope text-[13px]"></i>
                                 <span>${bs.ten_chuyen_khoa}</span>
                             </span>
                         </td>
                         <td class="py-3 px-3.5">
                             <p class="font-semibold text-slate-800 text-xs">${bs.hoc_vi}</p>
-                            <p class="text-[11px] text-slate-500">${bs.kinh_nghiem ? bs.kinh_nghiem : '--'}</p>
+                            <p class="text-[13px] text-slate-500">${bs.kinh_nghiem ? bs.kinh_nghiem : '--'}</p>
                         </td>
                         <td class="py-3 px-3.5">
-                            <span class="font-semibold text-slate-700 text-xs bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/80">
+                            <span class="font-semibold text-slate-700 text-xs bg-slate-100 px-2 py-1 rounded-lg border border-[#E3E8EE]">
                                 <i class="fa-solid fa-door-open text-slate-400 mr-1"></i>${bs.phong_kham || 'P201'}
                             </span>
                         </td>
@@ -5139,7 +5830,7 @@
             const res = await goiApi('PUT', `/api/v1/bac-si/${id}/gia-kham`, { gia_kham: giaMoi });
             if (res.ok) {
                 dongModal('modal-sua-gia-kham');
-                showToast('success', 'Thành Công', res.data.thong_diep || `Đã cập nhật đơn giá khám thành công!`);
+                showToast('success', 'Thành công', res.data.thong_diep || `Đã cập nhật đơn giá khám thành công!`);
                 await taiDanhSachBacSi();
                 await taiBangGiaKham();
             } else {
@@ -5172,7 +5863,7 @@
             const res = await goiApi('PATCH', `/api/v1/tai-khoan/${id}/trang-thai`, { trang_thai: trangThaiMoi });
             if (res.ok) {
                 const nhanTrangThai = trangThaiMoi === 'BI_KHOA' ? 'Đã khóa' : 'Đang hoạt động';
-                showToast('success', 'Thành Công', `Đã cập nhật tài khoản #${id} sang trạng thái "${nhanTrangThai}".`);
+                showToast('success', 'Thành công', `Đã cập nhật tài khoản #${id} sang trạng thái "${nhanTrangThai}".`);
                 await taiDanhSachTaiKhoan();
             } else {
                 showToast('error', 'Lỗi', res.data.thong_diep || 'Không thể đổi trạng thái.');
@@ -5185,7 +5876,7 @@
                 return;
             }
             const { value: matKhauMoi } = await Swal.fire({
-                title: 'Đặt Lại Mật Khẩu',
+                title: 'Đặt lại mật khẩu',
                 html: `
                     <div class="text-left text-xs text-slate-500 mb-3 space-y-1">
                         <div>Tài khoản: <strong class="text-slate-800 font-mono">${username}</strong></div>
@@ -5193,14 +5884,14 @@
                     </div>
                     <div class="text-left">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mật khẩu mới</label>
-                        <input id="swal-input-mk-moi" type="password" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500/20 focus:border-medical-600" placeholder="Tối thiểu 6 ký tự...">
+                        <input id="swal-input-mk-moi" type="password" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-md focus:outline-none focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2]" placeholder="Tối thiểu 6 ký tự...">
                     </div>
                 `,
                 focusConfirm: false,
                 showCancelButton: true,
-                confirmButtonText: '<i class="fa-solid fa-check mr-1.5"></i> Lưu Mật Khẩu Mới',
-                cancelButtonText: 'Hủy Bỏ',
-                confirmButtonColor: '#0284c7',
+                confirmButtonText: '<i class="fa-solid fa-check mr-1.5"></i> lưu mật khẩu mới',
+                cancelButtonText: 'Hủy bỏ',
+                confirmButtonColor: '#1F6FB2',
                 cancelButtonColor: '#94a3b8',
                 preConfirm: () => {
                     const val = document.getElementById('swal-input-mk-moi').value;
@@ -5219,7 +5910,7 @@
                         icon: 'success',
                         title: 'Đổi mật khẩu thành công!',
                         text: `Mật khẩu mới cho tài khoản "${username}" đã được cập nhật thành công.`,
-                        confirmButtonColor: '#0284c7'
+                        confirmButtonColor: '#1F6FB2'
                     });
                 } else {
                     showToast('error', 'Lỗi', res.data.thong_diep || 'Không thể đổi mật khẩu.');
@@ -5235,23 +5926,52 @@
 
         function layDanhSachBenhNhanIdsCuaUser() {
             if (!AppState.currentUser) return [];
-            const uid = AppState.currentUser.id;
+            const uid = Number(AppState.currentUser.id);
             const phone = AppState.currentUser.so_dien_thoai;
-            const ids = [];
+            const uName = (AppState.currentUser.ho_ten || '').toLowerCase().trim();
+            const ids = new Set();
+
+            if (uid) ids.add(uid);
+
+            // 1. Lấy từ CacheHoSoGiaDinh (Hồ sơ bản thân và người thân)
+            if (typeof CacheHoSoGiaDinh !== 'undefined' && Array.isArray(CacheHoSoGiaDinh)) {
+                CacheHoSoGiaDinh.forEach(h => {
+                    if (h.id) ids.add(Number(h.id));
+                });
+            }
+
+            // 2. Lấy từ AppState.danhSachBenhNhan (nếu có dữ liệu)
             if (AppState.danhSachBenhNhan && AppState.danhSachBenhNhan.length > 0) {
                 AppState.danhSachBenhNhan.forEach(bn => {
                     if (bn.tai_khoan_id == uid || (phone && bn.so_dien_thoai == phone)) {
-                        ids.push(Number(bn.id));
+                        ids.add(Number(bn.id));
                     }
                 });
             }
-            if (ids.length === 0 && uid) {
-                ids.push(Number(uid));
+
+            // 3. Lấy từ danh sách lịch hẹn của user
+            if (AppState.danhSachLichHen && AppState.danhSachLichHen.length > 0) {
+                AppState.danhSachLichHen.forEach(lh => {
+                    const matchUser = (lh.tai_khoan_id == uid) ||
+                        (lh.benh_nhan && (lh.benh_nhan.tai_khoan_id == uid || lh.benh_nhan.id == uid)) ||
+                        (phone && (lh.so_dien_thoai == phone || (lh.benh_nhan && lh.benh_nhan.so_dien_thoai == phone))) ||
+                        (uName && ((lh.ho_ten_benh_nhan && lh.ho_ten_benh_nhan.toLowerCase() === uName) || (lh.benh_nhan && lh.benh_nhan.ho_ten && lh.benh_nhan.ho_ten.toLowerCase() === uName)));
+                    
+                    if (matchUser) {
+                        if (lh.benh_nhan_id) ids.add(Number(lh.benh_nhan_id));
+                        if (lh.benh_nhan && lh.benh_nhan.id) ids.add(Number(lh.benh_nhan.id));
+                    }
+                });
             }
-            return ids;
+
+            return Array.from(ids);
         }
 
         function timTenBenhNhanTheoId(benhNhanId, lichHenId = null) {
+            if (typeof CacheHoSoGiaDinh !== 'undefined' && Array.isArray(CacheHoSoGiaDinh) && CacheHoSoGiaDinh.length > 0) {
+                const bn = CacheHoSoGiaDinh.find(b => Number(b.id) === Number(benhNhanId));
+                if (bn && bn.ho_ten) return bn.ho_ten;
+            }
             if (AppState.danhSachBenhNhan && AppState.danhSachBenhNhan.length > 0) {
                 const bn = AppState.danhSachBenhNhan.find(b => Number(b.id) === Number(benhNhanId));
                 if (bn && bn.ho_ten) return bn.ho_ten;
@@ -5263,13 +5983,28 @@
                     if (lh.ho_ten_benh_nhan) return lh.ho_ten_benh_nhan;
                 }
             }
+            if (AppState.currentUser && AppState.currentUser.ho_ten) {
+                return AppState.currentUser.ho_ten;
+            }
             return `Bệnh nhân #${benhNhanId || ''}`;
         }
 
         async function taiDanhSachHoaDon(hienThongBao = false) {
+            // Đảm bảo dữ liệu hồ sơ gia đình đã được tải trước để đối soát chính xác ID bệnh nhân
+            if (AppState.currentUser && AppState.currentUser.vai_tro === 'BENH_NHAN') {
+                if (typeof CacheHoSoGiaDinh === 'undefined' || CacheHoSoGiaDinh.length === 0) {
+                    if (typeof taiVaRenderHoSoGiaDinh === 'function') {
+                        try { await taiVaRenderHoSoGiaDinh(); } catch(e) {}
+                    }
+                }
+            }
             const res = await goiApi('GET', '/api/v1/hoa-don');
             if (res.ok && res.data) {
                 AppState.danhSachHoaDon = Array.isArray(res.data) ? res.data : (res.data.du_lieu || []);
+                AppState.cacCaDaGuiThuNgan = AppState.cacCaDaGuiThuNgan || new Set();
+                AppState.danhSachHoaDon.forEach(hd => {
+                    if (hd.lich_hen_id) AppState.cacCaDaGuiThuNgan.add(Number(hd.lich_hen_id));
+                });
                 renderHoaDonTable(AppState.danhSachHoaDon, boLocHoaDonAdminHienTai);
                 renderHoaDonBenhNhanTable(AppState.danhSachHoaDon, boLocHoaDonBenhNhanHienTai);
                 if (hienThongBao) {
@@ -5306,11 +6041,11 @@
             tbody.innerHTML = filteredList.map(hd => {
                 let statusBadge = '';
                 if (hd.trang_thai === 'DA_THANH_TOAN' || hd.trang_thai === 'PAID') {
-                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>';
                 } else if (hd.trang_thai === 'DA_HOAN_TIEN') {
-                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
                 } else {
-                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
                 }
 
                 const tongTien = Number(hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
@@ -5331,7 +6066,7 @@
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4 text-center">
                             <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 rounded-lg text-xs font-bold transition">
-                                Chi Tiết
+                                Chi tiết
                             </button>
                         </td>
                     </tr>
@@ -5355,12 +6090,37 @@
             if (!tbody) return;
 
             const myBnIds = layDanhSachBenhNhanIdsCuaUser();
+            const u = AppState.currentUser;
+            const uid = u ? Number(u.id) : 0;
+            const phone = u ? u.so_dien_thoai : '';
+            const uName = u ? (u.ho_ten || '').toLowerCase().trim() : '';
+
+            // Lấy danh sách ID lịch hẹn thuộc về bệnh nhân này
+            const myLhIds = new Set();
+            if (AppState.danhSachLichHen && AppState.danhSachLichHen.length > 0) {
+                AppState.danhSachLichHen.forEach(lh => {
+                    const matchUser = (lh.tai_khoan_id == uid) ||
+                        (lh.benh_nhan && (lh.benh_nhan.tai_khoan_id == uid || myBnIds.includes(Number(lh.benh_nhan.id)))) ||
+                        (lh.benh_nhan_id && myBnIds.includes(Number(lh.benh_nhan_id))) ||
+                        (phone && (lh.so_dien_thoai == phone || (lh.benh_nhan && lh.benh_nhan.so_dien_thoai == phone))) ||
+                        (uName && ((lh.ho_ten_benh_nhan && lh.ho_ten_benh_nhan.toLowerCase() === uName) || (lh.benh_nhan && lh.benh_nhan.ho_ten && lh.benh_nhan.ho_ten.toLowerCase() === uName)));
+                    if (matchUser) {
+                        myLhIds.add(Number(lh.id));
+                    }
+                });
+            }
+
             let myList = list || [];
 
             // Nếu là Bệnh nhân, chỉ hiển thị hóa đơn thuộc tài khoản/người thân của mình
-            if (AppState.currentUser && AppState.currentUser.vai_tro === 'BENH_NHAN') {
-                myList = myList.filter(hd => myBnIds.includes(Number(hd.benh_nhan_id)));
+            if (u && u.vai_tro === 'BENH_NHAN') {
+                myList = myList.filter(hd => {
+                    return myBnIds.includes(Number(hd.benh_nhan_id)) || myLhIds.has(Number(hd.lich_hen_id));
+                });
             }
+
+            // Sắp xếp hóa đơn theo ID mới nhất lên trước
+            myList.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
 
             // Thống kê nhanh viện phí của bệnh nhân
             let tongChoThu = 0;
@@ -5407,11 +6167,11 @@
                 const daHoan = (hd.trang_thai === 'DA_HOAN_TIEN');
 
                 if (daThu) {
-                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THANH TOÁN</span>';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THANH TOÁN</span>';
                 } else if (daHoan) {
-                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
                 } else {
-                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THANH TOÁN</span>';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THANH TOÁN</span>';
                 }
 
                 const tongTien = Number(hd.tong_tien || 0).toLocaleString('vi-VN') + ' đ';
@@ -5424,14 +6184,14 @@
                 let btnThaoTac = '';
                 if (!daThu && !daHoan) {
                     btnThaoTac = `
-                        <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1 mx-auto">
+                        <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-bold shadow-xs transition flex items-center gap-1 mx-auto">
                             <i class="fa-solid fa-credit-card"></i>
-                            <span>Thanh Toán</span>
+                            <span>Thanh toán</span>
                         </button>
                     `;
                 } else {
                     btnThaoTac = `
-                        <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-xl text-xs font-bold transition flex items-center gap-1 mx-auto">
+                        <button onclick="xemChiTietHoaDon(${hd.id})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-md text-xs font-bold transition flex items-center gap-1 mx-auto">
                             <i class="fa-solid fa-receipt"></i>
                             <span>Xem & In</span>
                         </button>
@@ -5472,11 +6232,11 @@
 
                 let badgeHtml = '';
                 if (daThu) {
-                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>';
+                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ĐÃ THU</span>';
                 } else if (daHoan) {
-                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
+                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-rose-50 text-rose-700 border border-rose-200">ĐÃ HOÀN TIỀN</span>';
                 } else {
-                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
+                    badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-amber-50 text-amber-700 border border-amber-200">CHỜ THU</span>';
                 }
                 document.getElementById('modal-cthd-trang-thai').innerHTML = badgeHtml;
 
@@ -5543,9 +6303,9 @@
 
         function chonPhuongThuc(btn, pt) {
             document.querySelectorAll('#box-thanh-toan-actions button').forEach(b => {
-                b.className = 'py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold rounded-xl text-center text-xs transition';
+                b.className = 'py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-[#E3E8EE] font-bold rounded-md text-center text-xs transition';
             });
-            btn.className = 'py-2.5 px-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-xl text-center text-xs transition';
+            btn.className = 'py-2.5 px-2 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 font-bold rounded-md text-center text-xs transition';
             AppState.phuongThucThanhToan = pt;
 
             const hd = (AppState.danhSachHoaDon || []).find(h => h.id === AppState.hoaDonDangXemId);
@@ -5572,15 +6332,15 @@
             if (pt === 'CHUYEN_KHOAN') {
                 qrTitle.textContent = 'Quét mã VietQR chuyển khoản nhanh 24/7:';
                 qrImg.src = `https://api.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(code)}`;
-                qrInfo.innerHTML = `Ngân hàng: <strong>MBBank Quân Đội</strong><br>Số tài khoản: <strong class="font-mono text-sky-800">0123456789</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Nội dung CK: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">${code}</strong>`;
+                qrInfo.innerHTML = `Ngân hàng: <strong>MBBank quân đội</strong><br>Số tài khoản: <strong class="font-mono text-sky-800">0123456789</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Nội dung CK: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-[#E3E8EE]">${code}</strong>`;
             } else if (pt === 'VNPAY') {
-                qrTitle.textContent = 'Cổng Thanh Toán Quốc Gia VNPAY-QR (Mô Phỏng):';
+                qrTitle.textContent = 'Cổng thanh toán quốc gia VNPAY-QR (mô phỏng):';
                 qrImg.src = `https://api.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${amount}&addInfo=VNPAY_${encodeURIComponent(code)}`;
-                qrInfo.innerHTML = `Cổng thanh toán: <strong>VNPAY Cổng Quốc Gia</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Mã giao dịch: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">VNPAY_${code}</strong>`;
+                qrInfo.innerHTML = `Cổng thanh toán: <strong>VNPAY cổng quốc gia</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Mã giao dịch: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-[#E3E8EE]">VNPAY_${code}</strong>`;
             } else if (pt === 'MOMO') {
-                qrTitle.textContent = 'Ví Điện Tử MoMo QR (Mô Phỏng):';
+                qrTitle.textContent = 'Ví điện tử MoMo QR (mô phỏng):';
                 qrImg.src = `https://api.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${amount}&addInfo=MOMO_${encodeURIComponent(code)}`;
-                qrInfo.innerHTML = `Ví điện tử: <strong>MoMo Healthcare</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Mã giao dịch: <strong class="font-mono text-rose-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">MOMO_${code}</strong>`;
+                qrInfo.innerHTML = `Ví điện tử: <strong>MoMo Healthcare</strong><br>Số tiền: <strong class="text-emerald-600 font-black">${amount.toLocaleString('vi-VN')} đ</strong><br>Mã giao dịch: <strong class="font-mono text-rose-700 bg-white px-1.5 py-0.5 rounded border border-[#E3E8EE]">MOMO_${code}</strong>`;
             }
         }
 
@@ -5623,7 +6383,7 @@
                     <style>
                         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #1e293b; max-width: 800px; margin: 0 auto; }
                         .header { text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 15px; margin-bottom: 20px; }
-                        .title { font-size: 20px; font-weight: 800; color: #0284c7; margin: 8px 0; text-transform: uppercase; }
+                        .title { font-size: 20px; font-weight: 800; color: #0284c7; margin: 8px 0; text-transform: ; }
                         .meta-table { width: 100%; margin-bottom: 20px; font-size: 13px; }
                         .meta-table td { padding: 4px 0; }
                         .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
@@ -5639,7 +6399,7 @@
                 </head>
                 <body>
                     <div class="header">
-                        <div style="font-weight: bold; font-size: 14px; color: #64748b; text-transform: uppercase;">PHÒNG KHÁM ĐA KHOA QUỐC TẾ - HỆ THỐNG Y TẾ SỐ</div>
+                        <div style="font-weight: bold; font-size: 14px; color: #64748b; text-transform: ;">PHÒNG KHÁM ĐA KHOA QUỐC TẾ - HỆ THỐNG Y TẾ SỐ</div>
                         <div class="title">BIÊN LAI THU TIỀN VIỆN PHÍ & DỊCH VỤ</div>
                         <div style="font-size: 12px; color: #64748b;">Mã hóa đơn: <strong style="color: #0f172a; font-family: monospace;">${hd.ma_hoa_don || ('HD-' + hd.id)}</strong> | Ngày in: ${new Date().toLocaleDateString('vi-VN')}</div>
                     </div>
@@ -5659,7 +6419,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 40px;">STT</th>
-                                <th>Nội dung chi phí & Dịch vụ</th>
+                                <th>Nội dung chi phí & dịch vụ</th>
                                 <th style="width: 50px;">SL</th>
                                 <th style="width: 120px;">Đơn giá</th>
                                 <th style="width: 140px;">Thành tiền</th>
@@ -5676,7 +6436,7 @@
                             <td style="text-align: right; font-weight: bold;">${Number(hd.tong_tien || 0).toLocaleString('vi-VN')} đ</td>
                         </tr>
                         <tr>
-                            <td>Miễn giảm / Ưu đãi:</td>
+                            <td>Miễn giảm / ưu đãi:</td>
                             <td style="text-align: right; color: #e11d48;">-${Number(hd.giam_gia || 0).toLocaleString('vi-VN')} đ</td>
                         </tr>
                         <tr style="border-top: 1.5px solid #0284c7; font-size: 15px;">
@@ -5687,17 +6447,17 @@
 
                     <div class="footer">
                         <div>
-                            <div><strong>Người Nộp Tiền</strong></div>
+                            <div><strong>Người nộp tiền</strong></div>
                             <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">(Ký, ghi rõ họ tên)</div>
                         </div>
                         <div>
-                            <div><strong>Bộ Phận Thu Ngân</strong></div>
+                            <div><strong>Bộ phận thu ngân</strong></div>
                             <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">(Ký, đóng dấu)</div>
-                            <div style="margin-top: 50px; font-weight: bold;">Bộ Phận Tài Chính Viện Phí</div>
+                            <div style="margin-top: 50px; font-weight: bold;">Bộ phận tài chính viện phí</div>
                         </div>
                     </div>
                     <div style="text-align: center; margin-top: 35px;" class="no-print">
-                        <button onclick="window.print()" style="padding: 10px 24px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">In Biên Lai Này</button>
+                        <button onclick="window.print()" style="padding: 10px 24px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">In biên lai này</button>
                     </div>
                 </body>
                 </html>
@@ -5731,7 +6491,7 @@
                     icon: 'success',
                     title: 'Hoàn tiền thành công!',
                     text: `Hóa đơn đã được chuyển sang trạng thái ĐÃ HOÀN TIỀN.`,
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 });
                 dongModal('modal-hoan-tien-hoa-don');
                 dongModal('modal-chi-tiet-hoa-don');
@@ -5754,7 +6514,7 @@
                     icon: 'success',
                     title: 'Thanh toán thành công!',
                     text: `Hóa đơn #${AppState.hoaDonDangXemId} đã hoàn tất thanh toán.`,
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 });
                 dongModal('modal-chi-tiet-hoa-don');
                 await taiDanhSachHoaDon();
@@ -6003,7 +6763,7 @@
                     itemsRows += `
                         <tr style="border-bottom: 1px solid #e2e8f0;">
                             <td style="padding: 8px; text-align: center;">2</td>
-                            <td style="padding: 8px; font-weight: 600;">Các dịch vụ xét nghiệm & Cận lâm sàng</td>
+                            <td style="padding: 8px; font-weight: 600;">Các dịch vụ xét nghiệm & cận lâm sàng</td>
                             <td style="padding: 8px; color: #64748b; font-size: 11px;">Cận lâm sàng</td>
                             <td style="padding: 8px; text-align: center;">1</td>
                             <td style="padding: 8px; text-align: right;">${td.toLocaleString('vi-VN')} đ</td>
@@ -6039,18 +6799,18 @@
                         body { font-family: "Segoe UI", Roboto, Arial, sans-serif; font-size: 12px; color: #1e293b; background: #fff; padding: 25px; line-height: 1.45; }
                         .header-table { width: 100%; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 15px; }
                         .title-section { text-align: center; margin: 15px 0 20px 0; }
-                        .title-section h1 { font-size: 18px; font-weight: 900; text-transform: uppercase; color: #0f172a; letter-spacing: 0.5px; }
+                        .title-section h1 { font-size: 18px; font-weight: 900; text-transform: ; color: #0f172a; letter-spacing: 0.5px; }
                         .title-section p { font-size: 11px; color: #64748b; font-style: italic; margin-top: 3px; }
                         .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 15px; }
                         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
                         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-                        .items-table th { background: #f1f5f9; padding: 8px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #475569; border-bottom: 2px solid #cbd5e1; }
+                        .items-table th { background: #f1f5f9; padding: 8px; text-align: left; font-size: 11px; font-weight: 800; text-transform: ; color: #475569; border-bottom: 2px solid #cbd5e1; }
                         .summary-box { float: right; width: 340px; margin-bottom: 20px; }
                         .summary-table { width: 100%; border-collapse: collapse; }
                         .summary-table td { padding: 4px 8px; }
                         .sign-section { clear: both; width: 100%; margin-top: 30px; display: table; }
                         .sign-col { display: table-cell; width: 33.33%; text-align: center; vertical-align: top; }
-                        .sign-title { font-weight: 800; font-size: 12px; text-transform: uppercase; color: #334155; }
+                        .sign-title { font-weight: 800; font-size: 12px; text-transform: ; color: #334155; }
                         .sign-sub { font-size: 10px; color: #64748b; font-style: italic; margin-top: 2px; }
                         .sign-space { height: 75px; }
                         .sign-name { font-weight: 700; font-size: 12px; color: #0f172a; }
@@ -6065,8 +6825,8 @@
                     <table class="header-table">
                         <tr>
                             <td style="width: 60%; vertical-align: top;">
-                                <div style="font-size: 15px; font-weight: 900; color: #0284c7; text-transform: uppercase; letter-spacing: 0.5px;">PHÒNG KHÁM ĐA KHOA QUỐC TẾ DV</div>
-                                <div style="font-size: 11px; color: #475569; margin-top: 3px;">Địa chỉ: 123 Đường Y Học, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</div>
+                                <div style="font-size: 15px; font-weight: 900; color: #0284c7; text-transform: ; letter-spacing: 0.5px;">PHÒNG KHÁM ĐA KHOA QUỐC TẾ DV</div>
+                                <div style="font-size: 11px; color: #475569; margin-top: 3px;">Địa chỉ: 123 Đường Y học, phường bến nghé, quận 1, TP. Hồ chí minh</div>
                                 <div style="font-size: 11px; color: #475569;">Hotline cấp cứu: <strong>1900 8888</strong> | Bàn trực: (028) 3822 9999</div>
                                 <div style="font-size: 11px; color: #475569;">Website: www.phongkhamdv.vn | Email: lienhe@phongkhamdv.vn</div>
                             </td>
@@ -6081,13 +6841,13 @@
 
                     <div class="title-section">
                         <h1>HÓA ĐƠN VIỆN PHÍ & PHIẾU THU KHÁM BỆNH</h1>
-                        <p>(Bản thể hiện hóa đơn điện tử liên dịch vụ - Kèm phiếu chỉ định cận lâm sàng)</p>
+                        <p>(Bản thể hiện hóa đơn điện tử liên dịch vụ - kèm phiếu chỉ định cận lâm sàng)</p>
                     </div>
 
                     <div class="info-box">
                         <div class="info-grid">
-                            <div><strong>Họ và tên người bệnh:</strong> <span style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase;">${tenBn}</span></div>
-                            <div><strong>Giới tính / Tuổi:</strong> ${gioiTinh} | ${dobStr}</div>
+                            <div><strong>Họ và tên người bệnh:</strong> <span style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: ;">${tenBn}</span></div>
+                            <div><strong>Giới tính / tuổi:</strong> ${gioiTinh} | ${dobStr}</div>
                             <div><strong>Số điện thoại:</strong> ${sdtBn}</div>
                             <div><strong>Địa chỉ:</strong> ${diaChiBn}</div>
                             <div><strong>Bác sĩ phụ trách:</strong> ${tenBacSi} (${tenKhoa})</div>
@@ -6100,11 +6860,11 @@
                         <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">STT</th>
-                                <th style="width: 45%;">Hạng Mục Dịch Vụ / Khám Chữa Bệnh</th>
-                                <th style="width: 20%;">Phân Loại</th>
+                                <th style="width: 45%;">Hạng mục dịch vụ / khám chữa bệnh</th>
+                                <th style="width: 20%;">Phân loại</th>
                                 <th style="width: 8%; text-align: center;">SL</th>
-                                <th style="width: 11%; text-align: right;">Đơn Giá</th>
-                                <th style="width: 11%; text-align: right;">Thành Tiền</th>
+                                <th style="width: 11%; text-align: right;">Đơn giá</th>
+                                <th style="width: 11%; text-align: right;">Thành tiền</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -6124,7 +6884,7 @@
                             </tr>
                             ${giamGia > 0 ? `
                             <tr>
-                                <td style="color: #059669;">Miễn giảm / Ưu đãi BHYT:</td>
+                                <td style="color: #059669;">Miễn giảm / ưu đãi BHYT:</td>
                                 <td style="text-align: right; font-weight: 600; color: #059669;">-${giamGia.toLocaleString('vi-VN')} đ</td>
                             </tr>
                             ` : ''}
@@ -6141,27 +6901,27 @@
 
                     <div class="sign-section">
                         <div class="sign-col">
-                            <div class="sign-title">Bệnh Nhân / Thân Nhân</div>
+                            <div class="sign-title">Bệnh nhân / thân nhân</div>
                             <div class="sign-sub">(Ký & ghi rõ họ tên)</div>
                             <div class="sign-space"></div>
                             <div class="sign-name">${tenBn}</div>
                         </div>
                         <div class="sign-col">
-                            <div class="sign-title">Bác Sĩ Khám Bệnh</div>
+                            <div class="sign-title">Bác sĩ khám bệnh</div>
                             <div class="sign-sub">(Ký, đóng dấu chức danh)</div>
                             <div class="sign-space"></div>
                             <div class="sign-name">${tenBacSi}</div>
                         </div>
                         <div class="sign-col">
-                            <div class="sign-title">Người Thu Tiền / Thu Ngân</div>
+                            <div class="sign-title">Người thu tiền / thu ngân</div>
                             <div class="sign-sub">(Ký & đóng dấu biên lai)</div>
                             <div class="sign-space"></div>
-                            <div class="sign-name">Bộ Phận Thu Ngân DV</div>
+                            <div class="sign-name">Bộ phận thu ngân DV</div>
                         </div>
                     </div>
 
                     <div class="footer-note">
-                        <p>Cảm ơn Quý khách đã tin tưởng khám chữa bệnh tại Phòng Khám Đa Khoa DV.</p>
+                        <p>Cảm ơn quý khách đã tin tưởng khám chữa bệnh tại phòng khám đa khoa DV.</p>
                         <p>Quý khách vui lòng lưu giữ hóa đơn để tái khám, lấy kết quả xét nghiệm hoặc thanh toán với công ty bảo hiểm.</p>
                         <p style="margin-top: 3px; font-family: monospace;">Mã tra cứu biên lai điện tử: <strong>PKDV-${hd.id || '8'}-${Date.now().toString().slice(-4)}</strong></p>
                     </div>
@@ -6179,7 +6939,7 @@
                     printWindow.close();
                 }, 500);
             } else {
-                showToast('error', 'Trình duyệt chặn Pop-up', 'Vui lòng cho phép Pop-up để mở cửa sổ in hóa đơn.');
+                showToast('error', 'Trình duyệt chặn pop-up', 'Vui lòng cho phép Pop-up để mở cửa sổ in hóa đơn.');
             }
         }
 
@@ -6228,8 +6988,8 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Thêm bác sĩ thành công!',
-                    text: `Đã tạo hồ sơ và cấp tài khoản cho BS. ${hoTen}`,
-                    confirmButtonColor: '#0284c7'
+                    text: `Đã tạo hồ sơ và cấp tài khoản cho ${formatTenBacSi(hoTen)}`,
+                    confirmButtonColor: '#1F6FB2'
                 });
                 dongModal('modal-them-bac-si');
                 await taiDanhSachBacSi();
@@ -6273,7 +7033,7 @@
                     icon: 'success',
                     title: 'Thêm chuyên khoa thành công!',
                     text: `Khoa ${ten} đã được thêm vào hệ thống.`,
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 });
                 dongModal('modal-them-chuyen-khoa');
                 await taiDanhSachChuyenKhoa();
@@ -6298,10 +7058,10 @@
             window.ClinicChartInstances.currentRange = mode;
             document.querySelectorAll('.btn-chart-filter').forEach(b => {
                 b.classList.remove('bg-medical-600', 'text-white', 'shadow-sm');
-                b.classList.add('text-slate-400', 'hover:text-white');
+                b.classList.add('text-slate-600', 'hover:text-slate-900');
             });
             if (btn) {
-                btn.classList.remove('text-slate-400', 'hover:text-white');
+                btn.classList.remove('text-slate-600', 'hover:text-slate-900');
                 btn.classList.add('bg-medical-600', 'text-white', 'shadow-sm');
             }
             khoiTaoBieuDoThongKe(mode);
@@ -6430,8 +7190,8 @@
             // --- VẼ BIỂU ĐỒ 1: DOANH THU & TIẾP ĐÓN (LINE/AREA) ---
             const ctxDoanhThu = cDoanhThu.getContext('2d');
             const gradientBlue = ctxDoanhThu.createLinearGradient(0, 0, 0, 300);
-            gradientBlue.addColorStop(0, 'rgba(14, 165, 233, 0.35)');
-            gradientBlue.addColorStop(1, 'rgba(14, 165, 233, 0.01)');
+            gradientBlue.addColorStop(0, 'rgba(31, 111, 178, 0.35)');
+            gradientBlue.addColorStop(1, 'rgba(31, 111, 178, 0.01)');
 
             window.ClinicChartInstances.doanhThu = new Chart(ctxDoanhThu, {
                 type: 'line',
@@ -6441,12 +7201,12 @@
                         {
                             label: 'Doanh Thu Viện Phí (VNĐ)',
                             data: revenueData,
-                            borderColor: '#0ea5e9',
+                            borderColor: '#1F6FB2',
                             backgroundColor: gradientBlue,
                             borderWidth: 2.5,
                             fill: true,
                             tension: 0.38,
-                            pointBackgroundColor: '#0284c7',
+                            pointBackgroundColor: '#1F6FB2',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
                             pointRadius: 4.5,
@@ -6456,13 +7216,13 @@
                         {
                             label: 'Lượt Khám Tiếp Đón',
                             data: appointmentsData,
-                            borderColor: '#a855f7',
-                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            borderColor: '#94A3B8',
+                            backgroundColor: 'rgba(100, 116, 139, 0.1)',
                             borderWidth: 2,
                             borderDash: [4, 4],
                             fill: false,
                             tension: 0.35,
-                            pointBackgroundColor: '#9333ea',
+                            pointBackgroundColor: '#64748B',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
                             pointRadius: 4,
@@ -6482,8 +7242,8 @@
                         legend: { display: false },
                         tooltip: {
                             backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
-                            bodyFont: { family: 'Plus Jakarta Sans', size: 11 },
+                            titleFont: { family: 'Be Vietnam Pro', size: 12, weight: 'bold' },
+                            bodyFont: { family: 'Be Vietnam Pro', size: 11 },
                             padding: 10,
                             boxPadding: 4,
                             cornerRadius: 10,
@@ -6500,7 +7260,7 @@
                     scales: {
                         x: {
                             grid: { display: false },
-                            ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#64748b' }
+                            ticks: { font: { family: 'Be Vietnam Pro', size: 10 }, color: '#64748b' }
                         },
                         y: {
                             type: 'linear',
@@ -6508,8 +7268,8 @@
                             position: 'left',
                             grid: { color: 'rgba(226, 232, 240, 0.6)' },
                             ticks: {
-                                font: { family: 'Plus Jakarta Sans', size: 10 },
-                                color: '#0284c7',
+                                font: { family: 'Be Vietnam Pro', size: 10 },
+                                color: '#1F6FB2',
                                 callback: function(value) {
                                     if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
                                     if (value >= 1000) return (value / 1000).toFixed(0) + 'k';
@@ -6523,8 +7283,8 @@
                             position: 'right',
                             grid: { drawOnChartArea: false },
                             ticks: {
-                                font: { family: 'Plus Jakarta Sans', size: 10 },
-                                color: '#9333ea',
+                                font: { family: 'Be Vietnam Pro', size: 10 },
+                                color: '#64748B',
                                 stepSize: 1,
                                 callback: value => value + ' ca'
                             }
@@ -6537,10 +7297,10 @@
             const cPhuongThuc = document.getElementById('chart-phuong-thuc-thanh-toan');
             if (cPhuongThuc) {
                 const methodStats = {
-                    'VNPAY': { ten: 'VNPAY QR', tong: 0, count: 0, color: '#0284c7' },
+                    'VNPAY': { ten: 'VNPAY QR', tong: 0, count: 0, color: '#1F6FB2' },
                     'CHUYEN_KHOAN': { ten: 'Chuyển Khoản', tong: 0, count: 0, color: '#10b981' },
                     'TIEN_MAT': { ten: 'Tiền Mặt', tong: 0, count: 0, color: '#f59e0b' },
-                    'MOMO': { ten: 'Ví MoMo', tong: 0, count: 0, color: '#ec4899' }
+                    'MOMO': { ten: 'Ví MoMo', tong: 0, count: 0, color: '#4F91C9' }
                 };
 
                 hoaDons.forEach(hd => {
@@ -6559,7 +7319,7 @@
                 if (ptTotalAmount === 0) {
                     ptLabels = ['VNPAY QR', 'Chuyển Khoản', 'Tiền Mặt', 'Ví MoMo'];
                     ptData = [3850000, 300000, 200000, 0];
-                    ptColors = ['#0284c7', '#10b981', '#f59e0b', '#ec4899'];
+                    ptColors = ['#1F6FB2', '#10b981', '#f59e0b', '#4F91C9'];
                     ptTotalAmount = 4350000;
                 } else {
                     Object.values(methodStats).forEach(item => {
@@ -6589,8 +7349,8 @@
                             legend: { display: false },
                             tooltip: {
                                 backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                                titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
-                                bodyFont: { family: 'Plus Jakarta Sans', size: 11 },
+                                titleFont: { family: 'Be Vietnam Pro', size: 12, weight: 'bold' },
+                                bodyFont: { family: 'Be Vietnam Pro', size: 11 },
                                 cornerRadius: 10,
                                 callbacks: {
                                     label: function(context) {
@@ -6618,7 +7378,7 @@
                                 </span>
                                 <div class="flex items-center gap-2">
                                     <span class="font-extrabold text-slate-800">${val.toLocaleString('vi-VN')} đ</span>
-                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600">${pct}%</span>
+                                    <span class="text-[13px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600">${pct}%</span>
                                 </div>
                             </div>
                         `;
@@ -6683,12 +7443,12 @@
                             label: 'Số Lượt Đặt Khám',
                             data: ckValues,
                             backgroundColor: [
-                                '#0284c7',
-                                '#0ea5e9',
-                                '#06b6d4',
-                                '#6366f1',
-                                '#8b5cf6',
-                                '#ec4899'
+                                '#1F6FB2',
+                                '#1F6FB2',
+                                '#B3D1EB',
+                                '#144A78',
+                                '#82B3DC',
+                                '#4F91C9'
                             ],
                             borderRadius: 8,
                             barPercentage: 0.6
@@ -6709,11 +7469,11 @@
                         scales: {
                             x: {
                                 grid: { display: false },
-                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } }
+                                ticks: { font: { family: 'Be Vietnam Pro', size: 10 } }
                             },
                             y: {
                                 beginAtZero: true,
-                                ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 10 } },
+                                ticks: { stepSize: 1, font: { family: 'Be Vietnam Pro', size: 10 } },
                                 grid: { color: 'rgba(226, 232, 240, 0.6)' }
                             }
                         }
@@ -6768,8 +7528,8 @@
                             ],
                             backgroundColor: [
                                 '#10b981',
-                                '#0ea5e9',
-                                '#6366f1',
+                                '#1F6FB2',
+                                '#144A78',
                                 '#f59e0b',
                                 '#f43f5e'
                             ],
@@ -6787,7 +7547,7 @@
                                 position: 'bottom',
                                 labels: {
                                     boxWidth: 10,
-                                    font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }
+                                    font: { family: 'Be Vietnam Pro', size: 10, weight: '600' }
                                 }
                             },
                             tooltip: {
@@ -6812,9 +7572,9 @@
                             label: 'Tỷ lệ tải request Gateway (%)',
                             data: [22, 41, 18, 19],
                             backgroundColor: [
-                                '#0d9488',
-                                '#0284c7',
-                                '#8b5cf6',
+                                '#2A7BBE',
+                                '#1F6FB2',
+                                '#82B3DC',
                                 '#10b981'
                             ],
                             borderRadius: 6,
@@ -6837,12 +7597,12 @@
                         scales: {
                             x: {
                                 max: 100,
-                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, callback: v => v + '%' },
+                                ticks: { font: { family: 'Be Vietnam Pro', size: 10 }, callback: v => v + '%' },
                                 grid: { color: 'rgba(226, 232, 240, 0.6)' }
                             },
                             y: {
                                 grid: { display: false },
-                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' } }
+                                ticks: { font: { family: 'Be Vietnam Pro', size: 10, weight: '600' } }
                             }
                         }
                     }
@@ -6862,7 +7622,7 @@
                 capNhatBadgeService('badge-svc-3', list['clinical-service']);
                 capNhatBadgeService('badge-svc-4', list['billing-service']);
 
-                showToast('success', 'Hệ Thống Trực Tuyến', 'Cả 4 Microservices đều đang ONLINE!');
+                showToast('success', 'Hệ thống trực tuyến', 'Cả 4 Microservices đều đang ONLINE!');
             }
         }
 
@@ -6870,10 +7630,10 @@
             const el = document.getElementById(elementId);
             if (!el) return;
             if (svcData && svcData.trang_thai === 'ONLINE') {
-                el.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                el.className = 'px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
                 el.textContent = `ONLINE (${svcData.do_tre_ms || 0}ms)`;
             } else {
-                el.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200';
+                el.className = 'px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-rose-50 text-rose-700 border border-rose-200';
                 el.textContent = 'OFFLINE';
             }
         }
@@ -7020,7 +7780,7 @@
                     icon: 'success',
                     title: 'Cập nhật thành công!',
                     text: 'Hồ sơ cá nhân của bạn đã được cập nhật thành công.',
-                    confirmButtonColor: '#0284c7'
+                    confirmButtonColor: '#1F6FB2'
                 });
                 dongModal('modal-ho-so-ca-nhan');
             } else {
@@ -7069,9 +7829,35 @@
 
         async function moModalLichTrucBacSi(bacSiId, hoTen = '') {
             document.getElementById('modal-lt-bac-si-id').value = bacSiId;
-            document.getElementById('modal-lt-bac-si-name').textContent = hoTen ? ('BS. ' + hoTen) : 'Bác sĩ';
             
-            const bs = AppState.danhSachBacSi.find(b => b.id == bacSiId);
+            const bs = (AppState.danhSachBacSi || []).find(b => b.id == bacSiId);
+            const tenHienThi = formatTenBacSi(hoTen || (bs ? bs.ho_ten : ''));
+            const isAdmin = Boolean(AppState.currentUser && AppState.currentUser.vai_tro === 'ADMIN');
+            
+            const titleEl = document.getElementById('modal-lt-title');
+            if (titleEl) {
+                titleEl.textContent = isAdmin ? 'Quản lý lịch trực bác sĩ' : 'Lịch trực của tôi';
+            }
+            
+            const nameEl = document.getElementById('modal-lt-bac-si-name');
+            if (nameEl) {
+                nameEl.textContent = isAdmin ? `Đang quản lý ca trực: ${tenHienThi}` : tenHienThi;
+            }
+
+            // Dropdown chọn bác sĩ cho Admin
+            const selectWrapper = document.getElementById('modal-lt-select-bs-wrapper');
+            const selectEl = document.getElementById('modal-lt-select-bs');
+            if (selectWrapper && selectEl) {
+                if (isAdmin && (AppState.danhSachBacSi || []).length > 0) {
+                    selectWrapper.classList.remove('hidden');
+                    selectEl.innerHTML = AppState.danhSachBacSi.map(b => 
+                        `<option value="${b.id}" ${b.id == bacSiId ? 'selected' : ''}>${formatTenBacSi(b.ho_ten)} (${(b.chuyen_khoa && (b.chuyen_khoa.ten_khoa || b.chuyen_khoa.ten_chuyen_khoa)) || 'Khoa khám'})</option>`
+                    ).join('');
+                } else {
+                    selectWrapper.classList.add('hidden');
+                }
+            }
+            
             if (bs) {
                 document.getElementById('modal-lt-phong').value = bs.phong_kham || 'P201';
             }
@@ -7083,26 +7869,40 @@
             await taiLichTrucBacSi(bacSiId);
         }
 
+        function doiBacSiXemLichTruc(bacSiId) {
+            const bs = (AppState.danhSachBacSi || []).find(b => b.id == bacSiId);
+            if (bs) {
+                moModalLichTrucBacSi(bs.id, bs.ho_ten);
+            }
+        }
+
         async function moModalLichTrucBacSiHienTai() {
             if (!AppState.currentUser) return;
+            const role = chuanHoaVaiTroCurrentUser();
+            
             let bsId = AppState.currentUser.bac_si ? AppState.currentUser.bac_si.id : null;
-            let hoTen = AppState.currentUser.ho_ten || 'Tôi';
+            let hoTen = AppState.currentUser.ho_ten || '';
 
             if (!bsId) {
-                const match = AppState.danhSachBacSi.find(b => b.tai_khoan_id == AppState.currentUser.id || b.email == AppState.currentUser.email);
+                const match = (AppState.danhSachBacSi || []).find(b => b.tai_khoan_id == AppState.currentUser.id || b.email == AppState.currentUser.email);
                 if (match) {
                     bsId = match.id;
                     hoTen = match.ho_ten;
                 }
             }
 
-            if (!bsId && AppState.danhSachBacSi.length > 0) {
-                bsId = AppState.danhSachBacSi[0].id;
-                hoTen = AppState.danhSachBacSi[0].ho_ten;
-            }
-
-            if (!bsId) {
-                showToast('error', 'Chưa tìm thấy', 'Không tìm thấy hồ sơ bác sĩ liên kết.');
+            // Nếu là ADMIN (không phải bác sĩ), mở quản lý ca trực cho bác sĩ đầu tiên kèm theo dropdown chọn bác sĩ
+            if (!bsId && role === 'ADMIN') {
+                if ((AppState.danhSachBacSi || []).length > 0) {
+                    bsId = AppState.danhSachBacSi[0].id;
+                    hoTen = AppState.danhSachBacSi[0].ho_ten;
+                } else {
+                    showToast('info', 'Thông báo', 'Hệ thống chưa có danh sách bác sĩ nào để quản lý ca trực.');
+                    return;
+                }
+            } else if (!bsId) {
+                // Nếu là BAC_SI nhưng chưa link hồ sơ
+                showToast('error', 'Chưa tìm thấy', 'Tài khoản của bạn chưa được liên kết với hồ sơ bác sĩ.');
                 return;
             }
 
@@ -7138,13 +7938,13 @@
                     let trangThaiHtml = '';
                     const tt = s.trang_thai || 'CHO_DUYET';
                     if (tt === 'HOAT_DONG') {
-                        trangThaiHtml = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border bg-emerald-50 text-emerald-800 border-emerald-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Đã Duyệt (Hoạt Động)</span>';
+                        trangThaiHtml = '<span class="px-2.5 py-1 rounded-lg text-[13px] font-extrabold border bg-emerald-50 text-emerald-800 border-emerald-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Đã duyệt (hoạt động)</span>';
                     } else if (tt === 'CHO_DUYET') {
-                        trangThaiHtml = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border bg-amber-50 text-amber-800 border-amber-300 inline-flex items-center gap-1.5 animate-pulse"><i class="fa-solid fa-clock text-amber-500"></i> Chờ Admin Duyệt</span>';
+                        trangThaiHtml = '<span class="px-2.5 py-1 rounded-lg text-[13px] font-extrabold border bg-amber-50 text-amber-800 border-amber-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-clock text-amber-500"></i> Chờ admin duyệt</span>';
                     } else if (tt === 'TU_CHOI') {
-                        trangThaiHtml = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border bg-rose-50 text-rose-800 border-rose-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-600"></i> Bị Từ Chối</span>';
+                        trangThaiHtml = '<span class="px-2.5 py-1 rounded-lg text-[13px] font-extrabold border bg-rose-50 text-rose-800 border-rose-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-600"></i> Bị từ chối</span>';
                     } else {
-                        trangThaiHtml = `<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold border bg-slate-50 text-slate-600 border-slate-200">${tt}</span>`;
+                        trangThaiHtml = `<span class="px-2 py-0.5 rounded-lg text-[13px] font-bold border bg-slate-50 text-slate-600 border-[#E3E8EE]">${tt}</span>`;
                     }
 
                     const sJson = JSON.stringify(s).replace(/"/g, '&quot;');
@@ -7153,14 +7953,14 @@
                     if (isAdmin) {
                         if (tt === 'CHO_DUYET' || tt === 'TU_CHOI') {
                             adminBtns += `
-                                <button type="button" onclick="duyetCaTruc(${s.id}, ${bacSiId})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-extrabold transition shadow-xs flex items-center gap-1" title="Duyệt kích hoạt ca trực này">
+                                <button type="button" onclick="duyetCaTruc(${s.id}, ${bacSiId})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[13px] font-extrabold transition shadow-xs flex items-center gap-1" title="Duyệt kích hoạt ca trực này">
                                     <i class="fa-solid fa-check"></i> Duyệt
                                 </button>
                             `;
                         }
                         if (tt === 'CHO_DUYET' || tt === 'HOAT_DONG') {
                             adminBtns += `
-                                <button type="button" onclick="tuChoiCaTruc(${s.id}, ${bacSiId})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-extrabold transition shadow-xs flex items-center gap-1" title="Từ chối ca trực này">
+                                <button type="button" onclick="tuChoiCaTruc(${s.id}, ${bacSiId})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[13px] font-extrabold transition shadow-xs flex items-center gap-1" title="Từ chối ca trực này">
                                     <i class="fa-solid fa-ban"></i> Từ chối
                                 </button>
                             `;
@@ -7171,7 +7971,7 @@
                         <tr class="hover:bg-slate-50 transition">
                             <td class="py-2.5 px-3 font-bold text-slate-800">${tenThu}</td>
                             <td class="py-2.5 px-3">
-                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${caBadge}">${tenCa}</span>
+                                <span class="px-2.5 py-1 rounded-lg text-[13px] font-bold border ${caBadge}">${tenCa}</span>
                             </td>
                             <td class="py-2.5 px-3 font-mono font-semibold text-slate-700">${s.gio_bat_dau} - ${s.gio_ket_thuc}</td>
                             <td class="py-2.5 px-3 text-slate-600">${s.phong_kham || 'P201'}</td>
@@ -7211,16 +8011,16 @@
             if (caHienTai && (!caId || caHienTai.id != caId)) {
                 const tenCaCu = MAP_TEN_CA_JS[caHienTai.ca_truc] || caHienTai.ca_truc;
                 let ttBadge = caHienTai.trang_thai === 'HOAT_DONG' 
-                    ? '<span class="text-emerald-700 font-bold">Đã Duyệt</span>' 
-                    : (caHienTai.trang_thai === 'CHO_DUYET' ? '<span class="text-amber-700 font-bold">Chờ Admin Duyệt</span>' : '<span class="text-rose-700 font-bold">Bị Từ Chối</span>');
+                    ? '<span class="text-emerald-700 font-bold">Đã duyệt</span>' 
+                    : (caHienTai.trang_thai === 'CHO_DUYET' ? '<span class="text-amber-700 font-bold">Chờ admin duyệt</span>' : '<span class="text-rose-700 font-bold">Bị từ chối</span>');
 
-                alertBox.className = 'p-3 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-[11px] block animate-fadeIn';
+                alertBox.className = 'p-3 rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-[13px] block animate-fadeIn';
                 alertBox.innerHTML = `
                     <div class="flex items-start gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-amber-600 mt-0.5 text-xs"></i>
                         <div>
                             <span class="font-extrabold text-amber-800">${tenThu} hiện đã có:</span> <strong>${tenCaCu}</strong> (${caHienTai.gio_bat_dau} - ${caHienTai.gio_ket_thuc} | Trạng thái: ${ttBadge}).
-                            <div class="text-[10px] text-amber-700 mt-1">Mỗi ngày chỉ trực tối đa 1 ca. Khi bấm lưu, hệ thống sẽ tự động thực hiện <strong>ĐỔI CA TRỰC</strong> sang ca bạn đang chọn ${isAdmin ? 'ngay lập tức' : 'và chuyển sang trạng thái <strong>Chờ Admin Phê Duyệt</strong>'}.</div>
+                            <div class="text-[13px] text-amber-700 mt-1">Mỗi ngày chỉ trực tối đa 1 ca. Khi bấm lưu, hệ thống sẽ tự động thực hiện <strong>ĐỔI CA TRỰC</strong> sang ca bạn đang chọn ${isAdmin ? 'ngay lập tức' : 'và chuyển sang trạng thái <strong>Chờ admin phê duyệt</strong>'}.</div>
                         </div>
                     </div>
                 `;
@@ -7228,7 +8028,7 @@
                     lblSubmit.textContent = isAdmin ? 'Đổi Ca Trực Ngay' : 'Gửi Yêu Cầu Đổi Ca Trực (Chờ Admin Duyệt)';
                 }
             } else {
-                alertBox.className = 'p-2.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-800 text-[11px] block';
+                alertBox.className = 'p-2.5 rounded-md border border-sky-200 bg-sky-50 text-sky-800 text-[13px] block';
                 alertBox.innerHTML = `
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-circle-check text-sky-600"></i>
@@ -7244,7 +8044,7 @@
         async function duyetCaTruc(caId, bacSiId) {
             const res = await goiApi('PUT', `/api/v1/bac-si/lich-truc/${caId}/duyet`);
             if (res.ok) {
-                showToast('success', 'Đã Phê Duyệt', res.data?.thong_diep || 'Ca trực đã được phê duyệt và kích hoạt thành công.');
+                showToast('success', 'Đã phê duyệt', res.data?.thong_diep || 'Ca trực đã được phê duyệt và kích hoạt thành công.');
                 if (bacSiId) await taiLichTrucBacSi(bacSiId);
                 await taiDanhSachBacSi();
                 await taiVaRenderDanhSachDuyetCaTruc();
@@ -7269,7 +8069,7 @@
 
             const res = await goiApi('PUT', `/api/v1/bac-si/lich-truc/${caId}/tu-choi`);
             if (res.ok) {
-                showToast('info', 'Đã Từ Chối', res.data?.thong_diep || 'Đã chuyển ca trực sang trạng thái từ chối.');
+                showToast('info', 'Đã từ chối', res.data?.thong_diep || 'Đã chuyển ca trực sang trạng thái từ chối.');
                 if (bacSiId) await taiLichTrucBacSi(bacSiId);
                 await taiDanhSachBacSi();
                 await taiVaRenderDanhSachDuyetCaTruc();
@@ -7291,7 +8091,7 @@
             const titleEl = document.getElementById('modal-lt-form-title');
             if (titleEl) {
                 const tenThu = MAP_TEN_THU_JS[s.ngay_trong_tuan] || ('Thứ ' + s.ngay_trong_tuan);
-                titleEl.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500"></i> Đang Đổi Lịch / Chỉnh Sửa Ca Trực: <strong class="text-sky-700">${tenThu}</strong>`;
+                titleEl.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500"></i> Đang đổi lịch / chỉnh sửa ca trực: <strong class="text-sky-700">${tenThu}</strong>`;
             }
             const lblSubmit = document.getElementById('lbl-submit-ca-truc');
             if (lblSubmit) lblSubmit.textContent = isAdmin ? 'Lưu Thay Đổi (Cập Nhật)' : 'Gửi Yêu Cầu Đổi Ca (Chờ Admin Duyệt)';
@@ -7312,7 +8112,7 @@
             const titleEl = document.getElementById('modal-lt-form-title');
             if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-plus-circle text-sky-600"></i> Đăng Ký / Cập Nhật Ca Trực';
             const lblSubmit = document.getElementById('lbl-submit-ca-truc');
-            if (lblSubmit) lblSubmit.textContent = 'Lưu Ca Trực';
+            if (lblSubmit) lblSubmit.textContent = 'Lưu ca trực';
             const btnHuy = document.getElementById('btn-huy-sua-ca-truc');
             if (btnHuy) btnHuy.classList.add('hidden');
 
@@ -7404,8 +8204,8 @@
                 if (badgeCount) {
                     badgeCount.textContent = `${choDuyetCount} chờ duyệt`;
                     badgeCount.className = choDuyetCount > 0 
-                        ? 'px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white shadow-xs animate-bounce' 
-                        : 'px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-400 text-white shadow-xs';
+                        ? 'px-2 py-0.5 rounded-full text-[13px] font-black bg-amber-500 text-white shadow-xs ' 
+                        : 'px-2 py-0.5 rounded-full text-[13px] font-black bg-slate-400 text-white shadow-xs';
                 }
 
                 if (list.length === 0) {
@@ -7435,11 +8235,11 @@
                     const tt = c.trang_thai || 'CHO_DUYET';
                     let ttBadge = '';
                     if (tt === 'HOAT_DONG') {
-                        ttBadge = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border bg-emerald-50 text-emerald-800 border-emerald-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Đã Duyệt (Hoạt Động)</span>';
+                        ttBadge = '<span class="px-2.5 py-1 rounded-lg text-[13px] font-extrabold border bg-emerald-50 text-emerald-800 border-emerald-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Đã duyệt (hoạt động)</span>';
                     } else if (tt === 'CHO_DUYET') {
-                        ttBadge = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border bg-amber-50 text-amber-800 border-amber-300 inline-flex items-center gap-1.5 animate-pulse"><i class="fa-solid fa-clock text-amber-500"></i> Chờ Phê Duyệt</span>';
+                        ttBadge = '<span class="px-2.5 py-1 rounded-lg text-[13px] font-extrabold border bg-amber-50 text-amber-800 border-amber-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-clock text-amber-500"></i> Chờ phê duyệt</span>';
                     } else if (tt === 'TU_CHOI') {
-                        ttBadge = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border bg-rose-50 text-rose-800 border-rose-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-600"></i> Bị Từ Chối</span>';
+                        ttBadge = '<span class="px-2.5 py-1 rounded-lg text-[13px] font-extrabold border bg-rose-50 text-rose-800 border-rose-300 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-600"></i> Bị từ chối</span>';
                     }
 
                     let actionBtns = '';
@@ -7462,11 +8262,11 @@
                         <tr class="hover:bg-slate-50 transition">
                             <td class="py-2.5 px-3">
                                 <div class="font-extrabold text-slate-900">${bs.ho_ten || ('Bác sĩ #' + c.bac_si_id)}</div>
-                                <div class="text-[10px] text-slate-500">${bs.hoc_vi || 'Bác sĩ chuyên khoa'}</div>
+                                <div class="text-[13px] text-slate-500">${bs.hoc_vi || 'Bác sĩ chuyên khoa'}</div>
                             </td>
                             <td class="py-2.5 px-3 font-bold text-slate-800">${tenThu}</td>
                             <td class="py-2.5 px-3">
-                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${caBadge}">${tenCa}</span>
+                                <span class="px-2.5 py-1 rounded-lg text-[13px] font-bold border ${caBadge}">${tenCa}</span>
                             </td>
                             <td class="py-2.5 px-3 font-mono font-semibold text-slate-700">${c.gio_bat_dau} - ${c.gio_ket_thuc}</td>
                             <td class="py-2.5 px-3 text-slate-600 font-medium">${c.phong_kham || bs.phong_kham || 'P201'}</td>
@@ -7518,7 +8318,7 @@
             }
 
             box.classList.remove('hidden');
-            box.className = 'p-3.5 rounded-2xl border text-xs transition-all bg-slate-50 border-slate-200 text-slate-600';
+            box.className = 'p-3.5 rounded-md border text-xs transition-all bg-slate-50 border-[#E3E8EE] text-slate-600';
             box.innerHTML = '<div class="flex items-center space-x-2"><i class="fa-solid fa-spinner fa-spin text-medical-600"></i><span>Đang kiểm tra ca trực bác sĩ...</span></div>';
 
             const res = await goiApi('GET', `/api/v1/bac-si/${bacSiId}/kiem-tra-truc?ngay=${ngayKham}`);
@@ -7530,7 +8330,7 @@
                         return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-100/70 border border-emerald-300 text-emerald-900 font-bold"><i class="fa-solid fa-clock text-emerald-600"></i> ${tenCa}: ${c.gio_bat_dau} - ${c.gio_ket_thuc} (${c.phong_kham || 'P201'})</span>`;
                     }).join(' ');
 
-                    box.className = 'p-3.5 rounded-2xl border text-xs transition-all bg-emerald-50 border-emerald-200 text-emerald-900';
+                    box.className = 'p-3.5 rounded-md border text-xs transition-all bg-emerald-50 border-emerald-200 text-emerald-900';
                     box.innerHTML = `
                         <div class="space-y-1.5">
                             <div class="font-extrabold flex items-center space-x-1.5 text-emerald-800">
@@ -7546,14 +8346,14 @@
                     // Lọc và làm sáng các slot phù hợp trong ngày
                     capNhatTrangThaiKhungGioTheoCaTruc(d.ca_truc_trong_ngay);
                 } else {
-                    box.className = 'p-3.5 rounded-2xl border text-xs transition-all bg-amber-50 border-amber-200 text-amber-900';
+                    box.className = 'p-3.5 rounded-md border text-xs transition-all bg-amber-50 border-amber-200 text-amber-900';
                     box.innerHTML = `
                         <div class="space-y-1">
                             <div class="font-extrabold flex items-center space-x-1.5 text-amber-800">
                                 <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
                                 <span>Chú ý: Bác sĩ không có ca trực cố định vào ${d.thu || 'ngày này'}!</span>
                             </div>
-                            <p class="text-amber-700 text-[11px]">
+                            <p class="text-amber-700 text-[13px]">
                                 Quý khách vui lòng chọn các ngày trong tuần (T2 - T7) để được bác sĩ khám đúng ca trực.
                             </p>
                         </div>
@@ -7663,13 +8463,13 @@
             }
 
             if (qh === 'CON') {
-                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-child text-sky-600"></i> Họ Tên Bé / Con Cái: <span class="text-rose-500">*</span></span>';
+                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-child text-sky-600"></i> Họ tên bé / con cái: <span class="text-rose-500">*</span></span>';
                 inp.placeholder = 'Ví dụ: Bé Bo, Nguyễn Gia Hân...';
             } else if (qh === 'CHA_ME') {
-                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ Tên Bố / Mẹ: <span class="text-rose-500">*</span></span>';
+                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ tên bố / mẹ: <span class="text-rose-500">*</span></span>';
                 inp.placeholder = 'Ví dụ: Nguyễn Văn Nam, Trần Thị Mai...';
             } else if (qh === 'VO_CHONG') {
-                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-heart text-rose-600"></i> Họ Tên Vợ / Chồng: <span class="text-rose-500">*</span></span>';
+                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1"><i class="fa-solid fa-heart text-rose-600"></i> Họ tên vợ / chồng: <span class="text-rose-500">*</span></span>';
                 inp.placeholder = 'Ví dụ: Lê Thị Hoa...';
             } else {
                 lbl.innerHTML = 'Họ Tên Người Thân: <span class="text-rose-500">*</span>';
@@ -7717,7 +8517,7 @@
                     DanhSachHoSoGiaDinh = res.data.du_lieu;
                     const nguoiThanList = DanhSachHoSoGiaDinh.filter(h => h.quan_he_chu_tai_khoan !== 'BAN_THAN');
                     
-                    let options = '<option value="MOI">+ Tạo hồ sơ người thân mới (Con cái, Bố/Mẹ...)</option>';
+                    let options = '<option value="MOI">+ Tạo hồ sơ người thân mới (con cái, bố/mẹ...)</option>';
                     options += nguoiThanList.map(h => {
                         const qh = h.quan_he_chu_tai_khoan === 'CON' ? 'Con cái' : 
                                   (h.quan_he_chu_tai_khoan === 'CHA_ME' ? 'Bố/Mẹ' : 
@@ -7804,19 +8604,19 @@
                         const isSelect = Boolean(isAvail && targetSlot && (s.bat_dau.substring(0, 5) === targetSlot.bat_dau.substring(0, 5)));
 
                         if (isAvail) {
-                            const activeClass = isSelect ? 'selected bg-medical-600 text-white font-bold ring-2 ring-medical-500' : 'bg-white hover:bg-sky-50 text-slate-800 border-slate-200 hover:border-sky-400';
+                            const activeClass = isSelect ? 'selected bg-medical-600 text-white font-bold ring-2 ring-medical-500' : 'bg-white hover:bg-sky-50 text-slate-800 border-[#E3E8EE] hover:border-sky-400';
                             return `
-                                <button type="button" class="slot-btn py-2 px-1 rounded-xl border text-[11px] font-mono transition text-center shadow-xs ${activeClass}" onclick="chonSlot(this, '${s.bat_dau.substring(0, 5)}', '${s.ket_thuc.substring(0, 5)}')">
+                                <button type="button" class="slot-btn py-2 px-1 rounded-md border text-[13px] font-mono transition text-center shadow-xs ${activeClass}" onclick="chonSlot(this, '${s.bat_dau.substring(0, 5)}', '${s.ket_thuc.substring(0, 5)}')">
                                     <div class="font-extrabold">${s.bat_dau.substring(0, 5)}</div>
-                                    <div class="text-[9px] opacity-75 font-sans slot-sub-text">${isSelect ? 'Đã chọn' : 'Trống'}</div>
+                                    <div class="text-[13px] opacity-75 font-sans slot-sub-text">${isSelect ? 'Đã chọn' : 'Trống'}</div>
                                 </button>
                             `;
                         } else {
                             const badge = s.trang_thai === 'DA_DAT' ? 'Đã kín' : 'Qua giờ';
                             return `
-                                <button type="button" disabled class="py-2 px-1 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-[11px] font-mono text-center cursor-not-allowed opacity-60">
+                                <button type="button" disabled class="py-2 px-1 rounded-md border border-[#E3E8EE] bg-slate-100 text-slate-400 text-[13px] font-mono text-center cursor-not-allowed opacity-60">
                                     <div class="font-bold line-through">${s.bat_dau.substring(0, 5)}</div>
-                                    <div class="text-[9px] font-sans text-slate-400">${badge}</div>
+                                    <div class="text-[13px] font-sans text-slate-400">${badge}</div>
                                 </button>
                             `;
                         }
@@ -7844,16 +8644,16 @@
             tr.className = 'border-b border-slate-100';
             tr.innerHTML = `
                 <td class="p-2">
-                    <input type="text" class="kt-ten-thuoc w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Tên thuốc..." value="${ten}">
+                    <input type="text" class="kt-ten-thuoc w-full px-2 py-1 bg-slate-50 border border-[#E3E8EE] rounded-lg text-xs" placeholder="Tên thuốc..." value="${ten}">
                 </td>
                 <td class="p-2">
-                    <input type="text" class="kt-ham-luong w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="500mg, 1g..." value="${hamLuong}">
+                    <input type="text" class="kt-ham-luong w-full px-2 py-1 bg-slate-50 border border-[#E3E8EE] rounded-lg text-xs" placeholder="500mg, 1g..." value="${hamLuong}">
                 </td>
                 <td class="p-2">
-                    <input type="text" class="kt-so-luong w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="10 viên..." value="${soLuong}">
+                    <input type="text" class="kt-so-luong w-full px-2 py-1 bg-slate-50 border border-[#E3E8EE] rounded-lg text-xs" placeholder="10 viên..." value="${soLuong}">
                 </td>
                 <td class="p-2">
-                    <input type="text" class="kt-cach-dung w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Sáng 1v, tối 1v sau ăn..." value="${cachDung}">
+                    <input type="text" class="kt-cach-dung w-full px-2 py-1 bg-slate-50 border border-[#E3E8EE] rounded-lg text-xs" placeholder="Sáng 1v, tối 1v sau ăn..." value="${cachDung}">
                 </td>
                 <td class="p-2 text-center">
                     <button type="button" onclick="this.closest('tr').remove()" class="text-rose-500 hover:text-rose-700 text-sm">
@@ -7928,9 +8728,9 @@
             if (res.ok) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Đã Lưu Toa Thuốc!',
+                    title: 'Đã lưu toa thuốc!',
                     text: 'Kết luận chẩn đoán và đơn thuốc đã được cập nhật thành công vào hồ sơ bệnh án.',
-                    confirmButtonColor: '#7c3aed'
+                    confirmButtonColor: '#185A92'
                 });
                 dongModal('modal-ke-toa-thuoc');
                 await taiDanhSachLichHen();
@@ -7995,7 +8795,7 @@
         function inPhieuKhamToaThuoc() {
             const printContent = document.getElementById('in-phieu-kham-area').innerHTML;
             const printWindow = window.open('', '', 'height=700,width=900');
-            printWindow.document.write('<!DOCTYPE html><html><head><title>Phiếu Khám Bệnh & Toa Thuốc</title>');
+            printWindow.document.write('<!DOCTYPE html><html><head><title>Phiếu khám bệnh & toa thuốc</title>');
             printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">');
             printWindow.document.write('<style>@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>');
             printWindow.document.write('</head><body class="p-8 bg-white text-slate-800 font-sans text-xs">');
@@ -8055,7 +8855,7 @@
             if (!selectBs) return;
 
             const curVal = selectBs.value;
-            selectBs.innerHTML = '<option value="">Tất cả Bác Sĩ Thăm Khám</option>';
+            selectBs.innerHTML = '<option value="">Tất cả bác sĩ thăm khám</option>';
 
             (AppState.danhSachBacSi || []).forEach(bs => {
                 const opt = document.createElement('option');
@@ -8070,7 +8870,7 @@
 
         function capNhatThongKeBenhNhan() {
             const totalBn = (AppState.danhSachBenhNhan || []).length;
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getNgayHienTai();
 
             let countHomNay = 0;
             let countDangCho = 0;
@@ -8147,7 +8947,7 @@
                     const bs = (AppState.danhSachBacSi || []).find(b => b.id == latestVisit.bac_si_id);
                     tenBs = bs ? `<span class="font-bold text-slate-900">${bs.ho_ten}</span>` : `<span class="font-semibold text-slate-700">BS. #${latestVisit.bac_si_id}</span>`;
                     const khoa = bs && bs.chuyen_khoa ? (bs.chuyen_khoa.ten_khoa || bs.chuyen_khoa.ten_chuyen_khoa) : 'Khoa Nội';
-                    chuyenKhoa = `<div class="text-[11px] text-sky-600 font-medium">${khoa}</div>`;
+                    chuyenKhoa = `<div class="text-[13px] text-sky-600 font-medium">${khoa}</div>`;
                 }
 
                 // Khung giờ khám & Ngày khám
@@ -8159,7 +8959,7 @@
                     const ngay = latestVisit.ngay_kham ? latestVisit.ngay_kham.split('-').reverse().join('/') : '--';
                     thoiGianKham = `
                         <div class="font-extrabold text-slate-800">${khungGio}</div>
-                        <div class="text-[11px] text-slate-400 font-medium"><i class="fa-regular fa-calendar text-[10px] mr-1"></i>${ngay}</div>
+                        <div class="text-[13px] text-slate-400 font-medium"><i class="fa-regular fa-calendar text-[13px] mr-1"></i>${ngay}</div>
                     `;
                 }
 
@@ -8171,25 +8971,25 @@
                     if (chuanDoan) {
                         benhLy = `
                             <div class="font-extrabold text-rose-700 flex items-center gap-1">
-                                <i class="fa-solid fa-stethoscope text-[10px] text-rose-500"></i>
+                                <i class="fa-solid fa-stethoscope text-[13px] text-rose-500"></i>
                                 <span class="truncate max-w-[190px]" title="${chuanDoan}">${chuanDoan}</span>
                             </div>
-                            ${lyDo ? `<div class="text-[11px] text-slate-400 truncate max-w-[190px]" title="${lyDo}">Lý do: ${lyDo}</div>` : ''}
+                            ${lyDo ? `<div class="text-[13px] text-slate-400 truncate max-w-[190px]" title="${lyDo}">Lý do: ${lyDo}</div>` : ''}
                         `;
                     } else {
                         benhLy = `
                             <div class="text-slate-600 font-medium truncate max-w-[190px]" title="${lyDo || 'Chờ bác sĩ kết luận'}">
                                 ${lyDo ? `Khám: ${lyDo}` : 'Chờ bác sĩ khám'}
                             </div>
-                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-semibold border border-amber-200">Đang theo dõi</span>
+                            <span class="text-[13px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-semibold border border-amber-200">Đang theo dõi</span>
                         `;
                     }
                 }
 
                 // Nhóm máu & Cảnh báo
-                let nhomMauBadge = bn.nhom_mau ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-rose-100 text-rose-700 border border-rose-200">${bn.nhom_mau}</span>` : '';
-                let diUngBadge = bn.tien_su_di_ung ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1" title="Dị ứng: ${bn.tien_su_di_ung}"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i>Dị ứng</span>` : '';
-                let benhNenBadge = bn.tien_su_benh ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200" title="Bệnh nền: ${bn.tien_su_benh}">Bệnh nền</span>` : '';
+                let nhomMauBadge = bn.nhom_mau ? `<span class="px-1.5 py-0.5 rounded text-[13px] font-extrabold bg-rose-100 text-rose-700 border border-rose-200">${bn.nhom_mau}</span>` : '';
+                let diUngBadge = bn.tien_su_di_ung ? `<span class="px-1.5 py-0.5 rounded text-[13px] font-bold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1" title="Dị ứng: ${bn.tien_su_di_ung}"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i>Dị ứng</span>` : '';
+                let benhNenBadge = bn.tien_su_benh ? `<span class="px-1.5 py-0.5 rounded text-[13px] font-bold bg-slate-100 text-slate-700 border border-[#E3E8EE]" title="Bệnh nền: ${bn.tien_su_benh}">Bệnh nền</span>` : '';
 
                 // Tuổi
                 let tuoi = '';
@@ -8200,19 +9000,19 @@
                 }
 
                 // Trạng thái badge
-                let statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Mới tạo</span>';
+                let statusBadge = '<span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-slate-100 text-slate-500">Mới tạo</span>';
                 if (latestVisit) {
                     const st = latestVisit.trang_thai;
                     if (st === 'HOAN_THANH') {
-                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-200">Đã Khám</span>';
+                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-200">Đã khám</span>';
                     } else if (st === 'DANG_KHAM') {
-                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-100 text-sky-700 border border-sky-200 animate-pulse">Đang Khám</span>';
+                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-sky-100 text-sky-700 border border-sky-200">Đang khám</span>';
                     } else if (st === 'DA_XAC_NHAN') {
-                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-700 border border-amber-200">Chờ Khám</span>';
+                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-amber-100 text-amber-700 border border-amber-200">Chờ khám</span>';
                     } else if (st === 'DA_HUY') {
-                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-500 border border-slate-200">Đã Hủy</span>';
+                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-slate-100 text-slate-500 border border-[#E3E8EE]">Đã hủy</span>';
                     } else {
-                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-700 border border-indigo-200">Chờ Duyệt</span>';
+                        statusBadge = '<span class="px-2.5 py-1 rounded-full text-[13px] font-extrabold bg-indigo-100 text-indigo-700 border border-indigo-200">Chờ duyệt</span>';
                     }
                 }
 
@@ -8223,15 +9023,15 @@
                         <!-- Cột 1: Bệnh nhân -->
                         <td class="py-3.5 px-4">
                             <div class="flex items-center space-x-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <div class="w-9 h-9 rounded-md bg-rose-500 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0 transition-transform">
                                     ${(bn.ho_ten || 'BN').substring(0, 2).toUpperCase()}
                                 </div>
                                 <div>
                                     <div class="font-extrabold text-slate-900 flex items-center gap-1.5">
                                         <span>${bn.ho_ten}</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded font-black uppercase bg-slate-100 text-slate-600 border border-slate-200">${bn.gioi_tinh || 'NAM'}</span>
+                                        <span class="text-[13px] px-1.5 py-0.2 rounded font-black bg-slate-100 text-slate-600 border border-[#E3E8EE]">${bn.gioi_tinh || 'NAM'}</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+                                    <div class="flex items-center gap-1.5 text-[13px] text-slate-400 mt-0.5">
                                         <span class="font-mono text-rose-600 font-bold">${maBn}</span>
                                         ${tuoi ? `<span>• ${tuoi}</span>` : ''}
                                     </div>
@@ -8268,7 +9068,7 @@
                         <!-- Cột 6: Trạng thái -->
                         <td class="py-3.5 px-4">
                             ${statusBadge}
-                            ${latestVisit && latestVisit.ngay_tai_kham ? `<div class="text-[10px] text-emerald-600 font-bold mt-1"><i class="fa-solid fa-calendar-check mr-0.5"></i>Tái khám: ${latestVisit.ngay_tai_kham.split('-').reverse().join('/')}</div>` : ''}
+                            ${latestVisit && latestVisit.ngay_tai_kham ? `<div class="text-[13px] text-emerald-600 font-bold mt-1"><i class="fa-solid fa-calendar-check mr-0.5"></i>Tái khám: ${latestVisit.ngay_tai_kham.split('-').reverse().join('/')}</div>` : ''}
                         </td>
 
                         <!-- Cột 7: Thao tác -->
@@ -8500,11 +9300,11 @@
 
             if (lichHens.length === 0) {
                 timelineContainer.innerHTML = `
-                    <div class="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200/60 text-slate-400">
+                    <div class="p-8 text-center bg-slate-50 rounded-md border border-[#E3E8EE] text-slate-400">
                         <i class="fa-solid fa-file-circle-question text-3xl mb-2 text-slate-300"></i>
                         <p class="font-medium text-xs">Bệnh nhân chưa có lịch sử ca khám nào trong hệ thống.</p>
-                        <button type="button" onclick="datLichChoBenhNhanHienTai()" class="mt-3 px-3.5 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition">
-                            Tạo Ca Khám Đầu Tiên
+                        <button type="button" onclick="datLichChoBenhNhanHienTai()" class="mt-3 px-3.5 py-1.5 bg-rose-600 text-white rounded-md text-xs font-bold hover:bg-rose-700 transition">
+                            Tạo ca khám đầu tiên
                         </button>
                     </div>
                 `;
@@ -8521,29 +9321,29 @@
                     const khungGio = (gioBatDau && gioKetThuc) ? `${gioBatDau} - ${gioKetThuc}` : (gioBatDau || 'Ca khám');
 
                     // Status
-                    let stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Đã Hoàn Thành</span>';
-                    if (lh.trang_thai === 'DANG_KHAM') stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700">Đang Khám</span>';
-                    if (lh.trang_thai === 'DA_XAC_NHAN') stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Chờ Khám</span>';
-                    if (lh.trang_thai === 'DA_HUY') stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Đã Hủy</span>';
+                    let stBadge = '<span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-emerald-100 text-emerald-700">Đã hoàn thành</span>';
+                    if (lh.trang_thai === 'DANG_KHAM') stBadge = '<span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-sky-100 text-sky-700">Đang khám</span>';
+                    if (lh.trang_thai === 'DA_XAC_NHAN') stBadge = '<span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-amber-100 text-amber-700">Chờ khám</span>';
+                    if (lh.trang_thai === 'DA_HUY') stBadge = '<span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-slate-100 text-slate-500">Đã hủy</span>';
 
                     // Toa thuốc
                     let toaThuocHtml = '';
                     if (lh.toa_thuoc && Array.isArray(lh.toa_thuoc) && lh.toa_thuoc.length > 0) {
                         toaThuocHtml = `
-                            <div class="mt-3 p-3 bg-white rounded-xl border border-slate-200 space-y-2">
-                                <div class="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
+                            <div class="mt-3 p-3 bg-white rounded-md border border-[#E3E8EE] space-y-2">
+                                <div class="text-[13px] font-bold text-slate-800 flex items-center gap-1.5">
                                     <i class="fa-solid fa-pills text-rose-500"></i>
                                     <span>Toa Thuốc Điện Tử Điều Trị (${lh.toa_thuoc.length} loại thuốc):</span>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-[11px]">
+                                    <table class="w-full text-left text-[13px]">
                                         <thead>
                                             <tr class="bg-slate-50 text-slate-500 border-b border-slate-100">
                                                 <th class="py-1.5 px-2">STT</th>
-                                                <th class="py-1.5 px-2">Tên Thuốc</th>
-                                                <th class="py-1.5 px-2">Hàm Lượng / Liều Dùng</th>
-                                                <th class="py-1.5 px-2">Cách Uống</th>
-                                                <th class="py-1.5 px-2 text-center">Số Ngày</th>
+                                                <th class="py-1.5 px-2">Tên thuốc</th>
+                                                <th class="py-1.5 px-2">Hàm lượng / liều dùng</th>
+                                                <th class="py-1.5 px-2">Cách uống</th>
+                                                <th class="py-1.5 px-2 text-center">Số ngày</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-slate-100 text-slate-700">
@@ -8568,9 +9368,9 @@
                     if (lh.tep_dinh_kem && Array.isArray(lh.tep_dinh_kem) && lh.tep_dinh_kem.length > 0) {
                         tepDinhKemHtml = `
                             <div class="mt-2 flex items-center gap-2 flex-wrap">
-                                <span class="text-[10px] font-bold text-slate-400">Kết quả đính kèm:</span>
+                                <span class="text-[13px] font-bold text-slate-400">Kết quả đính kèm:</span>
                                 ${lh.tep_dinh_kem.map(f => `
-                                    <a href="${f.url || '#'}" target="_blank" class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-semibold hover:bg-sky-100 transition inline-flex items-center gap-1">
+                                    <a href="${f.url || '#'}" target="_blank" class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 text-[13px] font-semibold hover:bg-sky-100 transition inline-flex items-center gap-1">
                                         <i class="fa-solid fa-file-medical text-sky-500"></i>
                                         <span>${f.ten_tep || 'Kết quả xét nghiệm / X-Quang'}</span>
                                     </a>
@@ -8580,37 +9380,37 @@
                     }
 
                     timelineHtml += `
-                        <div class="relative pl-6 pb-6 border-l-2 ${index === 0 ? 'border-rose-500' : 'border-slate-200'} last:pb-0">
+                        <div class="relative pl-6 pb-6 border-l-2 ${index === 0 ? 'border-rose-500' : 'border-[#E3E8EE]'} last:pb-0">
                             <!-- Bullet -->
-                            <div class="absolute -left-2 top-0 w-4 h-4 rounded-full ${index === 0 ? 'bg-rose-500 ring-4 ring-rose-100' : 'bg-slate-300'} flex items-center justify-center text-white text-[8px]">
+                            <div class="absolute -left-2 top-0 w-4 h-4 rounded-full ${index === 0 ? 'bg-rose-500 ring-4 ring-rose-100' : 'bg-slate-300'} flex items-center justify-center text-white text-[13px]">
                                 ${index + 1}
                             </div>
 
-                            <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 hover:bg-white hover:shadow-xs transition space-y-3">
+                            <div class="p-4 bg-slate-50/80 rounded-md border border-[#E3E8EE] hover:bg-white hover:shadow-xs transition space-y-3">
                                 <!-- Top: Thời gian & Bác sĩ -->
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200/60">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E3E8EE]">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="px-2.5 py-1 rounded-xl text-xs font-black bg-slate-900 text-white flex items-center gap-1">
-                                            <i class="fa-regular fa-clock text-[10px] text-rose-400"></i> ${khungGio}
+                                        <span class="px-2.5 py-1 rounded-md text-xs font-black bg-slate-900 text-white flex items-center gap-1">
+                                            <i class="fa-regular fa-clock text-[13px] text-rose-400"></i> ${khungGio}
                                         </span>
                                         <span class="text-xs font-extrabold text-slate-800">${ngayKham}</span>
                                         <span class="text-slate-300">•</span>
                                         <span class="text-xs font-bold text-sky-700"><i class="fa-solid fa-user-doctor text-sky-500 mr-1"></i>${tenBs}</span>
-                                        <span class="text-[11px] text-slate-500">(${chuyenKhoa})</span>
+                                        <span class="text-[13px] text-slate-500">(${chuyenKhoa})</span>
                                     </div>
                                     <div>${stBadge}</div>
                                 </div>
 
                                 <!-- Triệu chứng & Chẩn đoán -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                    <div class="p-2.5 bg-white rounded-xl border border-slate-200">
-                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lý do / Triệu chứng khi đến khám:</div>
+                                    <div class="p-2.5 bg-white rounded-md border border-[#E3E8EE]">
+                                        <div class="text-[13px] font-bold text-slate-400">Lý do / triệu chứng khi đến khám:</div>
                                         <div class="font-semibold text-slate-800 mt-0.5">${lh.ly_do_kham || lh.trieu_chung || 'Khám sức khỏe tổng quát định kỳ'}</div>
                                     </div>
 
-                                    <div class="p-2.5 bg-rose-50/70 rounded-xl border border-rose-100">
-                                        <div class="text-[10px] font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1">
-                                            <i class="fa-solid fa-heart-pulse"></i> Chẩn đoán bệnh lý (Bị bệnh gì):
+                                    <div class="p-2.5 bg-rose-50/70 rounded-md border border-rose-100">
+                                        <div class="text-[13px] font-bold text-rose-600 flex items-center gap-1">
+                                            <i class="fa-solid fa-heart-pulse"></i> Chẩn đoán bệnh lý (bị bệnh gì):
                                         </div>
                                         <div class="font-black text-rose-800 mt-0.5 text-xs">
                                             ${lh.chuan_doan || '<span class="text-slate-400 font-normal italic">Chưa có kết luận chẩn đoán</span>'}
@@ -8622,12 +9422,12 @@
                                 ${toaThuocHtml}
 
                                 <!-- Lời dặn & Hẹn tái khám -->
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 text-[11px] border-t border-slate-200/60">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 text-[13px] border-t border-[#E3E8EE]">
                                     <div class="text-slate-600">
                                         <strong class="text-slate-700">Lời dặn bác sĩ:</strong> ${lh.loi_khuyen || lh.ghi_chu_bac_si || 'Uống thuốc đúng giờ, tái khám khi có dấu hiệu bất thường.'}
                                     </div>
                                     ${lh.ngay_tai_kham ? `
-                                        <div class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1 flex-shrink-0">
+                                        <div class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1 flex-shrink-0">
                                             <i class="fa-regular fa-calendar-check text-emerald-600"></i> Hẹn tái khám: ${lh.ngay_tai_kham.split('-').reverse().join('/')}
                                         </div>
                                     ` : ''}
@@ -8708,7 +9508,7 @@
                     <div style="margin-bottom: 20px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 15px;">
                         <div style="display: flex; justify-content: space-between; font-weight: bold; color: #0f172a; margin-bottom: 6px;">
                             <span>Lần khám ${lichHens.length - idx}: Ngày ${ngayKham} (${gio})</span>
-                            <span style="color: #0284c7;">BS. ${tenBs} - ${khoa}</span>
+                            <span style="color: #0284c7;">${formatTenBacSi(tenBs)} - ${khoa}</span>
                         </div>
                         <div style="margin-bottom: 4px;"><strong>Lý do khám:</strong> ${lh.ly_do_kham || lh.trieu_chung || 'Khám định kỳ'}</div>
                         <div style="margin-bottom: 4px; color: #b91c1c;"><strong>Chẩn đoán bệnh lý:</strong> ${lh.chuan_doan || 'Đang theo dõi'}</div>
@@ -8741,8 +9541,8 @@
                     <body class="p-8 bg-white text-slate-800 font-sans text-xs">
                         <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px;">
                             <div>
-                                <h1 style="font-size: 16px; font-weight: 900; color: #0369a1; text-transform: uppercase;">Phòng Khám Đa Khoa Quốc Tế</h1>
-                                <p style="font-size: 11px; color: #64748b;">Địa chỉ: 123 Đường Sức Khỏe, Quận 1, TP. Hồ Chí Minh - Hotline: 1900 6868</p>
+                                <h1 style="font-size: 16px; font-weight: 900; color: #0369a1; text-transform: ;">Phòng khám đa khoa quốc tế</h1>
+                                <p style="font-size: 11px; color: #64748b;">Địa chỉ: 123 Đường sức khỏe, quận 1, TP. Hồ chí minh - hotline: 1900 6868</p>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 13px; font-weight: bold; color: #0f172a;">PHIẾU TÓM TẮT BỆNH ÁN ĐIỆN TỬ</div>
@@ -8767,7 +9567,7 @@
                         </div>
 
                         <!-- Lịch sử các ca khám -->
-                        <h3 style="font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 12px; color: #0f172a; border-left: 4px solid #0284c7; padding-left: 8px;">
+                        <h3 style="font-size: 13px; font-weight: bold; text-transform: ; margin-bottom: 12px; color: #0f172a; border-left: 4px solid #0284c7; padding-left: 8px;">
                             Lịch Sử Các Lần Thăm Khám & Điều Trị (${lichHens.length} ca khám)
                         </h3>
                         <div>
@@ -8777,12 +9577,12 @@
                         <!-- Chữ ký -->
                         <div style="display: flex; justify-content: space-between; margin-top: 40px; text-align: center;">
                             <div style="width: 200px;">
-                                <div>Người Lập Bệnh Án</div>
+                                <div>Người lập bệnh án</div>
                                 <div style="height: 60px;"></div>
-                                <div style="font-weight: bold;">Hệ thống EHR Phòng Khám</div>
+                                <div style="font-weight: bold;">Hệ thống EHR phòng khám</div>
                             </div>
                             <div style="width: 250px;">
-                                <div>Bác Sĩ Trưởng Khoa / Phụ Trách</div>
+                                <div>Bác sĩ trưởng khoa / phụ trách</div>
                                 <div style="height: 60px;"></div>
                                 <div style="font-weight: bold; color: #0284c7;">BS. CKII. Nguyễn Văn Trưởng</div>
                             </div>
@@ -8811,7 +9611,7 @@
             if (form) form.reset();
 
             if (benhNhanId) {
-                if (titleEl) titleEl.textContent = 'Cập Nhật Hồ Sơ Bệnh Nhân';
+                if (titleEl) titleEl.textContent = 'Cập nhật hồ sơ bệnh nhân';
                 const bn = (AppState.danhSachBenhNhan || []).find(b => b.id == benhNhanId);
                 if (bn) {
                     document.getElementById('form-bn-id').value = bn.id;
@@ -8828,7 +9628,7 @@
                     document.getElementById('form-bn-sdtnguoithan').value = bn.sdt_khan_cap || '';
                 }
             } else {
-                if (titleEl) titleEl.textContent = 'Thêm Hồ Sơ Bệnh Nhân Mới';
+                if (titleEl) titleEl.textContent = 'Thêm hồ sơ bệnh nhân mới';
                 document.getElementById('form-bn-id').value = '';
             }
 
@@ -8841,7 +9641,7 @@
             const sdt = document.getElementById('form-bn-sdt').value.trim();
 
             if (!hoTen || !sdt) {
-                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập Họ tên và Số điện thoại!' });
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập họ tên và số điện thoại!' });
                 return;
             }
 
@@ -8923,12 +9723,12 @@
                     }
                 } else {
                     container.innerHTML = `
-                        <div class="col-span-full text-center py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                        <div class="col-span-full text-center py-12 bg-slate-50 rounded-lg border border-dashed border-[#E3E8EE]">
                             <i class="fa-solid fa-people-roof text-4xl text-slate-300 mb-3 block"></i>
                             <p class="text-sm font-bold text-slate-600">Chưa có hồ sơ người thân nào</p>
                             <p class="text-xs text-slate-400 mt-1 mb-4">Hãy thêm hồ sơ con cái, cha mẹ hoặc vợ chồng để đặt lịch khám nhanh chóng</p>
-                            <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-1.5">
-                                <i class="fa-solid fa-plus"></i> Thêm Người Thân Đầu Tiên
+                            <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-md shadow-xs transition inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> Thêm người thân đầu tiên
                             </button>
                         </div>
                     `;
@@ -8964,12 +9764,12 @@
 
             if (!list || list.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full text-center py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    <div class="col-span-full text-center py-12 bg-slate-50 rounded-lg border border-dashed border-[#E3E8EE]">
                         <i class="fa-solid fa-people-roof text-4xl text-slate-300 mb-3 block"></i>
                         <p class="text-sm font-bold text-slate-600">Chưa có hồ sơ gia đình nào</p>
                         <p class="text-xs text-slate-400 mt-1 mb-4">Thêm hồ sơ con cái, cha mẹ, vợ chồng để dễ dàng đặt khám</p>
-                        <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i> Thêm Người Thân Đầu Tiên
+                        <button type="button" onclick="moModalThemNguoiThan()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-md shadow-xs transition inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> Thêm người thân đầu tiên
                         </button>
                     </div>
                 `;
@@ -8981,33 +9781,33 @@
                 const isBanThan = h.quan_he_chu_tai_khoan === 'BAN_THAN';
                 let qhBadge = '';
                 let avatarIcon = 'fa-solid fa-user';
-                let avatarBg = 'from-sky-500 to-indigo-600';
+                let avatarBg = 'bg-sky-500 ';
 
                 switch (h.quan_he_chu_tai_khoan) {
                     case 'BAN_THAN':
-                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-700 border border-sky-200"><i class="fa-solid fa-user-check mr-1"></i>Bản Thân (Chủ TK)</span>';
+                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-sky-100 text-sky-700 border border-sky-200"><i class="fa-solid fa-user-check mr-1"></i>Bản thân (chủ TK)</span>';
                         avatarIcon = h.gioi_tinh === 'NU' ? 'fa-solid fa-user-nurse' : 'fa-solid fa-user-tie';
-                        avatarBg = 'from-sky-500 to-blue-600';
+                        avatarBg = 'bg-sky-500 ';
                         break;
                     case 'CON':
-                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 border border-amber-200"><i class="fa-solid fa-child mr-1"></i>Con Cái</span>';
+                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-amber-100 text-amber-700 border border-amber-200"><i class="fa-solid fa-child mr-1"></i>Con cái</span>';
                         avatarIcon = 'fa-solid fa-child-reaching';
-                        avatarBg = 'from-amber-400 to-orange-500';
+                        avatarBg = 'bg-amber-400 ';
                         break;
                     case 'CHA_ME':
-                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-person-cane mr-1"></i>Bố / Mẹ</span>';
+                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-person-cane mr-1"></i>Bố / mẹ</span>';
                         avatarIcon = 'fa-solid fa-person-cane';
-                        avatarBg = 'from-emerald-500 to-teal-600';
+                        avatarBg = 'bg-emerald-500 ';
                         break;
                     case 'VO_CHONG':
-                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200"><i class="fa-solid fa-heart mr-1"></i>Vợ / Chồng</span>';
+                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-purple-100 text-purple-700 border border-purple-200"><i class="fa-solid fa-heart mr-1"></i>Vợ / chồng</span>';
                         avatarIcon = 'fa-solid fa-user-group';
-                        avatarBg = 'from-purple-500 to-pink-600';
+                        avatarBg = 'bg-purple-500 ';
                         break;
                     default:
-                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200"><i class="fa-solid fa-user-group mr-1"></i>Người Thân</span>';
+                        qhBadge = '<span class="px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-rose-100 text-rose-700 border border-rose-200"><i class="fa-solid fa-user-group mr-1"></i>Người thân</span>';
                         avatarIcon = 'fa-solid fa-user-shield';
-                        avatarBg = 'from-rose-500 to-red-600';
+                        avatarBg = 'bg-rose-500 ';
                         break;
                 }
 
@@ -9020,16 +9820,16 @@
                 }
 
                 const gioiTinhStr = h.gioi_tinh === 'NU' ? 'Nữ' : (h.gioi_tinh === 'NAM' ? 'Nam' : 'Khác');
-                const nhomMauBadge = h.nhom_mau ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200">Máu: ${h.nhom_mau}</span>` : '';
+                const nhomMauBadge = h.nhom_mau ? `<span class="px-2 py-0.5 rounded-md text-[13px] font-bold bg-rose-50 text-rose-600 border border-rose-200">Máu: ${h.nhom_mau}</span>` : '';
                 const soKham = Number(h.danh_sach_lich_hen_count) || 0;
 
                 html += `
-                    <div class="bg-gradient-to-b from-white to-slate-50/70 p-6 rounded-3xl border border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
+                    <div class="bg-white p-6 rounded-lg border border-[#E3E8EE] hover:border-emerald-300 hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
                         <div>
                             <!-- Header Card: Avatar + Tên + Badge -->
                             <div class="flex items-start justify-between gap-3 pb-4 border-b border-slate-100">
                                 <div class="flex items-center space-x-3 min-w-0">
-                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr ${avatarBg} text-white flex items-center justify-center text-xl shadow-md flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <div class="w-10 h-10 rounded-md ${avatarBg} text-white flex items-center justify-center text-xl shadow-sm flex-shrink-0 transition-transform">
                                         <i class="${avatarIcon}"></i>
                                     </div>
                                     <div class="min-w-0">
@@ -9037,7 +9837,7 @@
                                             <span>${h.ho_ten}</span>
                                         </h4>
                                         <div class="flex items-center gap-1.5 mt-0.5">
-                                            <span class="text-[11px] font-mono text-slate-400 font-bold">${h.ma_benh_nhan || 'BN---'}</span>
+                                            <span class="text-[13px] font-mono text-slate-400 font-bold">${h.ma_benh_nhan || 'BN---'}</span>
                                             ${nhomMauBadge}
                                         </div>
                                     </div>
@@ -9050,34 +9850,34 @@
                             <!-- Body Info -->
                             <div class="py-4 space-y-2.5 text-xs text-slate-600">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-cake-candles text-slate-400 text-[11px]"></i> Ngày sinh:</span>
+                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-cake-candles text-slate-400 text-[13px]"></i> Ngày sinh:</span>
                                     <span class="font-semibold text-slate-700 font-mono">${h.ngay_sinh || 'Chưa cập nhật'}${tuoiStr}</span>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-venus-mars text-slate-400 text-[11px]"></i> Giới tính:</span>
+                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-venus-mars text-slate-400 text-[13px]"></i> Giới tính:</span>
                                     <span class="font-semibold text-slate-700">${gioiTinhStr}</span>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-phone text-slate-400 text-[11px]"></i> Điện thoại:</span>
+                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-phone text-slate-400 text-[13px]"></i> Điện thoại:</span>
                                     <span class="font-semibold text-slate-700 font-mono">${h.so_dien_thoai || '--'}</span>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-notes-medical text-slate-400 text-[11px]"></i> Lượt khám:</span>
+                                    <span class="text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-notes-medical text-slate-400 text-[13px]"></i> Lượt khám:</span>
                                     <span class="font-bold text-emerald-600 font-mono">${soKham} lượt</span>
                                 </div>
                                 
                                 ${h.tien_su_di_ung ? `
-                                <div class="bg-rose-50/70 p-2.5 rounded-xl border border-rose-200/60 mt-1">
-                                    <p class="text-[10px] font-bold uppercase text-rose-700 flex items-center gap-1">
-                                        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Dị Ứng Thuốc:
+                                <div class="bg-rose-50/70 p-2.5 rounded-md border border-rose-200/60 mt-1">
+                                    <p class="text-[13px] font-bold text-rose-700 flex items-center gap-1">
+                                        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Dị ứng thuốc:
                                     </p>
                                     <p class="text-xs text-rose-800 font-medium mt-0.5 line-clamp-2">${h.tien_su_di_ung}</p>
                                 </div>` : ''}
 
                                 ${h.tien_su_benh ? `
-                                <div class="bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/60 mt-1">
-                                    <p class="text-[10px] font-bold uppercase text-amber-700 flex items-center gap-1">
-                                        <i class="fa-solid fa-heart-pulse text-amber-500"></i> Bệnh Lý Nền:
+                                <div class="bg-amber-50/70 p-2.5 rounded-md border border-amber-200/60 mt-1">
+                                    <p class="text-[13px] font-bold text-amber-700 flex items-center gap-1">
+                                        <i class="fa-solid fa-heart-pulse text-amber-500"></i> Bệnh lý nền:
                                     </p>
                                     <p class="text-xs text-amber-800 font-medium mt-0.5 line-clamp-2">${h.tien_su_benh}</p>
                                 </div>` : ''}
@@ -9086,11 +9886,11 @@
 
                         <!-- Footer Action Buttons -->
                         <div class="pt-4 border-t border-slate-100 flex items-center gap-2">
-                            <button type="button" onclick="datLichNhanhChoNguoiThan(${h.id})" class="flex-1 py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5">
+                            <button type="button" onclick="datLichNhanhChoNguoiThan(${h.id})" class="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-md shadow-xs transition flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-calendar-plus text-xs"></i>
-                                <span>Đặt Lịch Khám</span>
+                                <span>Đặt lịch khám</span>
                             </button>
-                            <button type="button" onclick="moModalThemNguoiThan(${h.id})" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 rounded-xl transition" title="Chỉnh sửa hồ sơ">
+                            <button type="button" onclick="moModalThemNguoiThan(${h.id})" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 rounded-md transition" title="Chỉnh sửa hồ sơ">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </button>
                         </div>
@@ -9110,17 +9910,17 @@
             if (!lbl || !inp) return;
 
             if (qh === 'CON') {
-                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-child text-sky-600"></i> Họ Tên Bé / Con Cái: <span class="text-rose-500">*</span></span>';
+                lbl.innerHTML = '<span class="text-sky-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-child text-sky-600"></i> Họ tên bé / con cái: <span class="text-rose-500">*</span></span>';
                 inp.placeholder = 'Ví dụ: Bé Bo, Nguyễn Gia Hân...';
-                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[10px] text-slate-400 font-normal lowercase">(không bắt buộc đối với trẻ em)</span>';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[13px] text-slate-400 font-normal lowercase">(không bắt buộc đối với trẻ em)</span>';
                 if (inpSdt) inpSdt.placeholder = 'Để trống nếu là trẻ em';
             } else if (qh === 'CHA_ME') {
-                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ Tên Bố / Mẹ: <span class="text-rose-500">*</span></span>';
+                lbl.innerHTML = '<span class="text-amber-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-person-cane text-amber-600"></i> Họ tên bố / mẹ: <span class="text-rose-500">*</span></span>';
                 inp.placeholder = 'Ví dụ: Nguyễn Văn Nam, Trần Thị Mai...';
-                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[10px] text-slate-400 font-normal lowercase">(hoặc SĐT người giám hộ)</span>';
+                if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại: <span class="text-[13px] text-slate-400 font-normal lowercase">(hoặc SĐT người giám hộ)</span>';
                 if (inpSdt) inpSdt.placeholder = 'Nhập SĐT của bố/mẹ...';
             } else if (qh === 'VO_CHONG') {
-                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-heart text-rose-600"></i> Họ Tên Vợ / Chồng: <span class="text-rose-500">*</span></span>';
+                lbl.innerHTML = '<span class="text-rose-700 font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-heart text-rose-600"></i> Họ tên vợ / chồng: <span class="text-rose-500">*</span></span>';
                 inp.placeholder = 'Ví dụ: Lê Thị Hoa...';
                 if (lblSdt) lblSdt.innerHTML = 'Số Điện Thoại:';
                 if (inpSdt) inpSdt.placeholder = 'Nhập số điện thoại...';
@@ -9142,7 +9942,7 @@
             if (hoSoId) {
                 const hoSo = (CacheHoSoGiaDinh || []).find(h => h.id == hoSoId);
                 if (hoSo) {
-                    if (titleEl) titleEl.textContent = 'Cập Nhật Hồ Sơ Thành Viên';
+                    if (titleEl) titleEl.textContent = 'Cập nhật hồ sơ thành viên';
                     if (idInput) idInput.value = hoSo.id;
                     document.getElementById('modal-nt-quanhe').value = hoSo.quan_he_chu_tai_khoan || 'CON';
                     document.getElementById('modal-nt-hoten').value = hoSo.ho_ten || '';
@@ -9158,7 +9958,7 @@
                     document.getElementById('modal-nt-sdtnguoithan').value = hoSo.sdt_khan_cap || '';
                 }
             } else {
-                if (titleEl) titleEl.textContent = 'Thêm Hồ Sơ Người Thân Mới';
+                if (titleEl) titleEl.textContent = 'Thêm hồ sơ người thân mới';
                 if (idInput) idInput.value = '';
                 document.getElementById('modal-nt-quanhe').value = 'CON';
             }
@@ -9244,3 +10044,105 @@
         }
 
     </script>
+
+    <!-- ============================================================= -->
+    <!-- TIỆN ÍCH GIAO DIỆN: menu di động, phím Esc, nhãn trợ năng      -->
+    <!-- (Không thay đổi logic nghiệp vụ, chỉ bổ sung trải nghiệm)      -->
+    <!-- ============================================================= -->
+    <script>
+        // Mở / đóng menu bên trái trên màn hình nhỏ (< 1024px)
+        function moSidebarMobile() {
+            document.getElementById('app-sidebar')?.classList.add('open');
+            document.getElementById('sidebar-overlay')?.classList.add('show');
+        }
+
+        function dongSidebarMobile() {
+            document.getElementById('app-sidebar')?.classList.remove('open');
+            document.getElementById('sidebar-overlay')?.classList.remove('show');
+        }
+
+        // Chọn một mục menu trên điện thoại thì tự đóng menu
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024 && e.target.closest('.sidebar-item')) {
+                dongSidebarMobile();
+            }
+        });
+
+        // Phím Esc: đóng hộp thoại đang mở trên cùng, nếu không có thì đóng menu
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            if (document.querySelector('.swal2-container')) return; // SweetAlert tự xử lý Esc
+            const dangMo = Array.from(document.querySelectorAll('.modal-backdrop.show'));
+            if (dangMo.length > 0) {
+                dangMo[dangMo.length - 1].classList.remove('show');
+            } else {
+                dongSidebarMobile();
+            }
+        });
+
+        // Tự gán aria-label cho các nút chỉ có biểu tượng (lấy từ title)
+        function ganNhanTroNangChoNutIcon(root) {
+            (root || document).querySelectorAll('button:not([aria-label])').forEach((btn) => {
+                if (btn.textContent.trim() === '' && btn.getAttribute('title')) {
+                    btn.setAttribute('aria-label', btn.getAttribute('title'));
+                }
+            });
+        }
+
+        // Chuyển thông báo kỹ thuật thành câu dễ hiểu cho người dùng
+        function lamThanThienThongBao(text) {
+            if (typeof text !== 'string' || text.trim() === '') return text;
+            const t = text.toLowerCase();
+            if (t.includes('không thể kết nối') || t.includes('failed to fetch') || t.includes('networkerror') || t.includes('ngoại tuyến')) {
+                return 'Chưa kết nối được tới máy chủ. Vui lòng kiểm tra mạng rồi thử lại sau ít phút.';
+            }
+            if (t.includes('unauthenticated') || t.includes('token') && (t.includes('hết hạn') || t.includes('expired') || t.includes('invalid'))) {
+                return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+            }
+            if (t.includes('sqlstate') || t.includes('exception') || t.includes('stack trace') || t.includes('internal server error')) {
+                return 'Hệ thống đang gặp sự cố khi xử lý yêu cầu. Vui lòng thử lại sau hoặc liên hệ quầy hỗ trợ.';
+            }
+            if (t.includes('forbidden') || t === '403') {
+                return 'Tài khoản của bạn không có quyền thực hiện thao tác này.';
+            }
+            if (t.includes('the given data was invalid') || t.includes('validation')) {
+                return 'Một vài thông tin chưa hợp lệ. Vui lòng kiểm tra lại các ô được đánh dấu.';
+            }
+            return text;
+        }
+
+        // Áp dụng cho mọi hộp thông báo SweetAlert2 mà không phải sửa từng chỗ gọi
+        if (typeof Swal !== 'undefined' && !Swal.__daChuanHoa) {
+            const swalFireGoc = Swal.fire.bind(Swal);
+            Swal.fire = function (...args) {
+                if (args.length === 1 && args[0] && typeof args[0] === 'object') {
+                    const opt = Object.assign({}, args[0]);
+                    if (typeof opt.text === 'string') opt.text = lamThanThienThongBao(opt.text);
+                    // Giữ màu đỏ cho hộp xác nhận xóa/hủy, còn lại dùng màu chủ đạo
+                    const mauDo = ['#e11d48', '#f43f5e', '#dc2626', '#ef4444', '#C0352B'];
+                    if (!opt.confirmButtonColor || !mauDo.includes(opt.confirmButtonColor)) {
+                        opt.confirmButtonColor = '#1F6FB2';
+                    } else {
+                        opt.confirmButtonColor = '#C0352B';
+                    }
+                    if (opt.showCancelButton && !opt.cancelButtonText) opt.cancelButtonText = 'Hủy';
+                    if (!opt.confirmButtonText && !opt.toast) opt.confirmButtonText = 'Đồng ý';
+                    return swalFireGoc(opt);
+                }
+                if (typeof args[1] === 'string') args[1] = lamThanThienThongBao(args[1]);
+                return swalFireGoc(...args);
+            };
+            Swal.__daChuanHoa = true;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            ganNhanTroNangChoNutIcon(document);
+            let henGio = null;
+            new MutationObserver(() => {
+                clearTimeout(henGio);
+                henGio = setTimeout(() => ganNhanTroNangChoNutIcon(document), 300);
+            }).observe(document.body, { childList: true, subtree: true });
+        });
+    </script>
+</body>
+</html>
