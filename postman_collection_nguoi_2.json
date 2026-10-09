@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "a91b2c3d-e4f5-4678-90ab-cdef12345678",
+		"name": "Nguoi_2_Benh_Nhan_Lich_Hen",
+		"description": "Bộ sưu tập kiểm thử API phân hệ 02: Bệnh Nhân & Lịch Hẹn (Microservices)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0. Đăng nhập Bệnh nhân (Lấy Token)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = pm.response.json();",
+							"if (res.du_lieu && res.du_lieu.token) {",
+							"    pm.environment.set(\"token\", res.du_lieu.token);",
+							"    console.log(\"Đã lưu token bệnh nhân:\", res.du_lieu.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"benhnhancuong@gmail.com\",\n  \"mat_khau\": \"123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/xac-thuc/dang-nhap",
+					"host": ["{{base_url}}"],
+					"path": ["xac-thuc", "dang-nhap"]
+				}
+			}
+		},
+		{
+			"name": "1. Tra cứu Khung giờ khám (Slots Engine)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/lich-hen/slots-kha-dung?bac_si_id=1&ngay_kham=2026-10-15",
+					"host": ["{{base_url}}"],
+					"path": ["lich-hen", "slots-kha-dung"],
+					"query": [
+						{ "key": "bac_si_id", "value": "1" },
+						{ "key": "ngay_kham", "value": "2026-10-15" }
+					]
+				}
+			}
+		},
+		{
+			"name": "2. Đặt lịch khám cho Con cái (Family Intake)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = pm.response.json();",
+							"if (res.du_lieu && res.du_lieu.id) {",
+							"    pm.environment.set(\"lich_hen_id\", res.du_lieu.id);",
+							"    console.log(\"Đã lưu lich_hen_id:\", res.du_lieu.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{token}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bac_si_id\": 1,\n  \"ngay_kham\": \"2026-10-15\",\n  \"gio_bat_dau\": \"08:00\",\n  \"gio_ket_thuc\": \"08:30\",\n  \"ho_ten\": \"Bé Gia Hân\",\n  \"ngay_sinh\": \"2020-05-10\",\n  \"gioi_tinh\": \"NU\",\n  \"doi_tuong_kham\": \"NGUOI_THAN\",\n  \"quan_he_chu_tai_khoan\": \"CON\",\n  \"quan_he_nguoi_than\": \"CON\",\n  \"so_dien_thoai\": null,\n  \"ly_do_kham\": \"Sốt nhẹ và ho có đờm 2 ngày nay\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/lich-hen/dat-lich",
+					"host": ["{{base_url}}"],
+					"path": ["lich-hen", "dat-lich"]
+				}
+			}
+		},
+		{
+			"name": "3. Test Chống trùng lịch (Anti-Conflict - Kỳ vọng 409)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{token}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bac_si_id\": 1,\n  \"ngay_kham\": \"2026-10-15\",\n  \"gio_bat_dau\": \"08:00\",\n  \"gio_ket_thuc\": \"08:30\",\n  \"ho_ten\": \"Bệnh Nhân Trùng Giờ\",\n  \"so_dien_thoai\": \"0912345678\",\n  \"ly_do_kham\": \"Đặt trùng khung giờ để test\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/lich-hen/dat-lich",
+					"host": ["{{base_url}}"],
+					"path": ["lich-hen", "dat-lich"]
+				}
+			}
+		},
+		{
+			"name": "4. Lấy danh sách Hồ sơ Gia đình",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = pm.response.json();",
+							"if (res.du_lieu && res.du_lieu.length > 1) {",
+							"    var be = res.du_lieu.find(x => x.quan_he_chu_tai_khoan === 'CON');",
+							"    if (be) {",
+							"        pm.environment.set(\"benh_nhan_id\", be.id);",
+							"        console.log(\"Đã lưu benh_nhan_id của con:\", be.id);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{token}}" }
+				],
+				"url": {
+					"raw": "{{base_url}}/benh-nhan/ho-so-gia-dinh",
+					"host": ["{{base_url}}"],
+					"path": ["benh-nhan", "ho-so-gia-dinh"]
+				}
+			}
+		},
+		{
+			"name": "5. Cập nhật hồ sơ con (Nullable SĐT)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{token}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"ho_ten\": \"Bé Gia Hân (Đã sửa)\",\n  \"nhom_mau\": \"O\",\n  \"tien_su_di_ung\": \"Dị ứng phấn hoa\",\n  \"so_dien_thoai\": null\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/benh-nhan/{{benh_nhan_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["benh-nhan", "{{benh_nhan_id}}"]
+				}
+			}
+		},
+		{
+			"name": "6. Dời lịch khám (Reschedule)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{token}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"ngay_kham\": \"2026-10-15\",\n  \"gio_bat_dau\": \"09:00\",\n  \"gio_ket_thuc\": \"09:30\",\n  \"ly_do_doi_lich\": \"Bận việc đột xuất xin dời ca\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/lich-hen/{{lich_hen_id}}/doi-lich",
+					"host": ["{{base_url}}"],
+					"path": ["lich-hen", "{{lich_hen_id}}", "doi-lich"]
+				}
+			}
+		},
+		{
+			"name": "7. Đăng nhập Bác sĩ (Lấy Token Bác sĩ)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = pm.response.json();",
+							"if (res.du_lieu && res.du_lieu.token) {",
+							"    pm.environment.set(\"token_bac_si\", res.du_lieu.token);",
+							"    console.log(\"Đã lưu token bác sĩ:\", res.du_lieu.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"bstuan@phongkham.vn\",\n  \"mat_khau\": \"123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/xac-thuc/dang-nhap",
+					"host": ["{{base_url}}"],
+					"path": ["xac-thuc", "dang-nhap"]
+				}
+			}
+		},
+		{
+			"name": "8. Bác sĩ Kê toa thuốc & Kết luận khám",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{token_bac_si}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"chuan_doan\": \"Viêm đường hô hấp trên cấp tính\",\n  \"loi_khuyen\": \"Uống nhiều nước ấm, súc họng nước muối sinh lý, nghỉ ngơi 3 ngày\",\n  \"ngay_tai_kham\": \"2026-10-22\",\n  \"toa_thuoc\": [\n    {\n      \"ten_thuoc\": \"Paracetamol 500mg\",\n      \"so_luong\": \"10 viên\",\n      \"cach_dung\": \"Uống 1 viên khi sốt trên 38.5 độ, cách 6 tiếng\"\n    },\n    {\n      \"ten_thuoc\": \"Hapacol siro\",\n      \"so_luong\": \"1 chai\",\n      \"cach_dung\": \"Uống 5ml sau ăn sáng và tối\"\n    }\n  ],\n  \"chuyen_hoan_thanh\": true\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/lich-hen/{{lich_hen_id}}/ket-luan-kham",
+					"host": ["{{base_url}}"],
+					"path": ["lich-hen", "{{lich_hen_id}}", "ket-luan-kham"]
+				}
+			}
+		}
+	]
+}

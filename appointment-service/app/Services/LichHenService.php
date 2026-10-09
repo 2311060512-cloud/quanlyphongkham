@@ -77,16 +77,25 @@ class LichHenService
                 $benhNhan = BenhNhan::find($benhNhanId);
             }
 
-            $quanHe = $data['quan_he_chu_tai_khoan'] ?? ($data['quan_he'] ?? 'BAN_THAN');
+            $quanHe = $data['quan_he_chu_tai_khoan'] 
+                ?? ($data['quan_he_nguoi_than'] 
+                ?? ($data['quan_he'] 
+                ?? ((isset($data['doi_tuong_kham']) && $data['doi_tuong_kham'] === 'NGUOI_THAN') ? 'NGUOI_THAN' : 'BAN_THAN')));
             $hoTen = $data['ho_ten'] ?? ($data['ho_ten_benh_nhan'] ?? ($benhNhan?->ho_ten ?? 'Bệnh nhân mới'));
 
             // Nếu đặt cho bản thân và chưa có benhNhanId
-            if (!$benhNhan && $taiKhoanId && $quanHe === 'BAN_THAN') {
+            if (!$benhNhan && $taiKhoanId && $quanHe === 'BAN_THAN' && (!isset($data['doi_tuong_kham']) || $data['doi_tuong_kham'] !== 'NGUOI_THAN')) {
                 $benhNhan = BenhNhan::where('tai_khoan_id', $taiKhoanId)
                     ->where('quan_he_chu_tai_khoan', 'BAN_THAN')
                     ->first();
+                if ($benhNhan && !empty($data['ho_ten']) && mb_strtolower(trim($benhNhan->ho_ten)) !== mb_strtolower(trim($data['ho_ten']))) {
+                    $benhNhan = null;
+                }
                 if (!$benhNhan) {
                     $benhNhan = BenhNhan::where('tai_khoan_id', $taiKhoanId)->first();
+                    if ($benhNhan && !empty($data['ho_ten']) && mb_strtolower(trim($benhNhan->ho_ten)) !== mb_strtolower(trim($data['ho_ten']))) {
+                        $benhNhan = null;
+                    }
                 }
             }
 
@@ -111,12 +120,14 @@ class LichHenService
                     $maBn = 'BN' . str_pad($countBn + 1, 4, '0', STR_PAD_LEFT);
                 }
 
+                $phone = $sdt ?: ($data['sdt_khan_cap'] ?? ('09' . str_pad((string)mt_rand(10000000, 99999999), 8, '0')));
+
                 $benhNhan = BenhNhan::create([
                     'tai_khoan_id' => $taiKhoanId ?? ($data['tai_khoan_id'] ?? null),
                     'quan_he_chu_tai_khoan' => $quanHe,
                     'ma_benh_nhan' => $maBn,
                     'ho_ten' => $hoTen,
-                    'so_dien_thoai' => $sdt ?: ($data['so_dien_thoai'] ?? ''),
+                    'so_dien_thoai' => $phone,
                     'so_cccd' => $data['so_cccd'] ?? null,
                     'ngay_sinh' => $data['ngay_sinh'] ?? null,
                     'gioi_tinh' => $data['gioi_tinh'] ?? 'NAM',
