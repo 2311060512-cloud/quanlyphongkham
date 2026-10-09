@@ -67,9 +67,10 @@ class XacThucService
         // Cap Bearer Token Sanctum chuan
         $sanctumToken = $taiKhoan->taoTokenSanctum('api_token');
 
-        // Tao dong thoi JWT token tuong thich cao
+        // Tao dong thoi JWT token tuong thich cao (TTL 30 ngay)
         $jwtToken = $this->jwtService->taoToken([
             'sub' => $taiKhoan->id,
+            'id' => $taiKhoan->id,
             'ten_dang_nhap' => $taiKhoan->ten_dang_nhap,
             'email' => $taiKhoan->email,
             'ho_ten' => $taiKhoan->ho_ten,
@@ -80,9 +81,9 @@ class XacThucService
             'thanh_cong' => true,
             'thong_diep' => 'Đăng nhập thành công.',
             'du_lieu' => [
-                'token' => $sanctumToken,
-                'token_sanctum' => $sanctumToken,
+                'token' => $jwtToken,
                 'token_jwt' => $jwtToken,
+                'token_sanctum' => $sanctumToken,
                 'loai_token' => 'Bearer',
                 'nguoi_dung' => [
                     'id' => $taiKhoan->id,
@@ -135,12 +136,22 @@ class XacThucService
 
         $taiKhoan->load('vaiTro');
         $sanctumToken = $taiKhoan->taoTokenSanctum('api_token');
+        $jwtToken = $this->jwtService->taoToken([
+            'sub' => $taiKhoan->id,
+            'id' => $taiKhoan->id,
+            'ten_dang_nhap' => $taiKhoan->ten_dang_nhap,
+            'email' => $taiKhoan->email,
+            'ho_ten' => $taiKhoan->ho_ten,
+            'vai_tro' => 'BENH_NHAN',
+        ]);
 
         return [
             'thanh_cong' => true,
             'thong_diep' => 'Đăng ký tài khoản bệnh nhân thành công.',
             'du_lieu' => [
-                'token' => $sanctumToken,
+                'token' => $jwtToken,
+                'token_jwt' => $jwtToken,
+                'token_sanctum' => $sanctumToken,
                 'loai_token' => 'Bearer',
                 'nguoi_dung' => [
                     'id' => $taiKhoan->id,
@@ -164,7 +175,10 @@ class XacThucService
         $sanctumToken = PersonalAccessToken::findToken($token);
         if ($sanctumToken) {
             $taiKhoan = $sanctumToken->tokenable;
-            if ($taiKhoan && $taiKhoan->dangHoatDong()) {
+            if ($taiKhoan) {
+                if (!$taiKhoan->dangHoatDong()) {
+                    return ['_bi_khoa' => true];
+                }
                 $sanctumToken->forceFill(['last_used_at' => now()])->save();
                 $maVaiTro = $taiKhoan->vaiTro->ma_vai_tro ?? 'BENH_NHAN';
                 return [
@@ -179,6 +193,7 @@ class XacThucService
                     'dia_chi' => $taiKhoan->dia_chi,
                     'vai_tro' => $maVaiTro,
                     'ten_vai_tro' => $taiKhoan->vaiTro->ten_vai_tro ?? $maVaiTro,
+                    'trang_thai' => $taiKhoan->trang_thai,
                     'bac_si' => $taiKhoan->bacSi ? [
                         'id' => $taiKhoan->bacSi->id,
                         'chuyen_khoa_id' => $taiKhoan->bacSi->chuyen_khoa_id,
@@ -196,7 +211,10 @@ class XacThucService
         $payload = $this->jwtService->giaiMaToken($token);
         if ($payload && isset($payload['sub'])) {
             $taiKhoan = $this->taiKhoanRepo->timTheoId((int)$payload['sub']);
-            if ($taiKhoan && $taiKhoan->dangHoatDong()) {
+            if ($taiKhoan) {
+                if (!$taiKhoan->dangHoatDong()) {
+                    return ['_bi_khoa' => true];
+                }
                 $maVaiTro = $taiKhoan->vaiTro->ma_vai_tro ?? ($payload['vai_tro'] ?? 'BENH_NHAN');
                 return [
                     'id' => $taiKhoan->id,

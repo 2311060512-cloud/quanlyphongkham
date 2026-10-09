@@ -46,3 +46,5 @@ kiem-tra-nguoi-3.php
 day-code-len-github.bat
 doi-mat-khau.bat
 doi-mat-khau-tat-ca.php
+__pycache__/
+*.pyc

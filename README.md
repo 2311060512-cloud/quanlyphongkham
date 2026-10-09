@@ -174,7 +174,7 @@ quanlyphongkham_microservices/
 ---
 
 ### 💳 5. `billing-service/` — Dịch Vụ Viện Phí, Hóa Đơn & Thanh Toán (Port: 8004)
-> **Phụ trách:** 👤 Toàn | **Database:** `db_hoa_don_thanh_toan`
+> **Phụ trách:** 👤 Toàn | **Database:** `db_hoa_don_thanh_toan` | **Actor chính:** Lễ tân Thu ngân (`LE_TAN`) & Bệnh nhân
 
 #### 🎯 Chức năng thành viên cần xây dựng & duy trì:
 - **Cơ chế Tổng hợp Viện phí Tự động Liên dịch vụ (Core Feature):**
@@ -184,6 +184,10 @@ quanlyphongkham_microservices/
     3. Gọi `clinical-service` ➔ Lấy toàn bộ danh sách dịch vụ cận lâm sàng đã dùng: `sum(don_gia * so_luong)`.
   - Tự động lập Hóa đơn tổng hợp và từng dòng Chi tiết hóa đơn:
     $$\text{Thực thu} = \text{Tiền khám} + \text{Tiền cận lâm sàng} - \text{Giảm giá}$$
+- **Vận hành Quầy Lễ Tân kiêm Thu Ngân (`LE_TAN`):**
+  - Cung cấp tài khoản lễ tân mặc định `letan` / `123456` với quyền truy cập trang thanh toán (`tab-admin-thu-ngan`) và quản lý bệnh nhân (`tab-admin-benh-nhan`).
+  - Lễ tân thu viện phí tại quầy, tạo mã VietQR động, in biên lai viện phí chuẩn y tế và hoàn tiền (`DA_HOAN_TIEN`) khi hủy ca.
+  - Lễ tân tiếp đón bệnh nhân tại quầy và xác nhận lịch hẹn (`DA_XAC_NHAN`).
 - **Xử lý Xung đột Giao dịch & Chống thanh toán trùng lặp (Payment Conflict Prevention):**
   - Chặn tuyệt đối việc thanh toán lại hóa đơn đã hoàn tất thanh toán (`HTTP 409 Conflict` kèm mã lỗi `HOA_DON_DA_THANH_TOAN`).
   - Chặn thanh toán hóa đơn đã bị hoàn tiền (`HTTP 409 Conflict` kèm mã lỗi `HOA_DON_DA_HOAN_TIEN`).
@@ -235,8 +239,12 @@ Hệ thống sẽ mở 5 console tương ứng với 5 ports độc lập:
 ### Bước 3: Mở Dashboard & Kiểm thử trên trình duyệt
 Truy cập trình duyệt tại địa chỉ: **`http://127.0.0.1:8000`**
 - Xem trạng thái **Real-time Health Check** liveness của 4 microservices.
-- Đăng nhập thử nghiệm các vai trò: Quản trị viên (Admin), Bác sĩ điều trị, Bệnh nhân.
-- Thử nghiệm đặt lịch khám, kiểm chứng **thuật toán chặn trùng lịch ca khám**, chỉ định xét nghiệm và tự động kết xuất hóa đơn thanh toán.
+- Đăng nhập thử nghiệm các vai trò (tích hợp sẵn 4 nút đăng nhập nhanh 1-click):
+  * **Quản trị viên (Admin):** `admin` / `123456`
+  * **Bác sĩ chuyên khoa:** `bstuan` / `123456`
+  * **Lễ tân kiêm Thu ngân:** `letan` / `123456`
+  * **Bệnh nhân:** `cuong` / `123456`
+- Thử nghiệm tiếp đón bệnh nhân, đặt lịch khám, kiểm chứng **thuật toán chặn trùng lịch ca khám**, chỉ định xét nghiệm và tự động kết xuất hóa đơn thanh toán / in biên lai.
 
 ### Bước 4: Chạy kiểm thử tự động toàn diện (CLI End-to-End Test)
 Khi 5 service đang chạy, mở một terminal mới và chạy:

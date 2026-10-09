@@ -28,6 +28,7 @@ $dinhTuyenMicroservice1 = function () {
 
     Route::prefix('tai-khoan')->group(function () {
         Route::get('/', [TaiKhoanController::class, 'danhSach']);
+        Route::post('/', [TaiKhoanController::class, 'taoMoi']);
         Route::patch('{id}/trang-thai', [TaiKhoanController::class, 'capNhatTrangThai'])->whereNumber('id');
         Route::put('{id}/doi-mat-khau', [TaiKhoanController::class, 'doiMatKhau'])->whereNumber('id');
         Route::delete('{id}', [TaiKhoanController::class, 'xoa'])->whereNumber('id');

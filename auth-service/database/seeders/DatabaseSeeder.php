@@ -29,6 +29,11 @@ class DatabaseSeeder extends Seeder
             'mo_ta' => 'Người dùng đăng ký khám bệnh và theo dõi hồ sơ'
         ]);
 
+        $vtLeTan = VaiTro::updateOrCreate(['ma_vai_tro' => 'LE_TAN'], [
+            'ten_vai_tro' => 'Nhân viên lễ tân',
+            'mo_ta' => 'Tiếp đón bệnh nhân, quản lý hồ sơ bệnh nhân, lịch hẹn và thu ngân viện phí'
+        ]);
+
         // 2. Tao 4 Chuyen Khoa yeu cau
         $ckNoi = ChuyenKhoa::updateOrCreate(['ma_khoa' => 'NOI'], [
             'ten_khoa' => 'Khoa Nội Tổng Quát',
@@ -117,6 +122,16 @@ class DatabaseSeeder extends Seeder
             'email' => 'benhnhancuong@gmail.com',
             'ho_ten' => 'Lê Văn Cường',
             'so_dien_thoai' => '0934567890',
+            'mat_khau' => Hash::make('123456'),
+            'trang_thai' => 'HOAT_DONG',
+        ]);
+
+        // 5.2 Tao 1 Le Tan mau: letan / 123456
+        TaiKhoan::updateOrCreate(['ten_dang_nhap' => 'letan'], [
+            'vai_tro_id' => $vtLeTan->id,
+            'email' => 'letan@phongkham.vn',
+            'ho_ten' => 'Lễ Tân Nguyễn Thị Mai',
+            'so_dien_thoai' => '0945678901',
             'mat_khau' => Hash::make('123456'),
             'trang_thai' => 'HOAT_DONG',
         ]);
