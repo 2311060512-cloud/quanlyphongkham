@@ -23,6 +23,60 @@ class TaiKhoanService
         ];
     }
 
+    public function taoMoi(array $duLieu): array
+    {
+        if (empty($duLieu['ten_dang_nhap']) || empty($duLieu['mat_khau'])) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'THIEU_THONG_TIN',
+                'thong_diep' => 'Vui lòng cung cấp đầy đủ tên đăng nhập và mật khẩu.'
+            ];
+        }
+
+        if ($this->taiKhoanRepo->timTheoTenDangNhapHoacEmail($duLieu['ten_dang_nhap'])) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'TEN_DANG_NHAP_DA_TON_TAI',
+                'thong_diep' => 'Tên đăng nhập đã được sử dụng trong hệ thống.'
+            ];
+        }
+
+        if (!empty($duLieu['email']) && $this->taiKhoanRepo->timTheoTenDangNhapHoacEmail($duLieu['email'])) {
+            return [
+                'thanh_cong' => false,
+                'ma_loi' => 'EMAIL_DA_TON_TAI',
+                'thong_diep' => 'Email đã được sử dụng trong hệ thống.'
+            ];
+        }
+
+        $vaiTroId = $duLieu['vai_tro_id'] ?? null;
+        if (!empty($duLieu['ma_vai_tro'])) {
+            $vt = \App\Models\VaiTro::where('ma_vai_tro', strtoupper($duLieu['ma_vai_tro']))->first();
+            if ($vt) $vaiTroId = $vt->id;
+        }
+
+        if (!$vaiTroId) {
+            $vtMacDinh = \App\Models\VaiTro::where('ma_vai_tro', 'BENH_NHAN')->first();
+            $vaiTroId = $vtMacDinh ? $vtMacDinh->id : 3;
+        }
+
+        $taiKhoan = $this->taiKhoanRepo->taoMoi([
+            'ten_dang_nhap' => trim($duLieu['ten_dang_nhap']),
+            'email' => !empty($duLieu['email']) ? trim($duLieu['email']) : (trim($duLieu['ten_dang_nhap']) . '@phongkham.vn'),
+            'mat_khau' => \Illuminate\Support\Facades\Hash::make($duLieu['mat_khau']),
+            'ho_ten' => !empty($duLieu['ho_ten']) ? trim($duLieu['ho_ten']) : trim($duLieu['ten_dang_nhap']),
+            'so_dien_thoai' => $duLieu['so_dien_thoai'] ?? null,
+            'vai_tro_id' => $vaiTroId,
+            'trang_thai' => $duLieu['trang_thai'] ?? 'HOAT_DONG',
+        ]);
+
+        return [
+            'thanh_cong' => true,
+            'thong_diep' => 'Tạo tài khoản thành công.',
+            'du_lieu' => $taiKhoan->load('vaiTro')
+        ];
+    }
+
     public function capNhatTrangThai(int $id, string $trangThai): array
     {
         $trangThai = strtoupper(trim($trangThai));

@@ -37,10 +37,12 @@ class XacThucGatewayMiddleware
             ])->timeout(5)->get("{$urlXacThuc}/api/v1/xac-thuc/thong-tin");
 
             if (!$response->successful() || !isset($response['du_lieu'])) {
+                $maLoi = $response->json('ma_loi') ?? 'TOKEN_KHONG_HOP_LE';
+                $thongDiep = $response->json('thong_diep') ?? 'API Gateway: Token không hợp lệ hoặc tài khoản đã bị khóa.';
                 return response()->json([
                     'thanh_cong' => false,
-                    'ma_loi' => 'TOKEN_KHONG_HOP_LE',
-                    'thong_diep' => 'API Gateway: Token khong hop le hoac da het han.'
+                    'ma_loi' => $maLoi,
+                    'thong_diep' => $thongDiep
                 ], 401);
             }
 

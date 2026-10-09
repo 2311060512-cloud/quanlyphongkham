@@ -449,8 +449,8 @@
                 </div>
             </div>
 
-            <!-- Nhóm 2: ĐẶT LỊCH & BỆNH NHÂN (BENH_NHAN, BAC_SI & ADMIN) -->
-            <div id="nav-group-benh-nhan" class="role-nav-group" data-roles="BENH_NHAN,ADMIN,BAC_SI">
+            <!-- Nhóm 2: ĐẶT LỊCH & BỆNH NHÂN (BENH_NHAN, BAC_SI, LE_TAN & ADMIN) -->
+            <div id="nav-group-benh-nhan" class="role-nav-group" data-roles="BENH_NHAN,ADMIN,BAC_SI,LE_TAN">
                 <p class="nav-group-label">Khám bệnh</p>
                 <div class="space-y-0.5">
                     <button class="sidebar-item" data-tab="tab-benh-nhan" onclick="chuyenTab('tab-benh-nhan', this)">
@@ -495,8 +495,8 @@
                 </div>
             </div>
 
-            <!-- Nhóm 4: THU NGÂN & VIỆN PHÍ (Chỉ ADMIN) -->
-            <div id="nav-group-thu-ngan" class="role-nav-group" data-roles="ADMIN">
+            <!-- Nhóm 4: THU NGÂN & VIỆN PHÍ (ADMIN & LE_TAN) -->
+            <div id="nav-group-thu-ngan" class="role-nav-group" data-roles="ADMIN,LE_TAN">
                 <p class="nav-group-label">Tài chính</p>
                 <div class="space-y-0.5">
                     <button class="sidebar-item" data-tab="tab-admin-thu-ngan" onclick="chuyenTab('tab-admin-thu-ngan', this)">
@@ -1522,13 +1522,23 @@
         <!-- TAB 3.2: QUẢN TRỊ TÀI KHOẢN -->
         <section id="tab-admin-tai-khoan" class="portal-section space-y-6">
             <div class="bg-white rounded-lg border border-[#E3E8EE] shadow-sm p-6 sm:p-8 space-y-6">
-                <div class="flex items-center justify-between pb-5 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-5 border-b border-slate-100 flex-wrap gap-3">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900 flex items-center space-x-2">
                             <i class="fa-solid fa-users-gear text-indigo-600"></i>
                             <span>Quản trị danh sách tài khoản toàn hệ thống</span>
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">Phân quyền, kiểm tra hoạt động và khóa/mở khóa tài khoản (service 01)</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="moModalThemTaiKhoan()" class="btn btn-primary">
+                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                            <span>Thêm tài khoản</span>
+                        </button>
+                        <button type="button" onclick="taiDanhSachTaiKhoan()" class="btn btn-secondary" title="Làm mới">
+                            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                            <span>Làm mới</span>
+                        </button>
                     </div>
                 </div>
 
@@ -2600,6 +2610,65 @@
                     <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-check"></i>
                         <span>Tạo hồ sơ bác sĩ</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM TÀI KHOẢN (ADMIN) -->
+    <div class="modal-backdrop" id="modal-them-tai-khoan">
+        <div class="modal-box bg-white rounded-lg border border-[#E3E8EE] shadow-xl max-w-md w-full overflow-hidden">
+            <form id="form-them-tai-khoan" onsubmit="event.preventDefault(); xacNhanThemTaiKhoan();" autocomplete="off">
+                <div class="px-6 py-4 border-b border-[#E3E8EE] flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-md bg-[#EEF5FB] text-[#1F6FB2] flex items-center justify-center text-sm flex-shrink-0">
+                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-slate-900 leading-tight">Thêm tài khoản người dùng</h3>
+                    </div>
+                    <button type="button" onclick="dongModal('modal-them-tai-khoan')" class="btn btn-ghost btn-icon" aria-label="Đóng" title="Đóng">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-3.5 text-xs max-h-[75vh] overflow-y-auto">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tên đăng nhập: <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-ttk-username" required autocomplete="off" placeholder="Ví dụ: letan_mai" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Mật khẩu ban đầu: <span class="text-rose-500">*</span></label>
+                        <input type="password" id="modal-ttk-pass" required autocomplete="new-password" placeholder="Tối thiểu 6 ký tự..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Họ và tên: <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-ttk-hoten" required autocomplete="off" placeholder="Ví dụ: Nguyễn Thị Mai" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Vai trò phân quyền: <span class="text-rose-500">*</span></label>
+                        <select id="modal-ttk-vaitro" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800 font-bold">
+                            <option value="LE_TAN" selected>Lễ tân (Quản lý bệnh nhân &amp; Thu ngân)</option>
+                            <option value="BAC_SI">Bác sĩ khám bệnh</option>
+                            <option value="BENH_NHAN">Bệnh nhân</option>
+                            <option value="ADMIN">Quản trị viên hệ thống</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Email:</label>
+                            <input type="email" id="modal-ttk-email" autocomplete="off" placeholder="mai@phongkham.vn" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Số điện thoại:</label>
+                            <input type="tel" id="modal-ttk-sdt" autocomplete="off" placeholder="0901234567" class="w-full px-3.5 py-2.5 bg-slate-50 border border-[#E3E8EE] rounded-md focus:outline-none focus:border-[#1F6FB2] focus:ring-1 focus:ring-[#1F6FB2] text-slate-800">
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="dongModal('modal-them-tai-khoan')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-md transition">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-md shadow-sm transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Tạo tài khoản</span>
                     </button>
                 </div>
             </form>
@@ -3710,6 +3779,43 @@
             // Đồng bộ giao diện theo vai trò
             capNhatGiaoDienTheoVaiTro();
 
+            // Kiểm tra trạng thái tài khoản thời gian thực với Auth Service (phát hiện tài khoản bị khóa ngay khi vào trang)
+            const resXacThuc = await goiApi('GET', '/api/v1/xac-thuc/thong-tin');
+            if (!resXacThuc.ok || resXacThuc.status === 401) {
+                // Nếu bị 401, goiApi đã tự động hiện thông báo tài khoản bị khóa và chuyển hướng
+                return;
+            }
+            if (resXacThuc.data && resXacThuc.data.du_lieu) {
+                AppState.currentUser = resXacThuc.data.du_lieu;
+                localStorage.setItem('user_info', JSON.stringify(AppState.currentUser));
+                sessionStorage.setItem('user_info', JSON.stringify(AppState.currentUser));
+                if (AppState.currentUser.trang_thai === 'BI_KHOA') {
+                    if (!window._isHandling401) {
+                        window._isHandling401 = true;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Tài khoản đã bị khóa!',
+                            text: 'Tài khoản của bạn đã bị khóa bởi Quản trị viên. Hệ thống sẽ tự động đăng xuất.',
+                            confirmButtonText: 'Đăng xuất ngay',
+                            confirmButtonColor: '#DC2626',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            xuLyDangXuatGateway();
+                        });
+                    }
+                    return;
+                }
+            }
+
+            // Giám sát trạng thái tài khoản thời gian thực (Heartbeat mỗi 8 giây để phát hiện ngay khi Admin bấm khóa)
+            setInterval(async () => {
+                if (!AppState.token || window._isHandling401) return;
+                try {
+                    await goiApi('GET', '/api/v1/xac-thuc/thong-tin');
+                } catch (e) {}
+            }, 8000);
+
             // Tải dữ liệu ban đầu
             await taiDanhSachChuyenKhoa();
             await taiDanhSachBacSi();
@@ -3717,18 +3823,18 @@
             await taiBangGiaKham();
 
             const role = AppState.currentUser ? AppState.currentUser.vai_tro : '';
-            if (role === 'BENH_NHAN' || role === 'ADMIN' || role === 'BAC_SI') {
+            if (role === 'BENH_NHAN' || role === 'ADMIN' || role === 'BAC_SI' || role === 'LE_TAN') {
                 await taiVaRenderHoSoGiaDinh();
             }
-            if (role === 'BAC_SI' || role === 'ADMIN') {
+            if (role === 'BAC_SI' || role === 'ADMIN' || role === 'LE_TAN') {
                 await taiDanhSachBenhNhan();
                 await taiDanhSachDichVuCLS();
             }
-            if (role === 'ADMIN' || role === 'BENH_NHAN') {
+            if (role === 'ADMIN' || role === 'BENH_NHAN' || role === 'LE_TAN') {
                 await taiDanhSachHoaDon();
+                await taiBaoCaoDoanhThu();
             }
             if (role === 'ADMIN') {
-                await taiBaoCaoDoanhThu();
                 await taiDanhSachTaiKhoan();
                 await kiemTraHealthToanHeThong();
                 setTimeout(() => khoiTaoBieuDoThongKe(), 200);
@@ -3781,16 +3887,24 @@
                 'tab-benh-nhan',
                 'tab-ho-so-gia-dinh',
                 'tab-benh-nhan-vien-phi'
+            ],
+            'LE_TAN': [
+                'tab-admin-benh-nhan',
+                'tab-admin-thu-ngan',
+                'tab-benh-nhan-lich',
+                'tab-benh-nhan',
+                'tab-bang-gia-kham'
             ]
         };
 
         const DEFAULT_TAB_BY_ROLE = {
             'ADMIN': 'tab-admin-giam-sat',
             'BAC_SI': 'tab-bac-si',
-            'BENH_NHAN': 'tab-benh-nhan-lich'
+            'BENH_NHAN': 'tab-benh-nhan-lich',
+            'LE_TAN': 'tab-admin-benh-nhan'
         };
 
-        // HÀM CHUẨN HÓA VAI TRÒ (ĐẢM BẢO LUÔN LÀ STRING 'ADMIN' | 'BAC_SI' | 'BENH_NHAN')
+        // HÀM CHUẨN HÓA VAI TRÒ (ĐẢM BẢO LUÔN LÀ STRING 'ADMIN' | 'BAC_SI' | 'BENH_NHAN' | 'LE_TAN')
         function chuanHoaVaiTroCurrentUser() {
             if (!AppState.currentUser) return 'BENH_NHAN';
             let role = 'BENH_NHAN';
@@ -3801,7 +3915,7 @@
             } else if (AppState.currentUser.vaiTro && typeof AppState.currentUser.vaiTro === 'object') {
                 role = AppState.currentUser.vaiTro.ma_vai_tro || 'BENH_NHAN';
             } else if (AppState.currentUser.vai_tro_id) {
-                const mapRoles = { 1: 'ADMIN', 2: 'BAC_SI', 3: 'BENH_NHAN' };
+                const mapRoles = { 1: 'ADMIN', 2: 'BAC_SI', 3: 'BENH_NHAN', 4: 'LE_TAN' };
                 role = mapRoles[AppState.currentUser.vai_tro_id] || 'BENH_NHAN';
             }
             AppState.currentUser.vai_tro = role;
@@ -3823,7 +3937,7 @@
             const roleEl = document.getElementById('header-user-role');
             if (roleEl) {
                 // Hiển thị tên vai trò bằng tiếng Việt thay cho mã kỹ thuật
-                const tenVaiTro = { 'ADMIN': 'Quản trị viên', 'BAC_SI': 'Bác sĩ', 'BENH_NHAN': 'Bệnh nhân' };
+                const tenVaiTro = { 'ADMIN': 'Quản trị viên', 'BAC_SI': 'Bác sĩ', 'BENH_NHAN': 'Bệnh nhân', 'LE_TAN': 'Lễ tân' };
                 roleEl.textContent = tenVaiTro[role] || role;
                 roleEl.className = 'text-[13px] text-slate-500 leading-tight';
             }
@@ -3849,6 +3963,7 @@
             if (brandSub) {
                 if (role === 'ADMIN') brandSub.textContent = 'Phòng khám đa khoa · Quản trị';
                 else if (role === 'BAC_SI') brandSub.textContent = 'Phòng khám đa khoa · Bác sĩ';
+                else if (role === 'LE_TAN') brandSub.textContent = 'Phòng khám đa khoa · Lễ tân';
                 else brandSub.textContent = 'Phòng khám đa khoa';
             }
 
@@ -3888,6 +4003,9 @@
             } else if (role === 'BAC_SI') {
                 if (navLabelLich) navLabelLich.textContent = 'Lịch hẹn';
                 if (titleLichKham) titleLichKham.textContent = 'Lịch hẹn của phòng khám';
+            } else if (role === 'LE_TAN') {
+                if (navLabelLich) navLabelLich.textContent = 'Tiếp đón lịch khám';
+                if (titleLichKham) titleLichKham.textContent = 'Danh sách lịch khám tiếp đón';
             } else {
                 if (navLabelLich) navLabelLich.textContent = 'Lịch khám';
                 if (titleLichKham) titleLichKham.textContent = 'Tất cả lịch khám';
@@ -3922,6 +4040,13 @@
                 const defaultTab = DEFAULT_TAB_BY_ROLE[role] || 'tab-benh-nhan-lich';
                 chuyenTab(defaultTab);
             }
+
+            // Xóa hash trên thanh địa chỉ để luôn hiển thị URL gốc /dashboard sạch đẹp
+            if (window.location.hash) {
+                try {
+                    history.replaceState(null, null, window.location.pathname);
+                } catch (e) {}
+            }
         }
 
         // HÀM CHUYỂN TAB TRÊN THANH MENU SIDEBAR BÊN TRÁI (CÓ BẢO VỆ PHÂN QUYỀN)
@@ -3949,11 +4074,12 @@
             const targetSection = document.getElementById(tabId);
             if (!targetSection) return;
 
-            // Lưu trạng thái tab hiện tại vào sessionStorage & URL Hash để khi F5 / Reload vẫn giữ nguyên tab
+            // Lưu trạng thái tab hiện tại vào sessionStorage (khi F5/Reload vẫn giữ nguyên tab)
+            // Giữ URL gốc /dashboard sạch đẹp không hiển thị #tab-... trên thanh địa chỉ
             try {
                 sessionStorage.setItem('current_active_tab', tabId);
-                if (window.location.hash !== '#' + tabId) {
-                    history.replaceState(null, null, '#' + tabId);
+                if (window.location.hash) {
+                    history.replaceState(null, null, window.location.pathname);
                 }
             } catch (e) {}
 
@@ -4040,6 +4166,30 @@
             try {
                 const res = await fetch(cleanPath, options);
                 const data = await res.json().catch(() => ({}));
+
+                // TỰ ĐỘNG BẮT VÀ XỬ LÝ KHÓA TÀI KHOẢN HOẶC HẾT HẠN PHIÊN (HTTP 401)
+                if (res.status === 401) {
+                    if (!window._isHandling401) {
+                        window._isHandling401 = true;
+                        const isBiKhoa = (data && (data.ma_loi === 'TAI_KHOAN_BI_KHOA' || (data.thong_diep && data.thong_diep.toLowerCase().includes('khóa'))));
+                        const tieuDe = isBiKhoa ? 'Tài khoản đã bị khóa!' : 'Phiên đăng nhập hết hạn';
+                        const noiDung = (data && data.thong_diep)
+                            ? data.thong_diep
+                            : 'Tài khoản của bạn đã bị khóa bởi Quản trị viên hoặc phiên đăng nhập đã hết hạn.';
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: tieuDe,
+                            text: noiDung + ' Hệ thống sẽ tự động đăng xuất.',
+                            confirmButtonText: 'Đăng xuất ngay',
+                            confirmButtonColor: '#DC2626',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            xuLyDangXuatGateway();
+                        });
+                    }
+                }
 
                 return {
                     ok: res.ok,
@@ -4746,11 +4896,15 @@
                 const tenBn = lh.benh_nhan ? (lh.benh_nhan.ho_ten || '') : (lh.ho_ten_benh_nhan || (`Bệnh nhân #${lh.benh_nhan_id}`));
                 const sdtBn = lh.benh_nhan ? (lh.benh_nhan.so_dien_thoai || '') : (lh.so_dien_thoai || '');
 
-                // Bác sĩ KHÔNG THỂ dời lịch và hủy lịch của bệnh nhân (Chỉ bệnh nhân hoặc quản trị viên)
+                // Bác sĩ KHÔNG THỂ dời lịch và hủy lịch của bệnh nhân (Chỉ bệnh nhân, lễ tân hoặc quản trị viên)
                 const isBacSi = u && u.vai_tro === 'BAC_SI';
+                const isNhanVien = u && (u.vai_tro === 'ADMIN' || u.vai_tro === 'LE_TAN');
                 const canManage = !isBacSi && ['CHO_XAC_NHAN', 'DA_XAC_NHAN'].includes(lh.trang_thai);
                 
                 let actionBtns = [];
+                if (isNhanVien && ['CHO_XAC_NHAN', 'CHO_KHAM'].includes(lh.trang_thai)) {
+                    actionBtns.push(`<button onclick="xacNhanLichHen(${lh.id})" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Xác nhận / Tiếp đón bệnh nhân"><i class="fa-solid fa-check"></i> Tiếp nhận</button>`);
+                }
                 if (canManage) {
                     actionBtns.push(`<button onclick="moModalDoiLich(${lh.id})" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Dời Giờ / Ngày Khám"><i class="fa-solid fa-clock-rotate-left"></i> Dời lịch</button>`);
                     actionBtns.push(`<button onclick="huyLichHenBenhNhan(${lh.id})" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Hủy Ca Khám"><i class="fa-solid fa-ban"></i> Hủy</button>`);
@@ -4792,6 +4946,16 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        async function xacNhanLichHen(id) {
+            const res = await goiApi('PUT', `/api/v1/lich-hen/${id}/xac-nhan`);
+            if (res.ok) {
+                showToast('success', 'Đã tiếp nhận', 'Đã xác nhận tiếp nhận lịch khám thành công!');
+                await taiDanhSachLichHen();
+            } else {
+                showToast('error', 'Lỗi tiếp nhận', res.data.thong_diep || 'Không thể xác nhận lịch khám.');
+            }
         }
 
         async function huyLichHenBenhNhan(id) {
@@ -5374,6 +5538,17 @@
                     </button>
                 ` : '');
 
+                let roleBadgeHtml = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">${vaiTro}</span>`;
+                if (vaiTro === 'ADMIN') {
+                    roleBadgeHtml = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">Quản trị viên</span>`;
+                } else if (vaiTro === 'BAC_SI') {
+                    roleBadgeHtml = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">Bác sĩ</span>`;
+                } else if (vaiTro === 'LE_TAN') {
+                    roleBadgeHtml = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">Lễ tân</span>`;
+                } else if (vaiTro === 'BENH_NHAN') {
+                    roleBadgeHtml = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Bệnh nhân</span>`;
+                }
+
                 return `
                     <tr class="hover:bg-slate-50/70 transition">
                         <td class="py-3 px-4 font-bold text-slate-800">#${tk.id}</td>
@@ -5381,7 +5556,7 @@
                         <td class="py-3 px-4 font-bold text-slate-900">${tk.ho_ten || '--'}</td>
                         <td class="py-3 px-4 text-slate-500">${tk.email || '--'}</td>
                         <td class="py-3 px-4 text-slate-600">${tk.so_dien_thoai || '--'}</td>
-                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[13px] font-bold bg-slate-100 text-slate-700 border border-[#E3E8EE]">${vaiTro}</span></td>
+                        <td class="py-3 px-4">${roleBadgeHtml}</td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4 text-center">
                             <div class="inline-flex items-center space-x-1.5">
@@ -5396,6 +5571,58 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function moModalThemTaiKhoan() {
+            if (!AppState.currentUser || AppState.currentUser.vai_tro !== 'ADMIN') {
+                showToast('error', 'Từ chối', 'Chỉ Quản trị viên mới có quyền thêm tài khoản.');
+                return;
+            }
+            const form = document.getElementById('form-them-tai-khoan');
+            if (form) form.reset();
+            moModal('modal-them-tai-khoan');
+        }
+
+        async function xacNhanThemTaiKhoan() {
+            if (!AppState.currentUser || AppState.currentUser.vai_tro !== 'ADMIN') {
+                showToast('error', 'Từ chối', 'Chỉ Quản trị viên mới có quyền thêm tài khoản.');
+                return;
+            }
+
+            const username = (document.getElementById('modal-ttk-username').value || '').trim();
+            const matKhau = (document.getElementById('modal-ttk-pass').value || '').trim();
+            const hoTen = (document.getElementById('modal-ttk-hoten').value || '').trim();
+            const vaiTro = (document.getElementById('modal-ttk-vaitro').value || 'LE_TAN').trim();
+            const email = (document.getElementById('modal-ttk-email').value || '').trim();
+            const sdt = (document.getElementById('modal-ttk-sdt').value || '').trim();
+
+            if (!username || !matKhau || !hoTen) {
+                showToast('error', 'Thiếu dữ liệu', 'Vui lòng điền đầy đủ tên đăng nhập, mật khẩu và họ tên.');
+                return;
+            }
+
+            if (matKhau.length < 6) {
+                showToast('error', 'Mật khẩu yếu', 'Mật khẩu phải có ít nhất 6 ký tự.');
+                return;
+            }
+
+            const payload = {
+                ten_dang_nhap: username,
+                mat_khau: matKhau,
+                ho_ten: hoTen,
+                vai_tro: vaiTro,
+                email: email || null,
+                so_dien_thoai: sdt || null
+            };
+
+            const res = await goiApi('POST', '/api/v1/tai-khoan', payload);
+            if (res.ok) {
+                dongModal('modal-them-tai-khoan');
+                showToast('success', 'Thành công', `Đã tạo tài khoản "${username}" thành công!`);
+                await taiDanhSachTaiKhoan();
+            } else {
+                showToast('error', 'Lỗi tạo tài khoản', (res.data && res.data.thong_diep) || 'Không thể tạo tài khoản.');
+            }
         }
 
         async function xacNhanXoaTaiKhoan(id, username) {
@@ -6282,7 +6509,7 @@
                 if (daThu) {
                     btnPay.style.display = 'none';
                     boxPay.style.display = 'none';
-                    if (btnRefund && AppState.currentUser && AppState.currentUser.vai_tro === 'ADMIN') {
+                    if (btnRefund && AppState.currentUser && (AppState.currentUser.vai_tro === 'ADMIN' || AppState.currentUser.vai_tro === 'LE_TAN')) {
                         btnRefund.classList.remove('hidden');
                     }
                 } else if (daHoan) {
@@ -6466,8 +6693,8 @@
         }
 
         function moModalHoanTien() {
-            if (!AppState.currentUser || AppState.currentUser.vai_tro !== 'ADMIN') {
-                showToast('error', 'Từ chối', 'Chỉ Quản trị viên (ADMIN) mới có quyền hoàn tiền viện phí.');
+            if (!AppState.currentUser || (AppState.currentUser.vai_tro !== 'ADMIN' && AppState.currentUser.vai_tro !== 'LE_TAN')) {
+                showToast('error', 'Từ chối', 'Chỉ Quản trị viên hoặc Lễ tân mới có quyền hoàn tiền viện phí.');
                 return;
             }
             const hd = (AppState.danhSachHoaDon || []).find(h => h.id === AppState.hoaDonDangXemId);

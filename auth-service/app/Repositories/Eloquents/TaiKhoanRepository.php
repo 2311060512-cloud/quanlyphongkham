@@ -46,7 +46,11 @@ class TaiKhoanRepository implements TaiKhoanRepositoryInterface
         $tk = TaiKhoan::find($id);
         if ($tk) {
             $tk->trang_thai = $trangThai;
-            return $tk->save();
+            $saved = $tk->save();
+            if ($saved && $trangThai === 'BI_KHOA') {
+                $tk->tokens()->delete();
+            }
+            return $saved;
         }
         return false;
     }

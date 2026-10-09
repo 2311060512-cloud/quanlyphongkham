@@ -154,7 +154,7 @@
             <div id="section-login" class="space-y-4">
                 <div>
                     <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Đăng Nhập Tài Khoản</h3>
-                    <p class="text-xs text-slate-500 mt-1">Sử dụng tài khoản Quản trị viên, Bác sĩ hoặc Bệnh nhân để tiếp tục.</p>
+                    <p class="text-xs text-slate-500 mt-1">Sử dụng tài khoản Quản trị viên, Bác sĩ, Lễ tân hoặc Bệnh nhân để tiếp tục.</p>
                 </div>
 
                 <form onsubmit="xuLyDangNhap(event)" class="space-y-4">
@@ -190,6 +190,39 @@
                     <button type="submit" id="btn-submit-login" class="w-full py-3 bg-medical-600 hover:bg-medical-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-medical-600/25 transition-all flex items-center justify-center">
                         <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> Đăng Nhập Ngay
                     </button>
+
+                    <!-- Nút đăng nhập nhanh các vai trò thử nghiệm -->
+                    <div class="pt-3 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tài khoản demo đăng nhập nhanh:</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <button type="button" onclick="nhapNhanhTaiKhoan('admin', 'Admin@123', true)" class="p-2 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 text-left transition group">
+                                <div class="font-bold text-rose-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-shield-halved text-[11px]"></i> Quản trị viên
+                                </div>
+                                <div class="text-[10px] text-slate-500 font-mono">admin / Admin@123</div>
+                            </button>
+                            <button type="button" onclick="nhapNhanhTaiKhoan('bstuan', '123456', true)" class="p-2 rounded-xl bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-left transition group">
+                                <div class="font-bold text-sky-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-doctor text-[11px]"></i> Bác sĩ Tuấn
+                                </div>
+                                <div class="text-[10px] text-slate-500 font-mono">bstuan / 123456</div>
+                            </button>
+                            <button type="button" onclick="nhapNhanhTaiKhoan('letan', '123456', true)" class="p-2 rounded-xl bg-purple-50/70 hover:bg-purple-100/70 border border-purple-200 hover:border-purple-300 text-left transition group">
+                                <div class="font-bold text-purple-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bell-concierge text-[11px]"></i> Lễ tân (Thu ngân/BN)
+                                </div>
+                                <div class="text-[10px] text-purple-600 font-mono">letan / 123456</div>
+                            </button>
+                            <button type="button" onclick="nhapNhanhTaiKhoan('benhnhan', '123456', true)" class="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-left transition group">
+                                <div class="font-bold text-emerald-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-hospital-user text-[11px]"></i> Bệnh nhân Cường
+                                </div>
+                                <div class="text-[10px] text-slate-500 font-mono">benhnhan / 123456</div>
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -391,16 +424,20 @@
                             window.location.href = '/dashboard';
                         } else if (data.vai_tro === 'BAC_SI') {
                             window.location.href = '/dashboard';
+                        } else if (data.vai_tro === 'LE_TAN') {
+                            window.location.href = '/dashboard';
                         } else {
                             // BỆNH NHÂN -> Đến ngay Cổng Đặt Lịch Khám
                             window.location.href = '/dashboard';
                         }
                     });
                 } else {
+                    const isBiKhoa = json.ma_loi === 'TAI_KHOAN_BI_KHOA';
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Đăng nhập không thành công',
-                        text: json.thong_diep || 'Tên đăng nhập hoặc mật khẩu không chính xác.'
+                        icon: isBiKhoa ? 'error' : 'error',
+                        title: isBiKhoa ? 'Tài khoản đã bị khóa!' : 'Đăng nhập không thành công',
+                        text: json.thong_diep || 'Tên đăng nhập hoặc mật khẩu không chính xác.',
+                        confirmButtonColor: isBiKhoa ? '#DC2626' : '#1F6FB2'
                     });
                 }
             } catch (err) {

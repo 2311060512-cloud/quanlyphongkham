@@ -28,6 +28,28 @@ class TaiKhoanController extends Controller
     }
 
     /**
+     * POST /api/v1/tai-khoan
+     * Chi Admin duoc phep tao moi tai khoan
+     */
+    public function taoMoi(Request $request): JsonResponse
+    {
+        $vaiTro = $request->header('X-Vai-Tro') ?? $request->header('X-User-Role');
+        if ($vaiTro && $vaiTro !== 'ADMIN') {
+            return $this->thatBaiResponse(
+                'Chỉ Quản trị viên (ADMIN) mới có quyền tạo mới tài khoản.',
+                'KHONG_CO_QUYEN',
+                403
+            );
+        }
+
+        $ketQua = $this->taiKhoanService->taoMoi($request->all());
+        if (!$ketQua['thanh_cong']) {
+            return $this->thatBaiResponse($ketQua['thong_diep'], $ketQua['ma_loi'], 400);
+        }
+        return $this->thanhCongResponse($ketQua['du_lieu'], $ketQua['thong_diep'], 201);
+    }
+
+    /**
      * PATCH /api/v1/tai-khoan/{id}/trang-thai
      * Chi Admin duoc phep khoa / mo khoa tai khoan
      */
