@@ -99,6 +99,14 @@ class XacThucController extends Controller
             );
         }
 
+        if (isset($thongTin['_bi_khoa'])) {
+            return $this->thatBaiResponse(
+                'Tài khoản của bạn đã bị khóa bởi Quản trị viên. Vui lòng liên hệ ban quản lý.',
+                'TAI_KHOAN_BI_KHOA',
+                401
+            );
+        }
+
         return $this->thanhCongResponse($thongTin, 'Xác thực token thành công.');
     }
 

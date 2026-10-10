@@ -126,9 +126,9 @@ $dangKyDinhTuyenGateway = function () {
             Route::post('nguoi-than', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan/nguoi-than'));
             // Chi tiết hồ sơ bệnh nhân
             Route::get('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/benh-nhan/{$id}"))->whereNumber('id');
-            // Xem danh sách toàn bộ bệnh nhân: Chỉ ADMIN và BAC_SI
+            // Xem danh sách toàn bộ bệnh nhân: ADMIN, BAC_SI hoặc LE_TAN
             Route::get('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/benh-nhan'))
-                ->middleware('phan_quyen:ADMIN,BAC_SI');
+                ->middleware('phan_quyen:ADMIN,BAC_SI,LE_TAN');
             // Cập nhật thông tin bệnh nhân
             Route::put('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/benh-nhan/{$id}"))->whereNumber('id');
             // Tạo mới hồ sơ bệnh nhân
@@ -138,9 +138,9 @@ $dangKyDinhTuyenGateway = function () {
         Route::prefix('lich-hen')->group(function () {
             // Lấy lịch sử ca khám cá nhân của bệnh nhân
             Route::get('lich-su-cua-toi', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/lich-hen/lich-su-cua-toi'));
-            // Đặt lịch khám: BENH_NHAN hoặc ADMIN
+            // Đặt lịch khám: BENH_NHAN, ADMIN hoặc LE_TAN
             Route::post('dat-lich', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', 'v1/lich-hen/dat-lich'))
-                ->middleware('phan_quyen:ADMIN,BENH_NHAN');
+                ->middleware('phan_quyen:ADMIN,BENH_NHAN,LE_TAN');
             // Bác sĩ kết luận chẩn đoán & kê đơn thuốc
             Route::put('{id}/ket-luan-kham', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/ket-luan-kham"))
                 ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
@@ -150,12 +150,12 @@ $dangKyDinhTuyenGateway = function () {
             // Hoàn thành ca khám: BAC_SI hoặc ADMIN
             Route::put('{id}/hoan-thanh', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/hoan-thanh"))
                 ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
-            // Xác nhận ca khám: ADMIN hoặc BAC_SI
+            // Xác nhận ca khám: ADMIN, BAC_SI hoặc LE_TAN (tiếp đón)
             Route::put('{id}/xac-nhan', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/xac-nhan"))
-                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI');
-            // Dời lịch hẹn: BENH_NHAN hoặc ADMIN
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BAC_SI,LE_TAN');
+            // Dời lịch hẹn: BENH_NHAN, ADMIN hoặc LE_TAN
             Route::put('{id}/doi-lich', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/doi-lich"))
-                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BENH_NHAN');
+                ->whereNumber('id')->middleware('phan_quyen:ADMIN,BENH_NHAN,LE_TAN');
             // Hủy lịch hẹn: Cả 3 vai trò
             Route::put('{id}/huy', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'lich_hen', "v1/lich-hen/{$id}/huy"))->whereNumber('id');
             // Tải tệp đính kèm
@@ -228,24 +228,24 @@ $dangKyDinhTuyenGateway = function () {
     // 4. DỊCH VỤ 4: HÓA ĐƠN & THANH TOÁN (Port: 8004)
     // ========================================================================
     Route::middleware(['xac_thuc_gateway'])->prefix('hoa-don')->group(function () {
-        // Quản trị thống kê doanh thu: Bắt buộc quyền ADMIN
+        // Quản trị thống kê doanh thu: ADMIN hoặc LE_TAN
         Route::get('thong-ke', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', 'v1/hoa-don/thong-ke'))
-            ->middleware('phan_quyen:ADMIN');
+            ->middleware('phan_quyen:ADMIN,LE_TAN');
 
-        // Tạo hóa đơn tự động (Admin hoặc Bác sĩ kết thúc khám)
+        // Tạo hóa đơn tự động (Admin, Bác sĩ kết thúc khám hoặc Lễ tân thu ngân)
         Route::post('tao-tu-dong', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', 'v1/hoa-don/tao-tu-dong'))
-            ->middleware('phan_quyen:ADMIN,BAC_SI');
+            ->middleware('phan_quyen:ADMIN,BAC_SI,LE_TAN');
 
-        // Xem danh sách hóa đơn (Admin xem tất cả, Bệnh nhân xem hóa đơn của mình)
+        // Xem danh sách hóa đơn (Admin hoặc Lễ tân xem tất cả, Bệnh nhân xem hóa đơn của mình)
         Route::get('/', fn(Request $r) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', 'v1/hoa-don'))
-            ->middleware('phan_quyen:ADMIN,BENH_NHAN');
+            ->middleware('phan_quyen:ADMIN,BENH_NHAN,LE_TAN');
 
-        // Thanh toán hóa đơn (Bệnh nhân hoặc Admin)
+        // Thanh toán hóa đơn (Bệnh nhân, Lễ tân hoặc Admin)
         Route::put('{id}/thanh-toan', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', "v1/hoa-don/{$id}/thanh-toan"));
 
-        // Hoàn tiền hóa đơn: Chỉ ADMIN
+        // Hoàn tiền hóa đơn: ADMIN hoặc LE_TAN
         Route::put('{id}/hoan-tien', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', "v1/hoa-don/{$id}/hoan-tien"))
-            ->whereNumber('id')->middleware('phan_quyen:ADMIN');
+            ->whereNumber('id')->middleware('phan_quyen:ADMIN,LE_TAN');
 
         // Chi tiết hóa đơn
         Route::get('{id}', fn(Request $r, $id) => app(CongGiaoTiepController::class)->chuyenTiep($r, 'hoa_don', "v1/hoa-don/{$id}"))->whereNumber('id');

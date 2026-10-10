@@ -238,8 +238,8 @@ class LichHenService
             ];
         }
 
-        // Kiểm tra phân quyền: ADMIN hoặc chính Bệnh nhân sở hữu lịch hẹn
-        if ($vaiTro !== 'ADMIN' && $nguoiThucHienId !== null) {
+        // Kiểm tra phân quyền: ADMIN, LE_TAN hoặc chính Bệnh nhân sở hữu lịch hẹn
+        if ($vaiTro !== 'ADMIN' && $vaiTro !== 'LE_TAN' && $nguoiThucHienId !== null) {
             $laBenhNhan = ($lichHen->benhNhan && (int)$lichHen->benhNhan->tai_khoan_id === (int)$nguoiThucHienId);
             if (!$laBenhNhan) {
                 return [
@@ -278,7 +278,7 @@ class LichHenService
         }
 
         $lyDoDoiLich = $data['ly_do_doi_lich'] ?? ($data['ly_do'] ?? 'Bệnh nhân đề nghị dời giờ khám');
-        $trangThaiMoi = ($vaiTro === 'BAC_SI' || $vaiTro === 'ADMIN') ? $lichHen->trang_thai : 'CHO_XAC_NHAN';
+        $trangThaiMoi = ($vaiTro === 'BAC_SI' || $vaiTro === 'ADMIN' || $vaiTro === 'LE_TAN') ? $lichHen->trang_thai : 'CHO_XAC_NHAN';
 
         $lichHen->update([
             'ngay_kham' => $ngayKhamMoi,
@@ -314,8 +314,8 @@ class LichHenService
             ];
         }
 
-        // Kiểm tra phân quyền: ADMIN hoặc Bác sĩ phụ trách
-        if ($vaiTro !== 'ADMIN' && $nguoiThucHienId !== null) {
+        // Kiểm tra phân quyền: ADMIN, LE_TAN hoặc Bác sĩ phụ trách
+        if ($vaiTro !== 'ADMIN' && $vaiTro !== 'LE_TAN' && $nguoiThucHienId !== null) {
             if ((int)$lichHen->bac_si_id !== (int)$nguoiThucHienId) {
                 return [
                     'thanh_cong' => false,
@@ -463,8 +463,8 @@ class LichHenService
         }
 
         // 2. Chặn bệnh nhân hủy lịch sát giờ (< 2 tiếng / 120 phút trước giờ khám)
-        // Quản trị viên (ADMIN) có quyền hủy trong tình huống bất khả kháng
-        if ($vaiTro !== 'ADMIN') {
+        // Quản trị viên (ADMIN) và Lễ tân (LE_TAN) có quyền hủy trong tình huống tiếp đón / bất khả kháng
+        if ($vaiTro !== 'ADMIN' && $vaiTro !== 'LE_TAN') {
             try {
                 $thoiGianBatDau = Carbon::parse("{$lichHen->ngay_kham} {$lichHen->gio_bat_dau}");
                 $now = Carbon::now();

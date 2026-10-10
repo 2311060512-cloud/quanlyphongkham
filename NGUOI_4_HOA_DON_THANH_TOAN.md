@@ -1,14 +1,15 @@
-# 📋 BÁO CÁO CÔNG VIỆC PHÂN HỆ 04: HÓA ĐƠN & THANH TOÁN VIỆN PHÍ (NGƯỜI 4)
+# 📋 BÁO CÁO CÔNG VIỆC PHÂN HỆ 04: HÓA ĐƠN, THANH TOÁN VIỆN PHÍ & LỄ TÂN THU NGÂN (NGƯỜI 4)
 > **Dự án:** Hệ Thống Quản Lý Phòng Khám Đa Khoa (Kiến Trúc Microservices)  
-> **Người thực hiện:** Người 4 (Toàn) (Phân hệ Hóa Đơn & Thanh Toán)  
+> **Người thực hiện:** Người 4 (Toàn) (Phân hệ Hóa Đơn, Quyết Toán & Lễ Tân Thu Ngân)  
 > **Thư mục phụ trách:** `billing-service/` (Port `8004`)  
-> **Cơ sở dữ liệu:** `db_hoa_don_thanh_toan` (MySQL Port 3306 / 3307)
+> **Cơ sở dữ liệu:** `db_hoa_don_thanh_toan` (MySQL Port 3306 / 3307)  
+> **Tác nhân người dùng chính (Actors):** **Nhân viên Lễ tân kiêm Thu ngân (`LE_TAN`)**, **Bệnh nhân**, và Quản trị viên (`ADMIN`).
 
 ---
 
 ## 📌 I. TỔNG QUAN VAI TRÒ & NHIỆM VỤ ĐÃ HOÀN THÀNH
 
-Phân hệ 04 là **trung tâm quyết toán tài chính và viện phí**, chịu trách nhiệm tự động tổng hợp toàn bộ chi phí khám chữa bệnh từ các phân hệ khác, lập hóa đơn, xử lý thanh toán đa kênh và cung cấp báo cáo thống kê dòng tiền phòng khám.
+Phân hệ 04 là **trung tâm quyết toán tài chính, viện phí và vận hành quầy thu ngân / lễ tân tiếp đón**, chịu trách nhiệm tự động tổng hợp toàn bộ chi phí khám chữa bệnh từ các phân hệ khác, lập hóa đơn, xử lý thanh toán đa kênh, in biên lai, hoàn tiền và cung cấp báo cáo thống kê dòng tiền phòng khám.
 
 ### Các thành tựu chính:
 1. **Độc lập dịch vụ:** Microservice 04 hoạt động hoàn toàn độc lập trên Port 8004, sở hữu database riêng `db_hoa_don_thanh_toan`.
@@ -18,9 +19,15 @@ Phân hệ 04 là **trung tâm quyết toán tài chính và viện phí**, ch�
      - Gọi `auth-service:8001`: Lấy giá khám gốc (`gia_kham`) của bác sĩ.
      - Gọi `clinical-service:8003`: Lấy danh sách các dịch vụ cận lâm sàng đã chỉ định và đơn giá từng loại.
    - Tự động tính toán: $\text{Thực thu} = \text{Tiền khám} + \text{Tiền cận lâm sàng} - \text{Giảm giá}$.
-3. **Cơ chế chịu lỗi (Fault Tolerance & Graceful Degradation):** Thiết lập Timeout và giá trị Fallback an toàn nếu một trong các service liên quan phản hồi chậm hoặc tạm gián đoạn.
-4. **Quản lý Hóa đơn & Biên lai:** Sinh mã hóa đơn chuẩn `HD-YYYYMMDD-xxxx`, quản lý trạng thái (`CHUA_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HOAN_TIEN`).
-5. **Thanh toán Đa kênh:** Hỗ trợ thanh toán tiền mặt (`TIEN_MAT`), chuyển khoản ngân hàng (`CHUYEN_KHOAN`), ví điện tử (`MOMO`) và cổng thanh toán (`VNPAY`).
+3. **Phân hệ Vận Hành Lễ Tân kiêm Thu Ngân (`LE_TAN`) Tại Quầy:**
+   - **Tài khoản chuyên trách:** Cung cấp tài khoản mặc định `letan` / `123456` với nút bấm đăng nhập nhanh 1-click.
+   - **Trang Thanh toán & Thu ngân (`tab-admin-thu-ngan`):** Xem toàn bộ danh bạ viện phí, tra cứu theo trạng thái (*Chờ thu*, *Đã thu*, *Đã hoàn tiền*).
+   - **Thao tác thanh toán trực tiếp:** Hỗ trợ thu tiền mặt, quét mã VietQR tự động theo số tiền, giả lập VNPAY và MoMo.
+   - **In biên lai viện phí chuẩn y tế:** In phiếu thu viện phí chi tiết (tiền khám, từng khoản cận lâm sàng, tổng tiền bằng số và bằng chữ).
+   - **Nghiệp vụ hoàn tiền viện phí:** Lễ tân có thẩm quyền thực hiện hoàn tiền (`DA_HOAN_TIEN`) kèm lý do đối soát khi bệnh nhân dời/hủy lịch khám.
+   - **Liên kết Quản lý Bệnh nhân & Tiếp đón:** Lễ tân có quyền truy cập tab Quản lý Bệnh nhân (`tab-admin-benh-nhan`), xem danh sách lịch hẹn (`tab-benh-nhan-lich`), và thực hiện **Xác nhận tiếp đón** (`DA_XAC_NHAN`) khi bệnh nhân đến làm thủ tục tại quầy.
+4. **Cơ chế chịu lỗi (Fault Tolerance & Graceful Degradation):** Thiết lập Timeout và giá trị Fallback an toàn nếu một trong các service liên quan phản hồi chậm hoặc tạm gián đoạn.
+5. **Chống thanh toán trùng & Bảo toàn giao dịch:** Chặn tuyệt đối việc thanh toán lại hóa đơn đã thanh toán hoặc đã hoàn tiền (`HTTP 409 Conflict`).
 6. **Báo cáo Thống kê Doanh thu:** Cung cấp số liệu tổng thu, số hóa đơn đã thanh toán / chưa thanh toán, phục vụ quản trị phòng khám.
 
 ---
@@ -58,16 +65,16 @@ Phân hệ 04 là **trung tâm quyết toán tài chính và viện phí**, ch�
 
 ---
 
-## 🌐 III. DANH SÁCH RESTFUL APIS CỦA SERVICE 04
+## 🌐 III. DANH SÁCH RESTFUL APIS CỦA SERVICE 04 (GATEWAY PORT 8000)
 
-| Phương thức | Đường dẫn API | Mô tả nghiệp vụ |
-|---|---|---|
-| `GET` | `/api/hoa-don` | Lấy danh sách hóa đơn (hỗ trợ lọc theo `benh_nhan_id`, `trang_thai`) |
-| `GET` | `/api/hoa-don/{id}` | Lấy chi tiết hóa đơn và từng dòng mục thu chi tiết |
-| `POST` | `/api/hoa-don/tao-tu-dong` | **Tự động tổng hợp hóa đơn liên dịch vụ** theo `lich_hen_id` |
-| `PUT` | `/api/hoa-don/{id}/thanh-toan` | Thực hiện thanh toán (`TIEN_MAT`, `CHUYEN_KHOAN`, `VNPAY`, `MOMO`) |
-| `PUT` | `/api/hoa-don/{id}/hoan-tien` | **Hoàn tiền viện phí** cho ca khám bị hủy / đổi chỉ định (Role ADMIN) |
-| `GET` | `/api/hoa-don/thong-ke` | Báo cáo thống kê tổng doanh thu và tỷ lệ thanh toán |
+| Phương thức | Đường dẫn API | Phân quyền Gateway | Mô tả nghiệp vụ |
+|---|---|---|---|
+| `GET` | `/api/v1/hoa-don` | `ADMIN`, `LE_TAN`, `BENH_NHAN` | Lấy danh sách hóa đơn viện phí (Lễ tân & Admin xem toàn viện, Bệnh nhân xem hóa đơn cá nhân/gia đình) |
+| `GET` | `/api/v1/hoa-don/{id}` | `ADMIN`, `LE_TAN`, `BENH_NHAN` | Lấy chi tiết hóa đơn và từng dòng mục thu chi tiết |
+| `POST` | `/api/v1/hoa-don/tao-tu-dong` | `ADMIN`, `BAC_SI`, `LE_TAN` | **Tự động tổng hợp hóa đơn liên dịch vụ** theo `lich_hen_id` |
+| `PUT` | `/api/v1/hoa-don/{id}/thanh-toan` | `ADMIN`, `LE_TAN`, `BENH_NHAN` | Thực hiện thanh toán viện phí (`TIEN_MAT`, `CHUYEN_KHOAN`, `VNPAY`, `MOMO`) |
+| `PUT` | `/api/v1/hoa-don/{id}/hoan-tien` | `ADMIN`, `LE_TAN` | **Hoàn tiền viện phí** cho ca khám bị hủy / dời lịch (Ghi nhận lý do và cập nhật trạng thái `DA_HOAN_TIEN`) |
+| `GET` | `/api/v1/hoa-don/thong-ke` | `ADMIN`, `LE_TAN` | Báo cáo thống kê tổng doanh thu, thực thu, tỷ lệ thanh toán và ca chờ thu |
 
 ---
 
@@ -77,14 +84,17 @@ Phân hệ 04 là **trung tâm quyết toán tài chính và viện phí**, ch�
    - Bệnh nhân tra cứu toàn bộ viện phí cá nhân và người thân trong gia đình.
    - Thống kê trực quan: Số tiền chờ thanh toán, số tiền đã thanh toán, tổng số hóa đơn.
    - Nút **"Thanh Toán Ngay"** 1-click cho các ca khám chưa quyết toán.
-2. **Thanh Toán Đa Kênh Tích Hợp VietQR:**
+2. **Quầy Thu Ngân & Lễ Tân Tiếp Đón (`tab-admin-thu-ngan` & `tab-admin-benh-nhan`):**
+   - Nhân viên Lễ tân đăng nhập trực tiếp bằng tài khoản `letan` / `123456`.
+   - Xem toàn bộ danh bạ hóa đơn viện phí, bộ lọc nhanh theo 4 trạng thái (*Tất cả*, *Chờ thu*, *Đã thu*, *Đã hoàn tiền*).
+   - Nút **"Thanh toán"** mở modal quyết toán viện phí trực tiếp tại quầy.
+   - Nút **"Hoàn tiền"** cho phép nhân viên lễ tân/thu ngân hoàn tiền ngay khi bệnh nhân hủy ca khám.
+   - Tab **Quản lý Bệnh nhân** và **Tiếp đón lịch hẹn** cho phép Lễ tân kiểm tra danh tính và bấm **Xác nhận tiếp đón** bệnh nhân khi đến phòng khám.
+3. **Thanh Toán Đa Kênh Tích Hợp VietQR:**
    - Hỗ trợ thanh toán nhanh qua quét mã VietQR tự động sinh theo số tiền và mã hóa đơn chuẩn.
    - Giả lập cổng thanh toán trực tuyến VNPAY và MoMo.
-3. **In Biên Lai Viện Phí Chuẩn Y Tế:**
+4. **In Biên Lai Viện Phí Chuẩn Y Tế:**
    - Hỗ trợ in mẫu biên lai thu tiền chi tiết từng hạng mục (công khám, xét nghiệm, siêu âm, giảm giá, thực thu và chữ ký kế toán/thu ngân).
-4. **Bộ Lọc Thu Ngân Cho Quản Trị Viên:**
-   - Thu ngân lọc hóa đơn theo: *Tất cả*, *Chờ thu*, *Đã thu*, *Đã hoàn tiền*.
-   - Khả năng hoàn tiền viện phí kèm lý do ghi nhận kế toán.
 
 ---
 

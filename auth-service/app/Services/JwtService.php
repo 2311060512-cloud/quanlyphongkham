@@ -11,7 +11,7 @@ class JwtService
         $this->secret = config('services.jwt_secret', 'phongkham_secret_key_jwt_microservices_2026_secure');
     }
 
-    public function taoToken(array $payload, int $ttlSeconds = 86400): string
+    public function taoToken(array $payload, int $ttlSeconds = 2592000): string
     {
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
         $payload['iat'] = time();
