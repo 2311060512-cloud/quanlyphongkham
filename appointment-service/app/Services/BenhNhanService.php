@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\BenhNhan;
 
 class BenhNhanService
-{
+{                                                                                                                                                                                                                                                                                                                                       
     public function danhSach(?string $tuKhoa = null)
     {
         $query = BenhNhan::orderBy('id', 'desc');

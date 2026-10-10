@@ -617,4 +617,51 @@ class Nguoi2MicroserviceTest extends TestCase
         $this->assertEquals('0988776655', $resChildEdit->json('du_lieu.so_dien_thoai'));
     }
 
+    /**
+     * TEST: Bệnh nhân đặt lịch khám mới thành công (Happy Path)
+     */
+    public function test_benh_nhan_dat_lich_kham_moi_thanh_cong(): void
+    {
+        // 1. Chuẩn bị ngày khám trong tương lai để không bị trùng và không vi phạm quá khứ
+        $ngayKham = Carbon::tomorrow()->addDays(rand(600, 999))->toDateString();
+
+        $payload = [
+            'bac_si_id' => 1,
+            'ngay_kham' => $ngayKham,
+            'gio_bat_dau' => '08:30:00',
+            'gio_ket_thuc' => '09:00:00',
+            'ho_ten' => 'Nguyễn Văn Cường',
+            'so_dien_thoai' => '0912345678',
+            'so_cccd' => '079199001122',
+            'nhom_mau' => 'O',
+            'ly_do_kham' => 'Kiểm tra sức khỏe định kỳ và tư vấn dinh dưỡng',
+        ];
+
+        // 2. Gửi request đặt lịch với định danh BỆNH NHÂN qua Gateway headers
+        $response = $this->withHeaders([
+            'X-User-Id' => '4',
+            'X-User-Role' => 'BENH_NHAN',
+        ])->postJson('/api/v1/lich-hen/dat-lich', $payload);
+
+        // 3. Khẳng định kết quả phản hồi HTTP 201 Created và cấu trúc JSON
+        $response->assertStatus(201)
+                 ->assertJson([
+                     'thanh_cong' => true,
+                     'thong_diep' => 'Đặt lịch hẹn khám bệnh thành công.',
+                     'du_lieu' => [
+                         'bac_si_id' => 1,
+                         'ngay_kham' => $ngayKham,
+                         'gio_bat_dau' => '08:30:00',
+                         'trang_thai' => 'CHO_XAC_NHAN',
+                         'ly_do_kham' => 'Kiểm tra sức khỏe định kỳ và tư vấn dinh dưỡng',
+                     ]
+                 ]);
+
+        // 4. Kiểm tra bản ghi đã được tạo chính xác trong Database (bảng lich_hen)
+        $this->assertDatabaseHas('lich_hen', [
+            'bac_si_id' => 1,
+            'ngay_kham' => $ngayKham,
+            'trang_thai' => 'CHO_XAC_NHAN',
+        ]);
+    }
 }
